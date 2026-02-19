@@ -1,0 +1,7 @@
+[gd_scene format=3 uid="uid://534bwhj81gwf"]
+
+[ext_resource type="PackedScene" path="res://scenes/post_processing/onebit_overlay.tscn" id="1_glv2v"]
+
+[node name="Node2D" type="Node2D" unique_id=675776322]
+
+[node name="OneBitOverlay" parent="." unique_id=343042075 instance=ExtResource("1_glv2v")]

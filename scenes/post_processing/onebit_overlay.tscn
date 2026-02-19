@@ -1,0 +1,19 @@
+[gd_scene load_steps=3 format=3 uid="uid://dithering_overlay"]
+
+[ext_resource type="Shader" path="res://shaders/onebit_dither.gdshader" id="1"]
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_dither"]
+shader = ExtResource("1")
+shader_parameter/color_dark = Color(0.05, 0.05, 0.1, 1)
+shader_parameter/color_light = Color(0.9, 0.95, 0.85, 1)
+shader_parameter/dither_strength = 1.0
+
+[node name="OneBitOverlay" type="CanvasLayer"]
+layer = 128
+
+[node name="ColorRect" type="ColorRect" parent="."]
+material = SubResource("ShaderMaterial_dither")
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+mouse_filter = 2
