@@ -11,13 +11,14 @@ config_version=5
 [application]
 
 config/name="RogueliteTest"
-run/main_scene="res://scenes/ui/title_screen.tscn"
+run/main_scene="uid://c5yv8qg3xh7bn"
 config/features=PackedStringArray("4.6", "C#", "Forward Plus")
 config/icon="res://icon.svg"
 
 [autoload]
 
-GameManager="*uid://dabwuweh6ua4"
+GameManager="*res://scripts/autoload/GameManager.cs"
+EventManager="*res://scripts/autoload/EventManager.cs"
 
 [dotnet]
 

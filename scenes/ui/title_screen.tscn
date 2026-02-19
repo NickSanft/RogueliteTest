@@ -1,8 +1,8 @@
-[gd_scene load_steps=2 format=3 uid="uid://c5yv8qg3xh7bn"]
+[gd_scene format=3 uid="uid://c5yv8qg3xh7bn"]
 
-[ext_resource type="Script" path="res://scripts/ui/title_screen.gd" id="1_title_screen"]
+[ext_resource type="Script" uid="uid://b40mhfrivskv0" path="res://scripts/ui/title_screen.gd" id="1_title_screen"]
 
-[node name="TitleScreen" type="Control"]
+[node name="TitleScreen" type="Control" unique_id=1302318842]
 layout_mode = 3
 anchors_preset = 15
 anchor_right = 1.0
@@ -11,7 +11,7 @@ grow_horizontal = 2
 grow_vertical = 2
 script = ExtResource("1_title_screen")
 
-[node name="ColorRect" type="ColorRect" parent="."]
+[node name="ColorRect" type="ColorRect" parent="." unique_id=309741667]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
@@ -20,7 +20,7 @@ grow_horizontal = 2
 grow_vertical = 2
 color = Color(0.1, 0.1, 0.15, 1)
 
-[node name="VBoxContainer" type="VBoxContainer" parent="."]
+[node name="VBoxContainer" type="VBoxContainer" parent="." unique_id=1069087925]
 layout_mode = 1
 anchors_preset = 8
 anchor_left = 0.5
@@ -34,25 +34,25 @@ offset_bottom = 100.0
 grow_horizontal = 2
 grow_vertical = 2
 
-[node name="Title" type="Label" parent="VBoxContainer"]
+[node name="Title" type="Label" parent="VBoxContainer" unique_id=193818043]
 layout_mode = 2
 theme_override_font_sizes/font_size = 48
 text = "Roguelite Game"
 horizontal_alignment = 1
 
-[node name="Spacer" type="Control" parent="VBoxContainer"]
+[node name="Spacer" type="Control" parent="VBoxContainer" unique_id=1835327537]
 custom_minimum_size = Vector2(0, 40)
 layout_mode = 2
 
-[node name="StartButton" type="Button" parent="VBoxContainer"]
+[node name="StartButton" type="Button" parent="VBoxContainer" unique_id=108973254]
 layout_mode = 2
-text = "Start Game"
+text = "Start Game (Spooky)"
 
-[node name="OptionsButton" type="Button" parent="VBoxContainer"]
+[node name="OptionsButton" type="Button" parent="VBoxContainer" unique_id=1184371431]
 layout_mode = 2
 text = "Options"
 
-[node name="QuitButton" type="Button" parent="VBoxContainer"]
+[node name="QuitButton" type="Button" parent="VBoxContainer" unique_id=1836774721]
 layout_mode = 2
 text = "Quit"
 

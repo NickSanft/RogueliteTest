@@ -1,0 +1,57 @@
+[gd_resource type="Resource" script_class="EventResource" load_steps=5 format=3]
+
+[ext_resource type="Script" path="res://scripts/resources/EventResource.cs" id="1"]
+[ext_resource type="Script" path="res://scripts/resources/EventOption.cs" id="2"]
+[ext_resource type="Script" path="res://scripts/resources/StatCheck.cs" id="3"]
+[ext_resource type="Script" path="res://scripts/resources/EventConsequence.cs" id="4"]
+
+[sub_resource type="Resource" id="stat_check_1"]
+script = ExtResource("3")
+Type = 0
+Stat = 1
+Threshold = 5
+DiceSides = 20
+
+[sub_resource type="Resource" id="consequence_1"]
+script = ExtResource("4")
+Type = 0
+StatName = "reason"
+Value = -2
+ItemId = ""
+NextEventId = ""
+MysteryProgress = 1
+
+[sub_resource type="Resource" id="consequence_2"]
+script = ExtResource("4")
+Type = 0
+StatName = "doom"
+Value = 5
+ItemId = ""
+NextEventId = ""
+MysteryProgress = 1
+
+[sub_resource type="Resource" id="option_1"]
+script = ExtResource("2")
+OptionText = "Examine the strange symbols on the wall"
+StatCheck = SubResource("stat_check_1")
+Consequences = Array[Resource("res://scripts/resources/EventConsequence.cs")]([SubResource("consequence_1")])
+
+[sub_resource type="Resource" id="option_2"]
+script = ExtResource("2")
+OptionText = "Touch the pulsating idol on the altar"
+StatCheck = null
+Consequences = Array[Resource("res://scripts/resources/EventConsequence.cs")]([SubResource("consequence_2")])
+
+[sub_resource type="Resource" id="option_3"]
+script = ExtResource("2")
+OptionText = "Leave the room quickly"
+StatCheck = null
+Consequences = Array[Resource("res://scripts/resources/EventConsequence.cs")]([])
+
+[resource]
+script = ExtResource("1")
+EventId = "test_dark_room"
+EventText = "You enter a dimly lit chamber. Strange symbols writhe on the walls, and a dark idol pulses with an otherworldly energy on a stone altar. The air feels thick with dread."
+EventImagePath = ""
+Options = Array[Resource("res://scripts/resources/EventOption.cs")]([SubResource("option_1"), SubResource("option_2"), SubResource("option_3")])
+AutoConsequences = Array[Resource("res://scripts/resources/EventConsequence.cs")]([])
