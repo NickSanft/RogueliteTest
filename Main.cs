@@ -73,23 +73,43 @@ public partial class Main : Node2D
 
 	private void LoadLocations()
 	{
-		// Load location resources
-		GD.Print("Attempting to load locations...");
+		// Create locations programmatically (avoiding .tres parsing issues)
+		GD.Print("Creating locations...");
 
-		var oldLibrary = GD.Load<LocationResource>("res://data/locations/old_library.tres");
-		GD.Print($"Old Library loaded: {oldLibrary != null}");
+		var oldLibrary = new LocationResource
+		{
+			LocationId = "old_library",
+			LocationName = "Old Library",
+			Description = "Dusty tomes line crumbling shelves. The air smells of decay and forgotten knowledge. Strange whispers echo between the stacks.",
+			EventPool = new Godot.Collections.Array<string> { "test_dark_room" },
+			TurnCost = 1,
+			UnlockedByDefault = true
+		};
+		_availableLocations.Add(oldLibrary);
 
-		var abandonedShrine = GD.Load<LocationResource>("res://data/locations/abandoned_shrine.tres");
-		GD.Print($"Abandoned Shrine loaded: {abandonedShrine != null}");
+		var abandonedShrine = new LocationResource
+		{
+			LocationId = "abandoned_shrine",
+			LocationName = "Abandoned Shrine",
+			Description = "A forgotten temple to nameless gods. Blood stains mar the altar, and the shadows seem to move with malevolent purpose.",
+			EventPool = new Godot.Collections.Array<string> { "test_dark_room" },
+			TurnCost = 2,
+			UnlockedByDefault = true
+		};
+		_availableLocations.Add(abandonedShrine);
 
-		var coastalCliff = GD.Load<LocationResource>("res://data/locations/coastal_cliff.tres");
-		GD.Print($"Coastal Cliff loaded: {coastalCliff != null}");
+		var coastalCliff = new LocationResource
+		{
+			LocationId = "coastal_cliff",
+			LocationName = "Coastal Cliff",
+			Description = "Jagged rocks overlook a churning black sea. Strange lights pulse beneath the waves. The wind carries inhuman songs.",
+			EventPool = new Godot.Collections.Array<string> { "test_dark_room" },
+			TurnCost = 1,
+			UnlockedByDefault = true
+		};
+		_availableLocations.Add(coastalCliff);
 
-		if (oldLibrary != null) _availableLocations.Add(oldLibrary);
-		if (abandonedShrine != null) _availableLocations.Add(abandonedShrine);
-		if (coastalCliff != null) _availableLocations.Add(coastalCliff);
-
-		GD.Print($"Loaded {_availableLocations.Count} locations");
+		GD.Print($"Created {_availableLocations.Count} locations");
 	}
 
 	public override void _Input(InputEvent @event)
@@ -188,9 +208,97 @@ public partial class Main : Node2D
 
 	private LocationWindow CreateLocationWindow()
 	{
-		var script = GD.Load<CSharpScript>("res://scripts/ui/LocationWindow.cs");
 		var window = new LocationWindow();
-		window.SetScript(script);
+
+		// Set anchors to fill screen
+		window.AnchorRight = 1.0f;
+		window.AnchorBottom = 1.0f;
+
+		// Create UI structure
+		var margin = new MarginContainer();
+		margin.AnchorRight = 1.0f;
+		margin.AnchorBottom = 1.0f;
+		margin.AddThemeConstantOverride("margin_left", 80);
+		margin.AddThemeConstantOverride("margin_top", 60);
+		margin.AddThemeConstantOverride("margin_right", 80);
+		margin.AddThemeConstantOverride("margin_bottom", 60);
+		window.AddChild(margin);
+
+		var vbox = new VBoxContainer();
+		vbox.AddThemeConstantOverride("separation", 16);
+		margin.AddChild(vbox);
+
+		// Title
+		var title = new Label();
+		title.Text = "SELECT LOCATION TO INVESTIGATE";
+		title.HorizontalAlignment = HorizontalAlignment.Center;
+		vbox.AddChild(title);
+
+		vbox.AddChild(new HSeparator());
+
+		// Main content
+		var hbox = new HBoxContainer();
+		hbox.SizeFlagsVertical = Control.SizeFlags.ExpandFill;
+		hbox.AddThemeConstantOverride("separation", 24);
+		vbox.AddChild(hbox);
+
+		// Location list
+		var locationList = new VBoxContainer();
+		locationList.Name = "LocationList";
+		locationList.UniqueNameInOwner = true;
+		locationList.SizeFlagsHorizontal = Control.SizeFlags.ExpandFill;
+		locationList.AddThemeConstantOverride("separation", 8);
+		hbox.AddChild(locationList);
+
+		hbox.AddChild(new VSeparator());
+
+		// Details panel
+		var details = new VBoxContainer();
+		details.SizeFlagsHorizontal = Control.SizeFlags.ExpandFill;
+		details.AddThemeConstantOverride("separation", 12);
+		hbox.AddChild(details);
+
+		var locationName = new Label();
+		locationName.Name = "LocationName";
+		locationName.UniqueNameInOwner = true;
+		locationName.Text = "Location Name";
+		locationName.HorizontalAlignment = HorizontalAlignment.Center;
+		details.AddChild(locationName);
+
+		var locationImage = new TextureRect();
+		locationImage.Name = "LocationImage";
+		locationImage.UniqueNameInOwner = true;
+		locationImage.CustomMinimumSize = new Vector2(0, 200);
+		locationImage.ExpandMode = TextureRect.ExpandModeEnum.IgnoreSize;
+		locationImage.StretchMode = TextureRect.StretchModeEnum.KeepAspectCentered;
+		details.AddChild(locationImage);
+
+		var locationDesc = new RichTextLabel();
+		locationDesc.Name = "LocationDescription";
+		locationDesc.UniqueNameInOwner = true;
+		locationDesc.CustomMinimumSize = new Vector2(0, 100);
+		locationDesc.SizeFlagsVertical = Control.SizeFlags.ExpandFill;
+		locationDesc.BbcodeEnabled = true;
+		locationDesc.Text = "Location description...";
+		locationDesc.FitContent = true;
+		details.AddChild(locationDesc);
+
+		var investigateBtn = new Button();
+		investigateBtn.Name = "InvestigateButton";
+		investigateBtn.UniqueNameInOwner = true;
+		investigateBtn.Text = "Investigate (1 Turn)";
+		details.AddChild(investigateBtn);
+
+		vbox.AddChild(new HSeparator());
+
+		// Close button
+		var closeBtn = new Button();
+		closeBtn.Name = "CloseButton";
+		closeBtn.Text = "Close [ESC]";
+		vbox.AddChild(closeBtn);
+
+		window.Visible = false;
+
 		return window;
 	}
 }
