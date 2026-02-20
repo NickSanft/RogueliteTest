@@ -1,0 +1,13 @@
+﻿[gd_resource type="Resource" script_class="LocationResource" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/resources/LocationResource.cs" id="1"]
+
+[resource]
+script = ExtResource("1")
+LocationId = "old_library"
+LocationName = "Old Library"
+Description = "Dusty tomes line crumbling shelves. The air smells of decay and forgotten knowledge. Strange whispers echo between the stacks."
+ImagePath = ""
+EventPool = Array[String](["test_dark_room"])
+TurnCost = 1
+UnlockedByDefault = true

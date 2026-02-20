@@ -1,0 +1,13 @@
+﻿[gd_resource type="Resource" script_class="LocationResource" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/resources/LocationResource.cs" id="1"]
+
+[resource]
+script = ExtResource("1")
+LocationId = "coastal_cliff"
+LocationName = "Coastal Cliff"
+Description = "Jagged rocks overlook a churning black sea. Strange lights pulse beneath the waves. The wind carries inhuman songs."
+ImagePath = ""
+EventPool = Array[String](["test_dark_room"])
+TurnCost = 1
+UnlockedByDefault = true
