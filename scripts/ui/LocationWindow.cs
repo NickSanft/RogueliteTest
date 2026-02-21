@@ -20,24 +20,57 @@ public partial class LocationWindow : Panel
 
 	public override void _Ready()
 	{
-		_locationList = GetNode<VBoxContainer>("%LocationList");
-		_locationName = GetNode<Label>("%LocationName");
-		_locationImage = GetNode<TextureRect>("%LocationImage");
-		_locationDescription = GetNode<RichTextLabel>("%LocationDescription");
-		_investigateButton = GetNode<Button>("%InvestigateButton");
-		
-		var closeButton = GetNode<Button>("MarginContainer/VBoxContainer/CloseButton");
-		closeButton.Pressed += OnClosePressed;
-		
-		_investigateButton.Pressed += OnInvestigatePressed;
-		
+		GD.Print("LocationWindow _Ready() called");
+		Initialize();
+	}
+
+	public void Initialize()
+	{
+		GD.Print("LocationWindow Initialize() called");
+
+		// Use FindChild instead of GetNode for programmatically created UI
+		_locationList = FindChild("LocationList", true, false) as VBoxContainer;
+		_locationName = FindChild("LocationName", true, false) as Label;
+		_locationImage = FindChild("LocationImage", true, false) as TextureRect;
+		_locationDescription = FindChild("LocationDescription", true, false) as RichTextLabel;
+		_investigateButton = FindChild("InvestigateButton", true, false) as Button;
+
+		GD.Print($"Found nodes: List={_locationList != null}, Name={_locationName != null}, Desc={_locationDescription != null}, Btn={_investigateButton != null}");
+
+		// Find close button
+		var closeButton = FindChild("CloseButton", true, false) as Button;
+		if (closeButton != null)
+		{
+			closeButton.Pressed += OnClosePressed;
+			GD.Print("Close button connected");
+		}
+		else
+		{
+			GD.PrintErr("Close button not found!");
+		}
+
+		if (_investigateButton != null)
+		{
+			// Add test handler first
+			_investigateButton.Pressed += () => GD.Print("TEST: Investigate button raw Pressed signal!");
+
+			// Then add the real handler
+			_investigateButton.Pressed += OnInvestigatePressed;
+			GD.Print("Investigate button connected");
+		}
+		else
+		{
+			GD.PrintErr("Investigate button not found!");
+		}
+
 		Visible = false;
 	}
 
 	public void ShowLocations(List<LocationResource> locations)
 	{
+		GD.Print($"ShowLocations called with {locations.Count} locations");
 		_availableLocations = locations;
-		
+
 		// Clear existing buttons
 		if (_locationList != null)
 		{
@@ -46,7 +79,7 @@ public partial class LocationWindow : Panel
 				child.QueueFree();
 			}
 		}
-		
+
 		// Create location buttons
 		foreach (var location in locations)
 		{
@@ -55,20 +88,23 @@ public partial class LocationWindow : Panel
 			button.ToggleMode = true;
 			button.ButtonGroup = _buttonGroup;
 			button.SizeFlagsHorizontal = SizeFlags.Fill;
-			
+
 			button.Pressed += () => OnLocationSelected(location);
-			
+
 			_locationList?.AddChild(button);
 		}
-		
+
 		// Select first location by default
 		if (locations.Count > 0)
 		{
+			GD.Print($"Auto-selecting first location: {locations[0].LocationName}");
 			OnLocationSelected(locations[0]);
 			if (_locationList?.GetChild(0) is Button firstButton)
 				firstButton.ButtonPressed = true;
 		}
-		
+
+		GD.Print($"Investigate button state: exists={_investigateButton != null}, disabled={_investigateButton?.Disabled ?? true}");
+
 		Visible = true;
 	}
 
@@ -107,10 +143,18 @@ public partial class LocationWindow : Panel
 
 	private void OnInvestigatePressed()
 	{
+		GD.Print("Investigate button pressed!");
+		GD.Print($"Selected location: {_selectedLocation?.LocationName ?? "null"}");
+
 		if (_selectedLocation != null)
 		{
+			GD.Print($"Emitting LocationInvestigated signal for {_selectedLocation.LocationName}");
 			EmitSignal(SignalName.LocationInvestigated, _selectedLocation);
 			Hide();
+		}
+		else
+		{
+			GD.PrintErr("No location selected!");
 		}
 	}
 

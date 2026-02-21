@@ -42,6 +42,10 @@ public partial class Main : Node2D
 		_locationWindow = CreateLocationWindow();
 		_locationWindow.LocationInvestigated += OnLocationInvestigated;
 		uiLayer.AddChild(_locationWindow);
+
+		// Manually initialize after adding to tree (since _Ready may not have been called yet)
+		CallDeferred("InitializeLocationWindow");
+
 		GD.Print($"LocationWindow created: {_locationWindow != null}");
 
 		// Load and instance HUD
@@ -213,11 +217,13 @@ public partial class Main : Node2D
 		// Set anchors to fill screen
 		window.AnchorRight = 1.0f;
 		window.AnchorBottom = 1.0f;
+		window.MouseFilter = Control.MouseFilterEnum.Stop; // Ensure panel captures mouse
 
 		// Create UI structure
 		var margin = new MarginContainer();
 		margin.AnchorRight = 1.0f;
 		margin.AnchorBottom = 1.0f;
+		margin.MouseFilter = Control.MouseFilterEnum.Ignore; // Let clicks pass through
 		margin.AddThemeConstantOverride("margin_left", 80);
 		margin.AddThemeConstantOverride("margin_top", 60);
 		margin.AddThemeConstantOverride("margin_right", 80);
@@ -287,6 +293,8 @@ public partial class Main : Node2D
 		investigateBtn.Name = "InvestigateButton";
 		investigateBtn.UniqueNameInOwner = true;
 		investigateBtn.Text = "Investigate (1 Turn)";
+		investigateBtn.Disabled = false;
+		investigateBtn.MouseFilter = Control.MouseFilterEnum.Stop;
 		details.AddChild(investigateBtn);
 
 		vbox.AddChild(new HSeparator());
@@ -295,10 +303,17 @@ public partial class Main : Node2D
 		var closeBtn = new Button();
 		closeBtn.Name = "CloseButton";
 		closeBtn.Text = "Close [ESC]";
+		closeBtn.MouseFilter = Control.MouseFilterEnum.Stop;
 		vbox.AddChild(closeBtn);
 
 		window.Visible = false;
 
 		return window;
+	}
+
+	private void InitializeLocationWindow()
+	{
+		GD.Print("Manually initializing LocationWindow...");
+		_locationWindow?.Initialize();
 	}
 }
