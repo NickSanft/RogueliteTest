@@ -118,24 +118,79 @@ public partial class EventWindow : Panel
     {
         if (_currentEvent == null || _gameManager == null)
             return;
-        
+
         var option = _currentEvent.GetOption(optionIndex);
         if (option == null)
             return;
-        
+
+        // Clear options to prevent double-clicking
+        ClearOptions();
+
+        // Build result message
+        string resultText = $"\n[color=yellow]--- RESULT ---[/color]\n";
+
         // Evaluate stat check
         bool passed = option.EvaluateStatCheck(_gameManager.GetPlayerStats());
-        
-        GD.Print($"Option {optionIndex + 1} selected - Check {(passed ? "PASSED" : "FAILED")}");
-        
-        // Apply consequences
+
+        if (option.StatCheck != null)
+        {
+            string statName = option.StatCheck.Stat switch
+            {
+                StatCheck.StatType.Stamina => "Stamina",
+                StatCheck.StatType.Reason => "Reason",
+                StatCheck.StatType.Doom => "Doom",
+                _ => "Unknown"
+            };
+
+            if (passed)
+            {
+                resultText += $"[color=green]✓ {statName} check PASSED![/color]\n";
+            }
+            else
+            {
+                resultText += $"[color=red]✗ {statName} check FAILED![/color]\n";
+            }
+        }
+
+        // Apply consequences and show them
         foreach (var consequence in option.Consequences)
         {
+            string consequenceMsg = GetConsequenceMessage(consequence);
+            if (!string.IsNullOrEmpty(consequenceMsg))
+                resultText += consequenceMsg + "\n";
+
             consequence.Apply(_gameManager);
         }
-        
-        // Close window after selection
-        HideEvent();
+
+        // Show result in event text
+        if (_eventText != null)
+        {
+            _eventText.Text += resultText;
+        }
+
+        // Add close button
+        var closeButton = new Button();
+        closeButton.Text = "Continue [SPACE]";
+        closeButton.Pressed += HideEvent;
+        _optionsContainer?.AddChild(closeButton);
+
+        GD.Print($"Option {optionIndex + 1} selected - Check {(passed ? "PASSED" : "FAILED")}");
+    }
+
+    private string GetConsequenceMessage(EventConsequence consequence)
+    {
+        return consequence.Type switch
+        {
+            EventConsequence.ConsequenceType.StatChange =>
+                $"[color=cyan]{consequence.StatName.ToUpper()} {(consequence.Value >= 0 ? "+" : "")}{consequence.Value}[/color]",
+            EventConsequence.ConsequenceType.ItemGain =>
+                $"[color=yellow]Gained item: {consequence.ItemId}[/color]",
+            EventConsequence.ConsequenceType.AdvanceMystery =>
+                $"[color=magenta]Mystery progress +{consequence.MysteryProgress}[/color]",
+            EventConsequence.ConsequenceType.TriggerEvent =>
+                "[color=orange]Another event unfolds...[/color]",
+            _ => ""
+        };
     }
 
     private void ClearOptions()
