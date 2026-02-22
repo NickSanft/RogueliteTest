@@ -29,7 +29,7 @@ signal game_over(reason: String)
 ## Modify a stat (stamina, reason, doom)
 func modify_stat(stat_name: String, amount: int) -> void:
 	var old_value = get(stat_name)
-	var new_value = clamp(old_value + amount, 0, get("max_" + stat_name) if has("max_" + stat_name) else 999)
+	var new_value = clamp(old_value + amount, 0, get("max_" + stat_name) if "max_"+ stat_name in self else 999)
 	
 	set(stat_name, new_value)
 	stat_changed.emit(stat_name, old_value, new_value)
