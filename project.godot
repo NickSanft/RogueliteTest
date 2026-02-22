@@ -24,6 +24,10 @@ EventManager="*res://scripts/autoload/EventManager.cs"
 
 project/assembly_name="RogueliteTest"
 
+[editor_plugins]
+
+enabled=PackedStringArray("res://addons/gut/plugin.cfg")
+
 [physics]
 
 3d/physics_engine="Jolt Physics"
