@@ -77,43 +77,31 @@ public partial class Main : Node2D
 
 	private void LoadLocations()
 	{
-		// Create locations programmatically (avoiding .tres parsing issues)
-		GD.Print("Creating locations...");
+		// Load locations from .tres files
+		GD.Print("Loading locations from .tres files...");
 
-		var oldLibrary = new LocationResource
+		var locationFiles = new[]
 		{
-			LocationId = "old_library",
-			LocationName = "Old Library",
-			Description = "Dusty tomes line crumbling shelves. The air smells of decay and forgotten knowledge. Strange whispers echo between the stacks.",
-			EventPool = new Godot.Collections.Array<string> { "test_dark_room" },
-			TurnCost = 1,
-			UnlockedByDefault = true
+			"res://data/locations/old_library.tres",
+			"res://data/locations/abandoned_shrine.tres",
+			"res://data/locations/coastal_cliff.tres"
 		};
-		_availableLocations.Add(oldLibrary);
 
-		var abandonedShrine = new LocationResource
+		foreach (var locationPath in locationFiles)
 		{
-			LocationId = "abandoned_shrine",
-			LocationName = "Abandoned Shrine",
-			Description = "A forgotten temple to nameless gods. Blood stains mar the altar, and the shadows seem to move with malevolent purpose.",
-			EventPool = new Godot.Collections.Array<string> { "test_dark_room" },
-			TurnCost = 2,
-			UnlockedByDefault = true
-		};
-		_availableLocations.Add(abandonedShrine);
+			var location = GD.Load<LocationResource>(locationPath);
+			if (location != null && location.UnlockedByDefault)
+			{
+				_availableLocations.Add(location);
+				GD.Print($"Loaded location: {location.LocationName}");
+			}
+			else if (location == null)
+			{
+				GD.PrintErr($"Failed to load location: {locationPath}");
+			}
+		}
 
-		var coastalCliff = new LocationResource
-		{
-			LocationId = "coastal_cliff",
-			LocationName = "Coastal Cliff",
-			Description = "Jagged rocks overlook a churning black sea. Strange lights pulse beneath the waves. The wind carries inhuman songs.",
-			EventPool = new Godot.Collections.Array<string> { "test_dark_room" },
-			TurnCost = 1,
-			UnlockedByDefault = true
-		};
-		_availableLocations.Add(coastalCliff);
-
-		GD.Print($"Created {_availableLocations.Count} locations");
+		GD.Print($"Loaded {_availableLocations.Count} locations");
 	}
 
 	public override void _Input(InputEvent @event)
