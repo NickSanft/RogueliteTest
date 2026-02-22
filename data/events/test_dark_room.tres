@@ -19,6 +19,8 @@ script = ExtResource("2")
 OptionText = "Examine the strange symbols on the wall"
 StatCheck = SubResource("stat_check_1")
 Consequences = Array[ExtResource("4")]([SubResource("consequence_1")])
+SuccessText = "You decipher the ancient script. Knowledge floods your mind, but at a cost to your sanity. The symbols seem to burn themselves into your memory."
+FailureText = "The symbols shift and writhe as you study them. Your mind reels from the incomprehensible geometry. You look away before madness takes hold."
 
 [sub_resource type="Resource" id="consequence_2"]
 script = ExtResource("4")
@@ -29,10 +31,14 @@ Value = 5
 script = ExtResource("2")
 OptionText = "Touch the pulsating idol on the altar"
 Consequences = Array[ExtResource("4")]([SubResource("consequence_2")])
+SuccessText = "The idol's surface is cold and slick. As your fingers make contact, visions of unspeakable horrors flash through your mind. The air grows heavier with cosmic dread."
+FailureText = "The idol's surface is cold and slick. As your fingers make contact, visions of unspeakable horrors flash through your mind. The air grows heavier with cosmic dread."
 
 [sub_resource type="Resource" id="option_3"]
 script = ExtResource("2")
 OptionText = "Leave the room quickly"
+SuccessText = "You back away from the chamber, keeping your eyes averted from the writhing symbols and pulsating idol. Sometimes discretion is the better part of survival."
+FailureText = "You back away from the chamber, keeping your eyes averted from the writhing symbols and pulsating idol. Sometimes discretion is the better part of survival."
 
 [resource]
 script = ExtResource("1")

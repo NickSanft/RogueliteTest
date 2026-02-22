@@ -118,24 +118,49 @@ public partial class EventWindow : Panel
 	{
 		if (_currentEvent == null || _gameManager == null)
 			return;
-		
+
 		var option = _currentEvent.GetOption(optionIndex);
 		if (option == null)
 			return;
-		
+
 		// Evaluate stat check
 		bool passed = option.EvaluateStatCheck(_gameManager.GetPlayerStats());
-		
+
 		GD.Print($"Option {optionIndex + 1} selected - Check {(passed ? "PASSED" : "FAILED")}");
-		
+
 		// Apply consequences
 		foreach (var consequence in option.Consequences)
 		{
 			consequence.Apply(_gameManager);
 		}
-		
-		// Close window after selection
-		HideEvent();
+
+		// Show result text
+		ShowResult(option, passed);
+	}
+
+	private void ShowResult(EventOption option, bool passed)
+	{
+		// Display the result text
+		string resultText = passed ? option.SuccessText : option.FailureText;
+
+		// If no result text is defined, provide a default message
+		if (string.IsNullOrEmpty(resultText))
+		{
+			resultText = passed ? "Success!" : "You proceed cautiously...";
+		}
+
+		if (_eventText != null)
+			_eventText.Text = resultText;
+
+		// Clear options and show continue button
+		ClearOptions();
+
+		var continueButton = new Button();
+		continueButton.Text = "[SPACE] Continue";
+		continueButton.SizeFlagsHorizontal = SizeFlags.Fill;
+		continueButton.Pressed += HideEvent;
+
+		_optionsContainer?.AddChild(continueButton);
 	}
 
 	private void ClearOptions()
@@ -164,14 +189,26 @@ public partial class EventWindow : Panel
 	{
 		if (!Visible)
 			return;
-		
+
+		// Close on Escape or Space (for result screen)
+		if (@event.IsActionPressed("ui_cancel") || @event.IsActionPressed("ui_accept"))
+		{
+			// If showing result (no current event options), close
+			if (_optionsContainer?.GetChildCount() == 1)
+			{
+				HideEvent();
+				GetViewport().SetInputAsHandled();
+				return;
+			}
+		}
+
 		// Close on Escape
 		if (@event.IsActionPressed("ui_cancel"))
 		{
 			HideEvent();
 			GetViewport().SetInputAsHandled();
 		}
-		
+
 		// Number key shortcuts for options (1-9)
 		if (_currentEvent != null)
 		{
