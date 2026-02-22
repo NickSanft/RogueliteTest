@@ -1,9 +1,9 @@
-[gd_scene load_steps=2 format=3 uid="uid://534bwhj81gwf"]
+[gd_scene format=3 uid="uid://534bwhj81gwf"]
 
-[ext_resource type="Script" path="res://Main.cs" id="1_main"]
+[ext_resource type="Script" uid="uid://b4o1afnv5y83m" path="res://Main.cs" id="1_main"]
 [ext_resource type="PackedScene" path="res://scenes/post_processing/onebit_overlay.tscn" id="2_overlay"]
 
-[node name="Main" type="Node2D"]
+[node name="Main" type="Node2D" unique_id=1165144530]
 script = ExtResource("1_main")
 
-[node name="OneBitOverlay" parent="." instance=ExtResource("2_overlay")]
+[node name="OneBitOverlay" parent="." unique_id=1970200660 instance=ExtResource("2_overlay")]

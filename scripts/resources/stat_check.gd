@@ -8,10 +8,13 @@ enum Stat { STAMINA, REASON, DOOM }
 
 @export var check_type: CheckType = CheckType.FIXED_THRESHOLD
 @export var stat: Stat = Stat.STAMINA
-@export var threshold: int = 5  ## For FIXED_THRESHOLD
-@export var dice_sides: int = 20  ## For DICE_ROLL (d20, d6, etc.)
+@export var threshold: int = 5 # For FIXED_THRESHOLD or Dice DC
+@export var dice_sides: int = 20 # For DICE_ROLL (d20, d6, etc.)
 
 func evaluate(player_stats: Dictionary) -> bool:
+	# Ensure the random seed is initialized (only needs to happen once in the project)
+	# randomize() 
+	
 	var stat_value = _get_stat_value(player_stats)
 	
 	match check_type:
@@ -19,7 +22,7 @@ func evaluate(player_stats: Dictionary) -> bool:
 			return stat_value >= threshold
 		CheckType.DICE_ROLL:
 			var roll = randi_range(1, dice_sides)
-			return roll + stat_value >= threshold
+			return (roll + stat_value) >= threshold
 	
 	return false
 
