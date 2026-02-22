@@ -17,6 +17,7 @@ public partial class LocationWindow : Panel
 	private List<LocationResource> _availableLocations = new();
 	private LocationResource? _selectedLocation;
 	private ButtonGroup _buttonGroup = new();
+	private bool _initialized = false;
 
 	public override void _Ready()
 	{
@@ -26,6 +27,12 @@ public partial class LocationWindow : Panel
 
 	public void Initialize()
 	{
+		if (_initialized)
+		{
+			GD.Print("LocationWindow already initialized, skipping");
+			return;
+		}
+
 		GD.Print("LocationWindow Initialize() called");
 
 		// Use FindChild instead of GetNode for programmatically created UI
@@ -63,6 +70,7 @@ public partial class LocationWindow : Panel
 			GD.PrintErr("Investigate button not found!");
 		}
 
+		_initialized = true;
 		Visible = false;
 	}
 
