@@ -7,6 +7,12 @@ shader = ExtResource("1")
 shader_parameter/color_dark = Color(0.05, 0.05, 0.1, 1)
 shader_parameter/color_light = Color(0.9, 0.95, 0.85, 1)
 shader_parameter/dither_strength = 1.0
+shader_parameter/contrast = 1.5
+shader_parameter/brightness = 0.0
+shader_parameter/vignette_strength = 0.6
+shader_parameter/scanline_strength = 0.12
+shader_parameter/animation_speed = 4.0
+shader_parameter/pixel_size = 1.0
 
 [node name="OneBitOverlay" type="CanvasLayer"]
 layer = 128
