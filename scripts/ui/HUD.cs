@@ -12,7 +12,6 @@ public partial class HUD : CanvasLayer
 	private Label? _locationLabel;
 	
 	private GameManager? _gameManager;
-	private int _currentTurn = 1;
 
 	public override void _Ready()
 	{
@@ -64,7 +63,6 @@ public partial class HUD : CanvasLayer
 
 	public void UpdateTurn(int turn)
 	{
-		_currentTurn = turn;
 		if (_turnLabel != null)
 			_turnLabel.Text = $"TURN: {turn}";
 	}

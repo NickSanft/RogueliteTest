@@ -9,7 +9,12 @@ public partial class EventOption : Resource
 {
 	[Export] public string OptionText { get; set; } = "";
 	[Export] public StatCheck? StatCheck { get; set; }
+	/// <summary>Applied regardless of stat check outcome</summary>
 	[Export] public Array<EventConsequence> Consequences { get; set; } = new();
+	/// <summary>Applied only when the stat check passes (or there is no check)</summary>
+	[Export] public Array<EventConsequence> SuccessConsequences { get; set; } = new();
+	/// <summary>Applied only when the stat check fails</summary>
+	[Export] public Array<EventConsequence> FailureConsequences { get; set; } = new();
 	[Export(PropertyHint.MultilineText)] public string SuccessText { get; set; } = "";
 	[Export(PropertyHint.MultilineText)] public string FailureText { get; set; } = "";
 

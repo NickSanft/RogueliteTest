@@ -123,18 +123,17 @@ public partial class EventWindow : Panel
 		if (option == null)
 			return;
 
-		// Evaluate stat check
 		bool passed = option.EvaluateStatCheck(_gameManager.GetPlayerStats());
 
-		GD.Print($"Option {optionIndex + 1} selected - Check {(passed ? "PASSED" : "FAILED")}");
-
-		// Apply consequences
+		// Always-apply consequences
 		foreach (var consequence in option.Consequences)
-		{
 			consequence.Apply(_gameManager);
-		}
 
-		// Show result text
+		// Outcome-specific consequences
+		var outcomeConsequences = passed ? option.SuccessConsequences : option.FailureConsequences;
+		foreach (var consequence in outcomeConsequences)
+			consequence.Apply(_gameManager);
+
 		ShowResult(option, passed);
 	}
 
@@ -190,38 +189,32 @@ public partial class EventWindow : Panel
 		if (!Visible)
 			return;
 
-		// Close on Escape or Space (for result screen)
-		if (@event.IsActionPressed("ui_cancel") || @event.IsActionPressed("ui_accept"))
-		{
-			// If showing result (no current event options), close
-			if (_optionsContainer?.GetChildCount() == 1)
-			{
-				HideEvent();
-				GetViewport().SetInputAsHandled();
-				return;
-			}
-		}
-
-		// Close on Escape
+		// Escape always closes
 		if (@event.IsActionPressed("ui_cancel"))
 		{
 			HideEvent();
 			GetViewport().SetInputAsHandled();
+			return;
+		}
+
+		// Space/Accept closes only on the result screen (single continue button)
+		if (@event.IsActionPressed("ui_accept") && _optionsContainer?.GetChildCount() == 1)
+		{
+			HideEvent();
+			GetViewport().SetInputAsHandled();
+			return;
 		}
 
 		// Number key shortcuts for options (1-9)
-		if (_currentEvent != null)
+		if (_currentEvent != null && @event is InputEventKey keyEvent && keyEvent.Pressed && !keyEvent.Echo)
 		{
 			for (int i = 0; i < Math.Min(_currentEvent.Options.Count, 9); i++)
 			{
-				if (@event is InputEventKey keyEvent && keyEvent.Pressed && !keyEvent.Echo)
+				if (keyEvent.Keycode == (Key)((int)Key.Key1 + i))
 				{
-					if (keyEvent.Keycode == (Key)((int)Key.Key1 + i))
-					{
-						OnOptionSelected(i);
-						GetViewport().SetInputAsHandled();
-						break;
-					}
+					OnOptionSelected(i);
+					GetViewport().SetInputAsHandled();
+					break;
 				}
 			}
 		}

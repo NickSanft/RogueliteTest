@@ -130,7 +130,7 @@ public partial class GameManager : Node
 		{
 			"stamina" => MaxStamina,
 			"reason" => MaxReason,
-			"doom" => 999,
+			"doom" => 100,
 			_ => 999
 		};
 	}
