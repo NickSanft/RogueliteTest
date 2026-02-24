@@ -44,6 +44,7 @@ public partial class LocationWindow : Panel
 			button.ButtonGroup = _buttonGroup;
 			button.SizeFlagsHorizontal = SizeFlags.Fill;
 			button.Pressed += () => OnLocationSelected(location);
+			ApplyButtonTextStyle(button);
 			_locationList.AddChild(button);
 		}
 
@@ -92,6 +93,13 @@ public partial class LocationWindow : Panel
 
 		EmitSignal(SignalName.LocationInvestigated, _selectedLocation);
 		Hide();
+	}
+
+	private static void ApplyButtonTextStyle(Button button)
+	{
+		button.AddThemeColorOverride("font_color", Colors.White);
+		button.AddThemeColorOverride("font_outline_color", Colors.Black);
+		button.AddThemeConstantOverride("outline_size", 2);
 	}
 
 	public override void _Input(InputEvent @event)

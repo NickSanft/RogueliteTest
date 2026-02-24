@@ -18,7 +18,7 @@ public partial class Main : Node2D
 		_eventManager = GetNode<EventManager>("/root/EventManager");
 
 		var uiLayer = new CanvasLayer();
-		uiLayer.Layer = 10;
+		uiLayer.Layer = 200;
 		AddChild(uiLayer);
 
 		var eventWindowScene = GD.Load<PackedScene>("res://scenes/ui/EventWindow.tscn");

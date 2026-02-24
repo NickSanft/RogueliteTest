@@ -68,10 +68,11 @@ public partial class EventWindow : Panel
 			var button = new Button();
 			button.Text = FormatOptionText(option, i);
 			button.SizeFlagsHorizontal = SizeFlags.Fill;
-			
+			ApplyButtonTextStyle(button);
+
 			int optionIndex = i; // Capture for closure
 			button.Pressed += () => OnOptionSelected(optionIndex);
-			
+
 			_optionsContainer?.AddChild(button);
 		}
 		
@@ -158,6 +159,7 @@ public partial class EventWindow : Panel
 		continueButton.Text = "[SPACE] Continue";
 		continueButton.SizeFlagsHorizontal = SizeFlags.Fill;
 		continueButton.Pressed += HideEvent;
+		ApplyButtonTextStyle(continueButton);
 
 		_optionsContainer?.AddChild(continueButton);
 	}
@@ -182,6 +184,13 @@ public partial class EventWindow : Panel
 	{
 		Visible = false;
 		_currentEvent = null;
+	}
+
+	private static void ApplyButtonTextStyle(Button button)
+	{
+		button.AddThemeColorOverride("font_color", Colors.White);
+		button.AddThemeColorOverride("font_outline_color", Colors.Black);
+		button.AddThemeConstantOverride("outline_size", 2);
 	}
 
 	public override void _Input(InputEvent @event)

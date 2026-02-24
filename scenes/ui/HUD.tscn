@@ -3,7 +3,7 @@
 [ext_resource type="Script" path="res://scripts/ui/HUD.cs" id="1"]
 
 [node name="HUD" type="CanvasLayer"]
-layer = 5
+layer = 200
 script = ExtResource("1")
 
 [node name="MarginContainer" type="MarginContainer" parent="."]
@@ -29,16 +29,25 @@ theme_override_constants/separation = 24
 [node name="StaminaLabel" type="Label" parent="MarginContainer/VBoxContainer/TopBar"]
 unique_name_in_owner = true
 layout_mode = 2
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
+theme_override_constants/outline_size = 2
 text = "STAMINA: 10/10"
 
 [node name="ReasonLabel" type="Label" parent="MarginContainer/VBoxContainer/TopBar"]
 unique_name_in_owner = true
 layout_mode = 2
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
+theme_override_constants/outline_size = 2
 text = "REASON: 10/10"
 
 [node name="DoomLabel" type="Label" parent="MarginContainer/VBoxContainer/TopBar"]
 unique_name_in_owner = true
 layout_mode = 2
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
+theme_override_constants/outline_size = 2
 text = "DOOM: 0/100"
 
 [node name="Spacer" type="Control" parent="MarginContainer/VBoxContainer/TopBar"]
@@ -48,6 +57,9 @@ size_flags_horizontal = 3
 [node name="TurnLabel" type="Label" parent="MarginContainer/VBoxContainer/TopBar"]
 unique_name_in_owner = true
 layout_mode = 2
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
+theme_override_constants/outline_size = 2
 text = "TURN: 1"
 
 [node name="BottomBar" type="HBoxContainer" parent="MarginContainer/VBoxContainer"]
@@ -58,6 +70,9 @@ theme_override_constants/separation = 16
 [node name="LocationLabel" type="Label" parent="MarginContainer/VBoxContainer/BottomBar"]
 unique_name_in_owner = true
 layout_mode = 2
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
+theme_override_constants/outline_size = 2
 text = "Location: Unknown"
 
 [node name="Spacer2" type="Control" parent="MarginContainer/VBoxContainer/BottomBar"]
@@ -66,4 +81,7 @@ size_flags_horizontal = 3
 
 [node name="HintLabel" type="Label" parent="MarginContainer/VBoxContainer/BottomBar"]
 layout_mode = 2
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
+theme_override_constants/outline_size = 2
 text = "[SPACE] Event  [TAB] Locations"
