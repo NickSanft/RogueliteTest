@@ -91,8 +91,9 @@ public partial class LocationWindow : Panel
 		if (_selectedLocation == null)
 			return;
 
-		EmitSignal(SignalName.LocationInvestigated, _selectedLocation);
+		// Hide before emitting so the window is gone before the transition begins
 		Hide();
+		EmitSignal(SignalName.LocationInvestigated, _selectedLocation);
 	}
 
 	private static void ApplyButtonTextStyle(Button button)

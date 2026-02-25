@@ -1,5 +1,6 @@
 using Godot;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 
 public partial class Main : Node2D
 {
@@ -14,6 +15,8 @@ public partial class Main : Node2D
 
 	private ColorRect? _locationEffectRect;
 	private Dictionary<string, ShaderMaterial> _locationMaterials = new();
+
+	private ColorRect? _transitionRect;
 
 	public override void _Ready()
 	{
@@ -55,6 +58,7 @@ public partial class Main : Node2D
 
 		LoadLocations();
 		SetupLocationEffects();
+		SetupTransitionOverlay();
 
 		_hud?.UpdateLocation("Town Square");
 	}
@@ -110,16 +114,17 @@ public partial class Main : Node2D
 		}
 	}
 
-	private void OnLocationInvestigated(LocationResource location)
+	private async void OnLocationInvestigated(LocationResource location)
 	{
-		_hud?.UpdateLocation(location.LocationName);
+		await FadeOut();
 
+		_hud?.UpdateLocation(location.LocationName);
 		_currentTurn += location.TurnCost;
 		_hud?.UpdateTurn(_currentTurn);
-
 		_gameManager?.ModifyStat("doom", location.TurnCost * 2);
-
 		ApplyLocationEffect(location.LocationId);
+
+		await FadeIn();
 
 		string? eventId = location.GetRandomEvent();
 		if (eventId != null && _eventManager != null && _eventWindow != null)
@@ -160,6 +165,39 @@ public partial class Main : Node2D
 		// Assigning null clears the effect when a location has no shader.
 		_locationMaterials.TryGetValue(locationId, out var material);
 		_locationEffectRect.Material = material;
+	}
+
+	private void SetupTransitionOverlay()
+	{
+		// Layer 210 — above UI (200) so the fade covers everything
+		var overlayLayer = new CanvasLayer();
+		overlayLayer.Layer = 210;
+		AddChild(overlayLayer);
+
+		_transitionRect = new ColorRect();
+		_transitionRect.SetAnchorsPreset(Control.LayoutPreset.FullRect);
+		_transitionRect.Color = Colors.Black;
+		_transitionRect.MouseFilter = Control.MouseFilterEnum.Ignore;
+		_transitionRect.Modulate = new Color(1, 1, 1, 0); // Start fully transparent
+		overlayLayer.AddChild(_transitionRect);
+	}
+
+	private async Task FadeOut(float duration = 0.4f)
+	{
+		if (_transitionRect == null) return;
+		var tween = CreateTween();
+		tween.TweenProperty(_transitionRect, "modulate:a", 1.0f, duration)
+			 .SetEase(Tween.EaseType.In).SetTrans(Tween.TransitionType.Quad);
+		await ToSignal(tween, Tween.SignalName.Finished);
+	}
+
+	private async Task FadeIn(float duration = 0.4f)
+	{
+		if (_transitionRect == null) return;
+		var tween = CreateTween();
+		tween.TweenProperty(_transitionRect, "modulate:a", 0.0f, duration)
+			 .SetEase(Tween.EaseType.Out).SetTrans(Tween.TransitionType.Quad);
+		await ToSignal(tween, Tween.SignalName.Finished);
 	}
 
 	private void OnStatChanged(string statName, int oldValue, int newValue)
