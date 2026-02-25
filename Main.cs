@@ -17,11 +17,16 @@ public partial class Main : Node2D
 	private Dictionary<string, ShaderMaterial> _locationMaterials = new();
 
 	private ColorRect? _transitionRect;
+	private WindowManager? _windowManager;
 
 	public override void _Ready()
 	{
 		_gameManager = GetNode<GameManager>("/root/GameManager");
 		_eventManager = GetNode<EventManager>("/root/EventManager");
+
+		// WindowManager must be in the scene tree before any windows are created
+		_windowManager = new WindowManager();
+		AddChild(_windowManager);
 
 		var uiLayer = new CanvasLayer();
 		uiLayer.Layer = 200;
@@ -92,6 +97,10 @@ public partial class Main : Node2D
 
 	public override void _Input(InputEvent @event)
 	{
+		// Don't open new windows while one is already on the stack
+		if (_windowManager?.HasOpenWindow == true)
+			return;
+
 		// Press SPACE to show test event
 		if (@event.IsActionPressed("ui_accept"))
 		{
@@ -123,6 +132,7 @@ public partial class Main : Node2D
 		_hud?.UpdateTurn(_currentTurn);
 		_gameManager?.ModifyStat("doom", location.TurnCost * 2);
 		ApplyLocationEffect(location.LocationId);
+		_gameManager?.SaveGame();
 
 		await FadeIn();
 

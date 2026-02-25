@@ -25,7 +25,8 @@ public partial class LocationWindow : Panel
 		_locationDescription = GetNode<RichTextLabel>("%LocationDescription");
 		_investigateButton = GetNode<Button>("%InvestigateButton");
 
-		GetNode<Button>("%CloseButton").Pressed += () => Hide();
+		// Close button routes through WindowManager so the stack stays consistent
+		GetNode<Button>("%CloseButton").Pressed += () => WindowManager.Instance?.Pop();
 		_investigateButton.Pressed += OnInvestigatePressed;
 
 		Visible = false;
@@ -55,7 +56,10 @@ public partial class LocationWindow : Panel
 				firstButton.ButtonPressed = true;
 		}
 
-		Visible = true;
+		// Route through WindowManager so it can track the open window
+		WindowManager.Instance?.Push(this);
+		if (WindowManager.Instance == null)
+			Visible = true;
 	}
 
 	private void OnLocationSelected(LocationResource location)
@@ -91,8 +95,11 @@ public partial class LocationWindow : Panel
 		if (_selectedLocation == null)
 			return;
 
-		// Hide before emitting so the window is gone before the transition begins
-		Hide();
+		// Pop before emitting so the window is gone before the transition begins
+		WindowManager.Instance?.Pop();
+		if (WindowManager.Instance == null)
+			Visible = false;
+
 		EmitSignal(SignalName.LocationInvestigated, _selectedLocation);
 	}
 
@@ -103,15 +110,5 @@ public partial class LocationWindow : Panel
 		button.AddThemeConstantOverride("outline_size", 2);
 	}
 
-	public override void _Input(InputEvent @event)
-	{
-		if (!Visible)
-			return;
-
-		if (@event.IsActionPressed("ui_cancel"))
-		{
-			Hide();
-			GetViewport().SetInputAsHandled();
-		}
-	}
+	// ESC is now handled centrally by WindowManager; no _Input override needed
 }

@@ -33,6 +33,14 @@ public partial class GameManager : Node
 	[Signal] public delegate void DoomChangedEventHandler(int oldDoom, int newDoom);
 	[Signal] public delegate void GameOverEventHandler(string reason);
 
+	private const string SavePath = "user://roguelite_save.cfg";
+
+	public override void _Ready()
+	{
+		if (!LoadGame())
+			GD.Print("No save found — starting fresh.");
+	}
+
 	/// <summary>
 	/// Modify a stat (stamina, reason, doom)
 	/// </summary>
@@ -81,7 +89,7 @@ public partial class GameManager : Node
 		string currentMystery = ActiveMysteries[0];
 		if (!MysteryProgress.ContainsKey(currentMystery))
 			MysteryProgress[currentMystery] = 0;
-		
+
 		MysteryProgress[currentMystery] += amount;
 	}
 
@@ -99,6 +107,50 @@ public partial class GameManager : Node
 	}
 
 	/// <summary>
+	/// Persist current run state to disk.
+	/// </summary>
+	public void SaveGame()
+	{
+		var config = new ConfigFile();
+		config.SetValue("stats", "stamina", Stamina);
+		config.SetValue("stats", "reason", Reason);
+		config.SetValue("stats", "doom", Doom);
+
+		var err = config.Save(SavePath);
+		if (err != Error.Ok)
+			GD.PrintErr($"SaveGame failed: {err}");
+	}
+
+	/// <summary>
+	/// Restore run state from disk. Returns true if a save was found and loaded.
+	/// </summary>
+	public bool LoadGame()
+	{
+		var config = new ConfigFile();
+		if (config.Load(SavePath) != Error.Ok)
+			return false;
+
+		Stamina = (int)config.GetValue("stats", "stamina", (Variant)MaxStamina);
+		Reason  = (int)config.GetValue("stats", "reason",  (Variant)MaxReason);
+		Doom    = (int)config.GetValue("stats", "doom",    (Variant)0);
+
+		GD.Print($"Save loaded — Stamina:{Stamina} Reason:{Reason} Doom:{Doom}");
+		return true;
+	}
+
+	/// <summary>
+	/// Delete the save file (called at the start of a new run).
+	/// </summary>
+	public void DeleteSave()
+	{
+		if (!FileAccess.FileExists(SavePath))
+			return;
+
+		var dir = DirAccess.Open("user://");
+		dir?.Remove("roguelite_save.cfg");
+	}
+
+	/// <summary>
 	/// Reset game state (for new run)
 	/// </summary>
 	public void ResetGame()
@@ -110,6 +162,8 @@ public partial class GameManager : Node
 		MysteryProgress.Clear();
 		Inventory.Clear();
 		EventQueue.Clear();
+
+		DeleteSave();
 	}
 
 	// Helper methods for reflection-free stat access

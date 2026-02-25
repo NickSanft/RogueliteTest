@@ -2,75 +2,71 @@ using Godot;
 using System.Collections.Generic;
 
 /// <summary>
-/// Manages overlapping UI windows with focus stack (prevents Z-index hell)
+/// Modal window stack. Prevents input pass-through between overlapping windows
+/// and centralises ESC handling. Access via WindowManager.Instance.
 /// </summary>
-public partial class WindowManager : Control
+public partial class WindowManager : Node
 {
-	private List<Control> _windowStack = new();
-	private int _baseZIndex = 0;
+	public static WindowManager? Instance { get; private set; }
+
+	private readonly Stack<Control> _stack = new();
+
+	/// <summary>True when at least one window is on the stack.</summary>
+	public bool HasOpenWindow => _stack.Count > 0;
 
 	public override void _Ready()
 	{
-		// Register all child windows
-		foreach (Node child in GetChildren())
-		{
-			if (child is Panel or Window)
-			{
-				var window = (Control)child;
-				window.Visible = false;
-				window.ZIndex = _baseZIndex;
-			}
-		}
+		Instance = this;
 	}
 
-	public void OpenWindow(string windowName)
+	public override void _ExitTree()
 	{
-		var window = GetNodeOrNull<Control>(windowName);
-		if (window == null || _windowStack.Contains(window))
+		if (Instance == this)
+			Instance = null;
+	}
+
+	/// <summary>
+	/// Push a window onto the stack and make it visible.
+	/// Silently ignores duplicate pushes of the same window.
+	/// </summary>
+	public void Push(Control window)
+	{
+		if (_stack.Count > 0 && _stack.Peek() == window)
 			return;
 
-		// Add to stack and bring to front
-		_windowStack.Add(window);
-		UpdateWindowZIndices();
+		_stack.Push(window);
 		window.Visible = true;
 	}
 
-	public void CloseWindow(string windowName)
+	/// <summary>
+	/// Hide and remove the topmost window from the stack.
+	/// </summary>
+	public void Pop()
 	{
-		var window = GetNodeOrNull<Control>(windowName);
-		if (window == null || !_windowStack.Contains(window))
+		if (!_stack.TryPop(out var top))
 			return;
 
-		_windowStack.Remove(window);
-		UpdateWindowZIndices();
-		window.Visible = false;
+		top.Visible = false;
 	}
 
-	public void CloseTopWindow()
+	/// <summary>
+	/// Hide and remove all windows from the stack.
+	/// </summary>
+	public void CloseAll()
 	{
-		if (_windowStack.Count == 0)
-			return;
-
-		var topWindow = _windowStack[^1];
-		_windowStack.RemoveAt(_windowStack.Count - 1);
-		topWindow.Visible = false;
-		UpdateWindowZIndices();
-	}
-
-	private void UpdateWindowZIndices()
-	{
-		for (int i = 0; i < _windowStack.Count; i++)
-		{
-			_windowStack[i].ZIndex = _baseZIndex + i;
-		}
+		while (_stack.TryPop(out var window))
+			window.Visible = false;
 	}
 
 	public override void _Input(InputEvent @event)
 	{
-		// Close top window on Escape
+		if (!HasOpenWindow)
+			return;
+
+		// ESC always closes the topmost window; block the event from reaching anything else.
 		if (@event.IsActionPressed("ui_cancel"))
 		{
-			CloseTopWindow();
+			Pop();
 			GetViewport().SetInputAsHandled();
 		}
 	}
