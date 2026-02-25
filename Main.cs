@@ -12,6 +12,9 @@ public partial class Main : Node2D
 	private List<LocationResource> _availableLocations = new();
 	private int _currentTurn = 1;
 
+	private ColorRect? _locationEffectRect;
+	private Dictionary<string, ShaderMaterial> _locationMaterials = new();
+
 	public override void _Ready()
 	{
 		_gameManager = GetNode<GameManager>("/root/GameManager");
@@ -51,6 +54,7 @@ public partial class Main : Node2D
 		_gameManager.GameOver += OnGameOver;
 
 		LoadLocations();
+		SetupLocationEffects();
 
 		_hud?.UpdateLocation("Town Square");
 	}
@@ -115,6 +119,8 @@ public partial class Main : Node2D
 
 		_gameManager?.ModifyStat("doom", location.TurnCost * 2);
 
+		ApplyLocationEffect(location.LocationId);
+
 		string? eventId = location.GetRandomEvent();
 		if (eventId != null && _eventManager != null && _eventWindow != null)
 		{
@@ -122,6 +128,38 @@ public partial class Main : Node2D
 			if (locationEvent != null)
 				_eventWindow.ShowEvent(locationEvent);
 		}
+	}
+
+	private void SetupLocationEffects()
+	{
+		var effectLayer = new CanvasLayer();
+		effectLayer.Layer = 64;  // Below dither (128), above game world (0)
+		AddChild(effectLayer);
+
+		_locationEffectRect = new ColorRect();
+		_locationEffectRect.SetAnchorsPreset(Control.LayoutPreset.FullRect);
+		_locationEffectRect.MouseFilter = Control.MouseFilterEnum.Ignore;
+		effectLayer.AddChild(_locationEffectRect);
+
+		// Preload all location shaders now to avoid a stutter on first visit.
+		// Convention: shaders/location_effects/{location_id}.gdshader
+		foreach (var location in _availableLocations)
+		{
+			string path = $"res://shaders/location_effects/{location.LocationId}.gdshader";
+			var shader = GD.Load<Shader>(path);
+			if (shader != null)
+				_locationMaterials[location.LocationId] = new ShaderMaterial { Shader = shader };
+		}
+	}
+
+	private void ApplyLocationEffect(string locationId)
+	{
+		if (_locationEffectRect == null)
+			return;
+
+		// Assigning null clears the effect when a location has no shader.
+		_locationMaterials.TryGetValue(locationId, out var material);
+		_locationEffectRect.Material = material;
 	}
 
 	private void OnStatChanged(string statName, int oldValue, int newValue)
