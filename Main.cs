@@ -24,7 +24,6 @@ public partial class Main : Node2D
 		_gameManager = GetNode<GameManager>("/root/GameManager");
 		_eventManager = GetNode<EventManager>("/root/EventManager");
 
-		// WindowManager must be in the scene tree before any windows are created
 		_windowManager = new WindowManager();
 		AddChild(_windowManager);
 
@@ -58,8 +57,11 @@ public partial class Main : Node2D
 			AddChild(_hud);
 		}
 
-		_gameManager.StatChanged += OnStatChanged;
-		_gameManager.GameOver += OnGameOver;
+		_gameManager.StatChanged         += OnStatChanged;
+		_gameManager.GameOver            += OnGameOver;
+		_gameManager.MysteryCompleted    += OnMysteryCompleted;
+		_gameManager.RunWon              += OnRunWon;
+		_gameManager.LocationUnlocked    += OnLocationUnlocked;
 
 		LoadLocations();
 		SetupLocationEffects();
@@ -97,11 +99,10 @@ public partial class Main : Node2D
 
 	public override void _Input(InputEvent @event)
 	{
-		// Don't open new windows while one is already on the stack
 		if (_windowManager?.HasOpenWindow == true)
 			return;
 
-		// Press SPACE to show test event
+		// SPACE — show test event
 		if (@event.IsActionPressed("ui_accept"))
 		{
 			if (_eventWindow != null && _eventManager != null)
@@ -115,7 +116,7 @@ public partial class Main : Node2D
 			GetViewport().SetInputAsHandled();
 		}
 
-		// Press TAB to show location selection
+		// TAB — show location selection
 		if (@event is InputEventKey keyEvent && keyEvent.Pressed && !keyEvent.Echo && keyEvent.Keycode == Key.Tab)
 		{
 			_locationWindow?.ShowLocations(_availableLocations);
@@ -145,10 +146,78 @@ public partial class Main : Node2D
 		}
 	}
 
+	// ── Gameplay signal handlers ──────────────────────────────────────────────
+
+	private void OnStatChanged(string statName, int oldValue, int newValue)
+	{
+		GD.Print($"{statName.ToUpper()} changed: {oldValue} → {newValue}");
+	}
+
+	private void OnGameOver(string reason)
+	{
+		GD.Print($"GAME OVER: {reason}");
+		_gameManager?.IncrementRunCount();
+		GetTree().Paused = true;
+	}
+
+	private void OnMysteryCompleted(string mysteryId, string completionText)
+	{
+		GD.Print($"Mystery completed: {mysteryId}");
+	}
+
+	private void OnRunWon(string winText)
+	{
+		if (_eventWindow == null) return;
+
+		// Build a win event dynamically from the mystery's completion text
+		var winEvent = new EventResource();
+		winEvent.EventId   = "run_won";
+		winEvent.EventText = winText;
+
+		var endOption = new EventOption();
+		endOption.OptionText   = "The investigation concludes.";
+		endOption.SuccessText  = "You carry the knowledge out of the abyss. Some part of you has stayed behind.";
+		winEvent.Options.Add(endOption);
+
+		_eventWindow.ShowEvent(winEvent);
+
+		// Pause and update meta once the window closes
+		_eventWindow.VisibilityChanged += OnWinEventClosed;
+	}
+
+	private void OnWinEventClosed()
+	{
+		if (_eventWindow?.Visible != false) return;
+		_eventWindow.VisibilityChanged -= OnWinEventClosed;
+
+		_gameManager?.ResetGame();
+		GetTree().Paused = true;
+	}
+
+	private void OnLocationUnlocked(string locationId)
+	{
+		string path = $"res://data/locations/{locationId}.tres";
+		var location = GD.Load<LocationResource>(path);
+		if (location == null || _availableLocations.Contains(location))
+			return;
+
+		_availableLocations.Add(location);
+
+		// Preload the location's shader so there's no stutter on first visit
+		string shaderPath = $"res://shaders/location_effects/{locationId}.gdshader";
+		var shader = GD.Load<Shader>(shaderPath);
+		if (shader != null)
+			_locationMaterials[locationId] = new ShaderMaterial { Shader = shader };
+
+		GD.Print($"Location unlocked: {location.LocationName}");
+	}
+
+	// ── Location effects ─────────────────────────────────────────────────────
+
 	private void SetupLocationEffects()
 	{
 		var effectLayer = new CanvasLayer();
-		effectLayer.Layer = 64;  // Below dither (128), above game world (0)
+		effectLayer.Layer = 64;
 		AddChild(effectLayer);
 
 		_locationEffectRect = new ColorRect();
@@ -156,8 +225,6 @@ public partial class Main : Node2D
 		_locationEffectRect.MouseFilter = Control.MouseFilterEnum.Ignore;
 		effectLayer.AddChild(_locationEffectRect);
 
-		// Preload all location shaders now to avoid a stutter on first visit.
-		// Convention: shaders/location_effects/{location_id}.gdshader
 		foreach (var location in _availableLocations)
 		{
 			string path = $"res://shaders/location_effects/{location.LocationId}.gdshader";
@@ -169,17 +236,15 @@ public partial class Main : Node2D
 
 	private void ApplyLocationEffect(string locationId)
 	{
-		if (_locationEffectRect == null)
-			return;
-
-		// Assigning null clears the effect when a location has no shader.
+		if (_locationEffectRect == null) return;
 		_locationMaterials.TryGetValue(locationId, out var material);
 		_locationEffectRect.Material = material;
 	}
 
+	// ── Transition overlay ───────────────────────────────────────────────────
+
 	private void SetupTransitionOverlay()
 	{
-		// Layer 210 — above UI (200) so the fade covers everything
 		var overlayLayer = new CanvasLayer();
 		overlayLayer.Layer = 210;
 		AddChild(overlayLayer);
@@ -188,7 +253,7 @@ public partial class Main : Node2D
 		_transitionRect.SetAnchorsPreset(Control.LayoutPreset.FullRect);
 		_transitionRect.Color = Colors.Black;
 		_transitionRect.MouseFilter = Control.MouseFilterEnum.Ignore;
-		_transitionRect.Modulate = new Color(1, 1, 1, 0); // Start fully transparent
+		_transitionRect.Modulate = new Color(1, 1, 1, 0);
 		overlayLayer.AddChild(_transitionRect);
 	}
 
@@ -208,16 +273,5 @@ public partial class Main : Node2D
 		tween.TweenProperty(_transitionRect, "modulate:a", 0.0f, duration)
 			 .SetEase(Tween.EaseType.Out).SetTrans(Tween.TransitionType.Quad);
 		await ToSignal(tween, Tween.SignalName.Finished);
-	}
-
-	private void OnStatChanged(string statName, int oldValue, int newValue)
-	{
-		GD.Print($"{statName.ToUpper()} changed: {oldValue} → {newValue}");
-	}
-
-	private void OnGameOver(string reason)
-	{
-		GD.Print($"GAME OVER: {reason}");
-		GetTree().Paused = true;
 	}
 }

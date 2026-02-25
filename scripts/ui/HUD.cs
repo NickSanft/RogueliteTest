@@ -1,7 +1,7 @@
 using Godot;
 
 /// <summary>
-/// Displays player stats, doom counter, and current location
+/// Displays player stats, doom counter, current location, and inventory.
 /// </summary>
 public partial class HUD : CanvasLayer
 {
@@ -10,6 +10,7 @@ public partial class HUD : CanvasLayer
 	private Label? _doomLabel;
 	private Label? _turnLabel;
 	private Label? _locationLabel;
+	private Label? _inventoryLabel;
 	private Control? _floatRoot;
 
 	private GameManager? _gameManager;
@@ -17,12 +18,19 @@ public partial class HUD : CanvasLayer
 	public override void _Ready()
 	{
 		_staminaLabel = GetNode<Label>("%StaminaLabel");
-		_reasonLabel = GetNode<Label>("%ReasonLabel");
-		_doomLabel = GetNode<Label>("%DoomLabel");
-		_turnLabel = GetNode<Label>("%TurnLabel");
+		_reasonLabel  = GetNode<Label>("%ReasonLabel");
+		_doomLabel    = GetNode<Label>("%DoomLabel");
+		_turnLabel    = GetNode<Label>("%TurnLabel");
 		_locationLabel = GetNode<Label>("%LocationLabel");
 
-		// Overlay control for floating delta labels; sits above all HUD children
+		// Inventory label — inserted into the bottom bar between location and the spacer
+		var bottomBar = GetNode<HBoxContainer>("MarginContainer/VBoxContainer/BottomBar");
+		_inventoryLabel = new Label();
+		ApplyLabelStyle(_inventoryLabel);
+		bottomBar.AddChild(_inventoryLabel);
+		bottomBar.MoveChild(_inventoryLabel, 1); // After LocationLabel
+
+		// Overlay for floating delta numbers
 		_floatRoot = new Control();
 		_floatRoot.SetAnchorsPreset(Control.LayoutPreset.FullRect);
 		_floatRoot.MouseFilter = Control.MouseFilterEnum.Ignore;
@@ -30,9 +38,33 @@ public partial class HUD : CanvasLayer
 
 		_gameManager = GetNode<GameManager>("/root/GameManager");
 		_gameManager.StatChanged += OnStatChanged;
+		_gameManager.ItemGained  += _ => RefreshInventory();
 
 		UpdateAllStats();
+		RefreshInventory();
 	}
+
+	// ── Public update methods ─────────────────────────────────────────────────
+
+	public void UpdateTurn(int turn)
+	{
+		if (_turnLabel != null)
+			_turnLabel.Text = $"TURN: {turn}";
+	}
+
+	public void UpdateLocation(string locationName)
+	{
+		if (_locationLabel != null)
+			_locationLabel.Text = $"Location: {locationName}";
+	}
+
+	public void RefreshInventory()
+	{
+		if (_inventoryLabel == null || _gameManager == null) return;
+		_inventoryLabel.Text = _gameManager.GetInventoryDisplay();
+	}
+
+	// ── Internal ──────────────────────────────────────────────────────────────
 
 	private void OnStatChanged(string statName, int oldValue, int newValue)
 	{
@@ -49,12 +81,12 @@ public partial class HUD : CanvasLayer
 		bool positive = delta > 0;
 		Color flashColor = positive ? new Color(0.3f, 1f, 0.3f) : new Color(1f, 0.3f, 0.3f);
 
-		// Flash the stat label's self_modulate (independent of the doom-level Modulate tint)
+		// Flash the label
 		label.SelfModulate = flashColor;
 		var flashTween = CreateTween();
 		flashTween.TweenProperty(label, "self_modulate", Colors.White, 0.6f).SetDelay(0.05f);
 
-		// Floating "+N" / "-N" that drifts down from the label and fades
+		// Floating "+N" / "-N"
 		var floatLabel = new Label();
 		floatLabel.Text = delta > 0 ? $"+{delta}" : delta.ToString();
 		floatLabel.AddThemeColorOverride("font_color", flashColor);
@@ -66,7 +98,7 @@ public partial class HUD : CanvasLayer
 		var tween = CreateTween();
 		tween.SetParallel(true);
 		tween.TweenProperty(floatLabel, "position:y", floatLabel.Position.Y + 36f, 1.1f)
-		     .SetEase(Tween.EaseType.Out).SetTrans(Tween.TransitionType.Cubic);
+			 .SetEase(Tween.EaseType.Out).SetTrans(Tween.TransitionType.Cubic);
 		tween.TweenProperty(floatLabel, "modulate:a", 0.0f, 0.85f).SetDelay(0.25f);
 		tween.Finished += () => floatLabel.QueueFree();
 	}
@@ -81,8 +113,7 @@ public partial class HUD : CanvasLayer
 
 	private void UpdateAllStats()
 	{
-		if (_gameManager == null)
-			return;
+		if (_gameManager == null) return;
 
 		if (_staminaLabel != null)
 			_staminaLabel.Text = $"STAMINA: {_gameManager.Stamina}/{_gameManager.MaxStamina}";
@@ -94,27 +125,20 @@ public partial class HUD : CanvasLayer
 		{
 			_doomLabel.Text = $"DOOM: {_gameManager.Doom}/100";
 
-			// Tint the doom label based on severity
-			if (_gameManager.Doom >= 75)
-				_doomLabel.Modulate = new Color(1, 0, 0);       // Red
-			else if (_gameManager.Doom >= 50)
-				_doomLabel.Modulate = new Color(1, 0.5f, 0);    // Orange
-			else if (_gameManager.Doom >= 25)
-				_doomLabel.Modulate = new Color(1, 1, 0);       // Yellow
-			else
-				_doomLabel.Modulate = new Color(1, 1, 1);       // White
+			_doomLabel.Modulate = _gameManager.Doom switch
+			{
+				>= 75 => new Color(1, 0,    0),    // Red
+				>= 50 => new Color(1, 0.5f, 0),    // Orange
+				>= 25 => new Color(1, 1,    0),    // Yellow
+				_     => new Color(1, 1,    1)     // White
+			};
 		}
 	}
 
-	public void UpdateTurn(int turn)
+	private static void ApplyLabelStyle(Label label)
 	{
-		if (_turnLabel != null)
-			_turnLabel.Text = $"TURN: {turn}";
-	}
-
-	public void UpdateLocation(string locationName)
-	{
-		if (_locationLabel != null)
-			_locationLabel.Text = $"Location: {locationName}";
+		label.AddThemeColorOverride("font_color", Colors.White);
+		label.AddThemeColorOverride("font_outline_color", Colors.Black);
+		label.AddThemeConstantOverride("outline_size", 2);
 	}
 }

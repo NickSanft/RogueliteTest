@@ -13,6 +13,7 @@ public partial class EventWindow : Panel
 
 	private EventResource? _currentEvent;
 	private GameManager? _gameManager;
+	private EventManager? _eventManager;
 
 	public override void _Ready()
 	{
@@ -22,11 +23,19 @@ public partial class EventWindow : Panel
 		_closeButton = GetNode<Button>("%CloseButton");
 
 		_gameManager = GetNode<GameManager>("/root/GameManager");
+		_eventManager = GetNode<EventManager>("/root/EventManager");
 
 		_closeButton.Pressed += OnClosePressed;
 
-		// Clear _currentEvent whenever the window is hidden, regardless of how it was closed
-		VisibilityChanged += () => { if (!Visible) _currentEvent = null; };
+		// Clear state whenever the window is hidden; also drain the event queue
+		VisibilityChanged += () =>
+		{
+			if (!Visible)
+			{
+				_currentEvent = null;
+				ProcessEventQueue();
+			}
+		};
 
 		Visible = false;
 	}
@@ -81,7 +90,6 @@ public partial class EventWindow : Panel
 				consequence.Apply(_gameManager);
 		}
 
-		// Route through WindowManager so it can track the open window
 		WindowManager.Instance?.Push(this);
 		if (WindowManager.Instance == null)
 			Visible = true;
@@ -96,16 +104,16 @@ public partial class EventWindow : Panel
 			string statName = option.StatCheck.Stat switch
 			{
 				StatCheck.StatType.Stamina => "Stamina",
-				StatCheck.StatType.Reason => "Reason",
-				StatCheck.StatType.Doom => "Doom",
-				_ => "Unknown"
+				StatCheck.StatType.Reason  => "Reason",
+				StatCheck.StatType.Doom    => "Doom",
+				_                          => "Unknown"
 			};
 
 			string checkType = option.StatCheck.Type switch
 			{
 				StatCheck.CheckType.FixedThreshold => $"≥{option.StatCheck.Threshold}",
-				StatCheck.CheckType.DiceRoll => $"d{option.StatCheck.DiceSides}",
-				_ => ""
+				StatCheck.CheckType.DiceRoll       => $"d{option.StatCheck.DiceSides}",
+				_                                  => ""
 			};
 
 			text += $" [{statName} {checkType}]";
@@ -158,9 +166,7 @@ public partial class EventWindow : Panel
 
 	private void ClearOptions()
 	{
-		if (_optionsContainer == null)
-			return;
-
+		if (_optionsContainer == null) return;
 		foreach (Node child in _optionsContainer.GetChildren())
 			child.QueueFree();
 	}
@@ -169,11 +175,27 @@ public partial class EventWindow : Panel
 
 	public void HideEvent()
 	{
-		// Route through WindowManager; it will set Visible = false which fires VisibilityChanged
 		if (WindowManager.Instance != null)
 			WindowManager.Instance.Pop();
 		else
 			Visible = false;
+	}
+
+	/// <summary>
+	/// If consequences queued a follow-up event, show it after a frame
+	/// so the current close animation finishes first.
+	/// </summary>
+	private void ProcessEventQueue()
+	{
+		if (_gameManager == null || _eventManager == null) return;
+		if (_gameManager.EventQueue.Count == 0) return;
+
+		string nextId = _gameManager.EventQueue[0];
+		_gameManager.EventQueue.RemoveAt(0);
+
+		var nextEvent = _eventManager.LoadEventById(nextId);
+		if (nextEvent != null)
+			CallDeferred("ShowEvent", nextEvent);
 	}
 
 	private static void ApplyButtonTextStyle(Button button)
@@ -185,10 +207,9 @@ public partial class EventWindow : Panel
 
 	public override void _Input(InputEvent @event)
 	{
-		if (!Visible)
-			return;
+		if (!Visible) return;
 
-		// Space/Accept closes only on the result screen (single continue button)
+		// Space closes the result screen (single continue button)
 		if (@event.IsActionPressed("ui_accept") && _optionsContainer?.GetChildCount() == 1)
 		{
 			HideEvent();
@@ -196,7 +217,7 @@ public partial class EventWindow : Panel
 			return;
 		}
 
-		// Number key shortcuts for options (1–9)
+		// Number keys 1–9 select options
 		if (_currentEvent != null && @event is InputEventKey keyEvent && keyEvent.Pressed && !keyEvent.Echo)
 		{
 			for (int i = 0; i < Math.Min(_currentEvent.Options.Count, 9); i++)
