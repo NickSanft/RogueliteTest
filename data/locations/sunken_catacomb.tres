@@ -1,0 +1,13 @@
+[gd_resource type="Resource" script_class="LocationResource" load_steps=2 format=3]
+
+[ext_resource type="Script" uid="uid://c6qeqad1ggm1b" path="res://scripts/resources/LocationResource.cs" id="1"]
+
+[resource]
+script = ExtResource("1")
+LocationId = "sunken_catacomb"
+LocationName = "Sunken Catacomb"
+Description = "Below the coastal shelf, accessible only at the lowest tides, a passage descends into the rock. Water has been here recently. The carvings on the walls are older than the town."
+ImagePath = ""
+EventPool = ["catacomb_the_truth_below"]
+TurnCost = 3
+UnlockedByDefault = false

@@ -1,0 +1,87 @@
+[gd_resource type="Resource" script_class="EventResource" format=3]
+
+[ext_resource type="Script" uid="uid://bwoliaoytwc7e" path="res://scripts/resources/EventResource.cs" id="1"]
+[ext_resource type="Script" uid="uid://2wwbq38npbrd" path="res://scripts/resources/EventOption.cs" id="2"]
+[ext_resource type="Script" uid="uid://wjlfxffqq08k" path="res://scripts/resources/StatCheck.cs" id="3"]
+[ext_resource type="Script" uid="uid://ln4cmwg8ep8" path="res://scripts/resources/EventConsequence.cs" id="4"]
+
+[sub_resource type="Resource" id="sc_examine"]
+script = ExtResource("3")
+Stat = 1
+Threshold = 6
+
+[sub_resource type="Resource" id="con_examine_unlock"]
+script = ExtResource("4")
+Type = 4
+LocationIdToUnlock = "sunken_catacomb"
+
+[sub_resource type="Resource" id="con_examine_mystery"]
+script = ExtResource("4")
+Type = 3
+MysteryProgress = 2
+
+[sub_resource type="Resource" id="con_examine_doom"]
+script = ExtResource("4")
+StatName = "doom"
+Value = 5
+
+[sub_resource type="Resource" id="con_examine_fail"]
+script = ExtResource("4")
+StatName = "reason"
+Value = -3
+
+[sub_resource type="Resource" id="opt_examine"]
+script = ExtResource("2")
+OptionText = "Examine the visitor closely — it wants to show you something"
+StatCheck = SubResource("sc_examine")
+SuccessConsequences = Array[ExtResource("4")]([SubResource("con_examine_unlock"), SubResource("con_examine_mystery"), SubResource("con_examine_doom")])
+FailureConsequences = Array[ExtResource("4")]([SubResource("con_examine_fail")])
+SuccessText = "It peels back the waterlogged sleeve to reveal coordinates tattooed in a hand that is not quite right — too many bones in the fingers, spaced wrong. Below the cliff, past the tidal shelf, at a depth no one would survive: something waits. You know where to go now. The visitor turns and walks back into the sea without looking back."
+FailureText = "You lean in too close. For a moment you are not at the cliff — you are below it, in cold water, in the dark, with something enormous passing overhead. When the vision ends you are on your knees on the clifftop and the visitor is gone."
+
+[sub_resource type="Resource" id="sc_return"]
+script = ExtResource("3")
+Stat = 0
+Threshold = 5
+
+[sub_resource type="Resource" id="con_return_success"]
+script = ExtResource("4")
+StatName = "doom"
+Value = -5
+
+[sub_resource type="Resource" id="con_return_fail_stamina"]
+script = ExtResource("4")
+StatName = "stamina"
+Value = -2
+
+[sub_resource type="Resource" id="con_return_fail_doom"]
+script = ExtResource("4")
+StatName = "doom"
+Value = 3
+
+[sub_resource type="Resource" id="opt_return"]
+script = ExtResource("2")
+OptionText = "Tell it to return to the sea — your investigation is your own"
+StatCheck = SubResource("sc_return")
+SuccessConsequences = Array[ExtResource("4")]([SubResource("con_return_success")])
+FailureConsequences = Array[ExtResource("4")]([SubResource("con_return_fail_stamina"), SubResource("con_return_fail_doom")])
+SuccessText = "You hold its gaze and speak with authority. It pauses. Then, with the deliberation of something that has all the time in the world, it turns and walks back into the surf. You have bought yourself nothing except the impression that you are being assessed."
+FailureText = "You try, but your voice comes out wrong. It cocks its head the way a dog tracks a sound. The standoff lasts until dawn, when it finally retreats with the tide. You are exhausted and badly cold."
+
+[sub_resource type="Resource" id="con_burn_doom"]
+script = ExtResource("4")
+StatName = "doom"
+Value = 2
+
+[sub_resource type="Resource" id="opt_burn"]
+script = ExtResource("2")
+OptionText = "Drive it off with your torch — it should not be here"
+Consequences = Array[ExtResource("4")]([SubResource("con_burn_doom")])
+SuccessText = "The flame keeps it back. It retreats into the surf foot by foot, unhurried, watching you. The fire doesn't frighten it — it simply finds the light inconvenient. Before the water takes it, it raises one hand in something that might be a gesture of farewell."
+FailureText = "The flame keeps it back. It retreats into the surf foot by foot, unhurried, watching you. The fire doesn't frighten it — it simply finds the light inconvenient. Before the water takes it, it raises one hand in something that might be a gesture of farewell."
+
+[resource]
+script = ExtResource("1")
+EventId = "cliff_the_visitor"
+EventText = "There is a figure on the shore that was not there before. It stands at the tide line, ankle-deep in the surf, facing the cliff with the patience of something that does not need to breathe. It is dressed like a fisherman. Its posture is wrong in ways you cannot immediately name. When it sees you looking, it raises one hand — a greeting or a signal."
+Options = Array[ExtResource("2")]([SubResource("opt_examine"), SubResource("opt_return"), SubResource("opt_burn")])

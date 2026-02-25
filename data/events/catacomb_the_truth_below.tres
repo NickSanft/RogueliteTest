@@ -1,0 +1,77 @@
+[gd_resource type="Resource" script_class="EventResource" format=3]
+
+[ext_resource type="Script" uid="uid://bwoliaoytwc7e" path="res://scripts/resources/EventResource.cs" id="1"]
+[ext_resource type="Script" uid="uid://2wwbq38npbrd" path="res://scripts/resources/EventOption.cs" id="2"]
+[ext_resource type="Script" uid="uid://wjlfxffqq08k" path="res://scripts/resources/StatCheck.cs" id="3"]
+[ext_resource type="Script" uid="uid://ln4cmwg8ep8" path="res://scripts/resources/EventConsequence.cs" id="4"]
+
+[sub_resource type="Resource" id="sc_study"]
+script = ExtResource("3")
+Stat = 1
+Threshold = 7
+
+[sub_resource type="Resource" id="con_study_mystery"]
+script = ExtResource("4")
+Type = 3
+MysteryProgress = 3
+
+[sub_resource type="Resource" id="con_study_doom"]
+script = ExtResource("4")
+StatName = "doom"
+Value = 8
+
+[sub_resource type="Resource" id="con_study_fail"]
+script = ExtResource("4")
+StatName = "reason"
+Value = -4
+
+[sub_resource type="Resource" id="opt_study"]
+script = ExtResource("2")
+OptionText = "Study the carvings — let them tell you what they are"
+StatCheck = SubResource("sc_study")
+SuccessConsequences = Array[ExtResource("4")]([SubResource("con_study_mystery"), SubResource("con_study_doom")])
+FailureConsequences = Array[ExtResource("4")]([SubResource("con_study_fail")])
+SuccessText = "You read for hours with a torch held close to the stone. The carvings describe an entity that predates the coastline, that directed the geological formation of the bay, that has been waiting beneath the water with the patience of something that measures time in continental drift. You understand it now. You carry that understanding out of the catacomb like a stone in your chest."
+FailureText = "The carvings will not hold still. You trace a shape and find it has changed when you look back. After an hour you realize you cannot tell which marks are intentional and which are water damage, and that the distinction may not exist. You sit in the dark until your torch burns low."
+
+[sub_resource type="Resource" id="sc_record"]
+script = ExtResource("3")
+Stat = 0
+Threshold = 5
+
+[sub_resource type="Resource" id="con_record_mystery"]
+script = ExtResource("4")
+Type = 3
+MysteryProgress = 1
+
+[sub_resource type="Resource" id="con_record_fail_stamina"]
+script = ExtResource("4")
+StatName = "stamina"
+Value = -2
+
+[sub_resource type="Resource" id="opt_record"]
+script = ExtResource("2")
+OptionText = "Copy the carvings into your journal — you will understand them later"
+StatCheck = SubResource("sc_record")
+Consequences = Array[ExtResource("4")]([SubResource("con_record_mystery")])
+FailureConsequences = Array[ExtResource("4")]([SubResource("con_record_fail_stamina")])
+SuccessText = "Your hand cramps badly before you finish. The copies are imperfect but legible. Whatever these carvings mean, the record exists now. You emerged from the catacomb with the feeling of having stolen something."
+FailureText = "The cold and the damp exhaust you before you finish. What copies you managed are smeared and incomplete. You emerge stiff, cold, and uncertain whether what you recorded has any value."
+
+[sub_resource type="Resource" id="con_leave_doom"]
+script = ExtResource("4")
+StatName = "doom"
+Value = -3
+
+[sub_resource type="Resource" id="opt_leave"]
+script = ExtResource("2")
+OptionText = "Leave it alone — this knowledge has kept well enough without you"
+Consequences = Array[ExtResource("4")]([SubResource("con_leave_doom")])
+SuccessText = "You back out of the chamber the way you came, keeping the carvings in view until you round the first corner. Above ground, the air tastes less wrong. Whatever lives down here, you have declined its acquaintance for another day."
+FailureText = "You back out of the chamber the way you came, keeping the carvings in view until you round the first corner. Above ground, the air tastes less wrong. Whatever lives down here, you have declined its acquaintance for another day."
+
+[resource]
+script = ExtResource("1")
+EventId = "catacomb_the_truth_below"
+EventText = "The catacomb opens into a chamber that should not exist at this depth. The walls are covered in carvings that predate any local stoneworking tradition. They depict a coastline you do not recognise, and something in the water beneath it. The carvings are not a warning. They are a record."
+Options = Array[ExtResource("2")]([SubResource("opt_study"), SubResource("opt_record"), SubResource("opt_leave")])

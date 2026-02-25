@@ -1,0 +1,11 @@
+[gd_resource type="Resource" script_class="ItemResource" load_steps=2 format=3]
+
+[ext_resource type="Script" uid="uid://dnrkflagtfvpo" path="res://scripts/resources/ItemResource.cs" id="1"]
+
+[resource]
+script = ExtResource("1")
+ItemId = "rope_and_torch"
+ItemName = "Rope & Torch"
+Description = "Practical tools for practical dangers. The rope is long enough to descend most things. The torch burns steadily, even in wind that should extinguish it."
+StaminaBonus = 1
+ReasonBonus = 0

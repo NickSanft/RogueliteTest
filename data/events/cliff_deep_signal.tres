@@ -34,10 +34,15 @@ script = ExtResource("4")
 StatName = "doom"
 Value = 10
 
+[sub_resource type="Resource" id="con_trigger_visitor"]
+script = ExtResource("4")
+Type = 2
+NextEventId = "cliff_the_visitor"
+
 [sub_resource type="Resource" id="opt_signal"]
 script = ExtResource("2")
 OptionText = "Signal back with your lantern — mirror the pattern"
-Consequences = Array[ExtResource("4")]([SubResource("con_signal")])
+Consequences = Array[ExtResource("4")]([SubResource("con_signal"), SubResource("con_trigger_visitor")])
 SuccessText = "The response is immediate. The lights below accelerate, overlapping into something almost white. Then stop. The silence that follows is different than before—expectant. Something was answered. Something is coming to investigate."
 FailureText = "The response is immediate. The lights below accelerate, overlapping into something almost white. Then stop. The silence that follows is different than before—expectant. Something was answered. Something is coming to investigate."
 

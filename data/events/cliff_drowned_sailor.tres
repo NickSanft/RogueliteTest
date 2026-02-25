@@ -15,6 +15,11 @@ script = ExtResource("4")
 StatName = "doom"
 Value = 5
 
+[sub_resource type="Resource" id="con_approach_mystery"]
+script = ExtResource("4")
+Type = 3
+MysteryProgress = 1
+
 [sub_resource type="Resource" id="con_approach_fail"]
 script = ExtResource("4")
 StatName = "reason"
@@ -24,7 +29,7 @@ Value = -3
 script = ExtResource("2")
 OptionText = "Descend the cliff path and approach it"
 StatCheck = SubResource("sc_approach")
-SuccessConsequences = Array[ExtResource("4")]([SubResource("con_approach_success")])
+SuccessConsequences = Array[ExtResource("4")]([SubResource("con_approach_success"), SubResource("con_approach_mystery")])
 FailureConsequences = Array[ExtResource("4")]([SubResource("con_approach_fail")])
 SuccessText = "It speaks in something adjacent to your language. The words decay at the edges, but the meaning holds: something beneath the water wants you to visit. The sailor gave this message at great personal cost. You try not to think about what that cost was."
 FailureText = "The closer you get, the less it looks like a person. By the time you are close enough to speak, you realize the face is a suggestion—designed to read as human from a distance. You flee up the cliff path while it calls after you in a sound like water in a drain."

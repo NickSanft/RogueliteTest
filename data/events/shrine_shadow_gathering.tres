@@ -15,6 +15,11 @@ script = ExtResource("4")
 StatName = "doom"
 Value = 5
 
+[sub_resource type="Resource" id="con_observe_mystery"]
+script = ExtResource("4")
+Type = 3
+MysteryProgress = 1
+
 [sub_resource type="Resource" id="con_observe_fail"]
 script = ExtResource("4")
 StatName = "reason"
@@ -24,7 +29,7 @@ Value = -4
 script = ExtResource("2")
 OptionText = "Observe silently and memorize the ritual"
 StatCheck = SubResource("sc_observe")
-SuccessConsequences = Array[ExtResource("4")]([SubResource("con_observe_success")])
+SuccessConsequences = Array[ExtResource("4")]([SubResource("con_observe_success"), SubResource("con_observe_mystery")])
 FailureConsequences = Array[ExtResource("4")]([SubResource("con_observe_fail")])
 SuccessText = "You catalogue everything with the discipline of a naturalist studying a deadly animal. The ritual's structure becomes clear to you—and then immediately unbearable. You carry the knowledge out of the shrine."
 FailureText = "You are seen. The shadows stop. Every one of them orients toward you without turning, without having eyes. Seconds pass before they resume. You are dismissed. That is somehow worse than being attacked."
