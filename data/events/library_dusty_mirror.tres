@@ -1,0 +1,48 @@
+[gd_resource type="Resource" script_class="EventResource" format=3]
+
+[ext_resource type="Script" uid="uid://bwoliaoytwc7e" path="res://scripts/resources/EventResource.cs" id="1"]
+[ext_resource type="Script" uid="uid://2wwbq38npbrd" path="res://scripts/resources/EventOption.cs" id="2"]
+[ext_resource type="Script" uid="uid://wjlfxffqq08k" path="res://scripts/resources/StatCheck.cs" id="3"]
+[ext_resource type="Script" uid="uid://ln4cmwg8ep8" path="res://scripts/resources/EventConsequence.cs" id="4"]
+
+[sub_resource type="Resource" id="sc_stare"]
+script = ExtResource("3")
+Stat = 1
+Threshold = 5
+
+[sub_resource type="Resource" id="con_stare_fail"]
+script = ExtResource("4")
+StatName = "reason"
+Value = -2
+
+[sub_resource type="Resource" id="opt_stare"]
+script = ExtResource("2")
+OptionText = "Wipe away the dust and stare directly at it"
+StatCheck = SubResource("sc_stare")
+FailureConsequences = Array[ExtResource("4")]([SubResource("con_stare_fail")])
+SuccessText = "Your reflection snaps into sync, then looks ashamed. Whatever was using it retreats. The glass shows only you, diminished and breathing too fast."
+FailureText = "As your cloth touches the surface, your reflection grabs your wrist from the other side. You feel nothing—but you cannot pull away. Finally it releases you, grinning. You did not grin."
+
+[sub_resource type="Resource" id="con_speak"]
+script = ExtResource("4")
+StatName = "doom"
+Value = 5
+
+[sub_resource type="Resource" id="opt_speak"]
+script = ExtResource("2")
+OptionText = "Speak your full name aloud to the reflection"
+Consequences = Array[ExtResource("4")]([SubResource("con_speak")])
+SuccessText = "The reflection mouths your name one beat behind. Then it stops, and the silence is worse. Something has been given something it wanted. As you leave, your own voice follows from the mirror: 'Come back.'"
+FailureText = "The reflection mouths your name one beat behind. Then it stops, and the silence is worse. Something has been given something it wanted. As you leave, your own voice follows from the mirror: 'Come back.'"
+
+[sub_resource type="Resource" id="opt_cover"]
+script = ExtResource("2")
+OptionText = "Cover the mirror with your coat and leave quickly"
+SuccessText = "You back away without looking at it again. The cloth rustles once. You choose to believe it was a draft."
+FailureText = "You back away without looking at it again. The cloth rustles once. You choose to believe it was a draft."
+
+[resource]
+script = ExtResource("1")
+EventId = "library_dusty_mirror"
+EventText = "A full-length mirror stands at the library's far end, filmed with decades of dust. Your reflection moves a moment too soon—stepping forward before you do, tilting its head in the opposite direction."
+Options = Array[ExtResource("2")]([SubResource("opt_stare"), SubResource("opt_speak"), SubResource("opt_cover")])

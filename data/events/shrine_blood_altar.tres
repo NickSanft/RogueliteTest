@@ -1,0 +1,95 @@
+[gd_resource type="Resource" script_class="EventResource" format=3]
+
+[ext_resource type="Script" uid="uid://bwoliaoytwc7e" path="res://scripts/resources/EventResource.cs" id="1"]
+[ext_resource type="Script" uid="uid://2wwbq38npbrd" path="res://scripts/resources/EventOption.cs" id="2"]
+[ext_resource type="Script" uid="uid://wjlfxffqq08k" path="res://scripts/resources/StatCheck.cs" id="3"]
+[ext_resource type="Script" uid="uid://ln4cmwg8ep8" path="res://scripts/resources/EventConsequence.cs" id="4"]
+
+[sub_resource type="Resource" id="sc_touch"]
+script = ExtResource("3")
+Stat = 0
+Threshold = 5
+
+[sub_resource type="Resource" id="con_touch_always"]
+script = ExtResource("4")
+StatName = "stamina"
+Value = -1
+
+[sub_resource type="Resource" id="con_touch_success"]
+script = ExtResource("4")
+StatName = "doom"
+Value = -8
+
+[sub_resource type="Resource" id="con_touch_fail"]
+script = ExtResource("4")
+StatName = "doom"
+Value = 10
+
+[sub_resource type="Resource" id="opt_touch"]
+script = ExtResource("2")
+OptionText = "Place your hand upon the altar"
+StatCheck = SubResource("sc_touch")
+Consequences = Array[ExtResource("4")]([SubResource("con_touch_always")])
+SuccessConsequences = Array[ExtResource("4")]([SubResource("con_touch_success")])
+FailureConsequences = Array[ExtResource("4")]([SubResource("con_touch_fail")])
+SuccessText = "Cold. The altar drinks your warmth. In exchange, something terrible acknowledges you—not as prey, but as kin. The doom pressing at the edge of your mind recedes slightly."
+FailureText = "The moment your skin touches the stone, the blood surges upward and traces patterns on your palm. You jerk back but the marks remain, faintly luminescent. Something has marked you."
+
+[sub_resource type="Resource" id="sc_inspect"]
+script = ExtResource("3")
+Stat = 1
+Threshold = 6
+
+[sub_resource type="Resource" id="con_inspect_success"]
+script = ExtResource("4")
+StatName = "doom"
+Value = 3
+
+[sub_resource type="Resource" id="con_inspect_fail"]
+script = ExtResource("4")
+StatName = "reason"
+Value = -3
+
+[sub_resource type="Resource" id="opt_inspect"]
+script = ExtResource("2")
+OptionText = "Inspect the blood — search for its source"
+StatCheck = SubResource("sc_inspect")
+SuccessConsequences = Array[ExtResource("4")]([SubResource("con_inspect_success")])
+FailureConsequences = Array[ExtResource("4")]([SubResource("con_inspect_fail")])
+SuccessText = "Logic cannot explain it, but you can describe what you see with clinical precision. The blood seeps upward through the stone from below. You close your notes and breathe carefully."
+FailureText = "You stare too long. The blood begins to form shapes—faces, then scenes from your own memory, but wrong. You back away before it can finish whatever it is showing you."
+
+[sub_resource type="Resource" id="sc_defile"]
+script = ExtResource("3")
+Stat = 0
+Threshold = 7
+
+[sub_resource type="Resource" id="con_defile_success"]
+script = ExtResource("4")
+StatName = "doom"
+Value = -5
+
+[sub_resource type="Resource" id="con_defile_fail_doom"]
+script = ExtResource("4")
+StatName = "doom"
+Value = 15
+
+[sub_resource type="Resource" id="con_defile_fail_stam"]
+script = ExtResource("4")
+StatName = "stamina"
+Value = -2
+
+[sub_resource type="Resource" id="opt_defile"]
+script = ExtResource("2")
+OptionText = "Overturn the altar's offerings and defile it"
+StatCheck = SubResource("sc_defile")
+SuccessConsequences = Array[ExtResource("4")]([SubResource("con_defile_success")])
+FailureConsequences = Array[ExtResource("4")]([SubResource("con_defile_fail_doom"), SubResource("con_defile_fail_stam")])
+SuccessText = "The blood hisses and recoils as you shove everything from the stone. A shriek that you feel in your bones fills the shrine. Then silence. The altar is just rock now."
+FailureText = "Your hands slip. The offerings fall in a pattern you didn't intend—apparently a more significant one. The shadows in the corners lurch toward the altar. You run."
+
+[resource]
+script = ExtResource("1")
+EventId = "shrine_blood_altar"
+EventText = "The stone altar is slick with fresh blood—dark and still-steaming despite the shrine's obvious abandonment. No animal tracks. No signs of recent occupation. The blood has no source you can see."
+Options = Array[ExtResource("2")]([SubResource("opt_touch"), SubResource("opt_inspect"), SubResource("opt_defile")])

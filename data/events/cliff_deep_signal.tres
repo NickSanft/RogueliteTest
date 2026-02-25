@@ -1,0 +1,54 @@
+[gd_resource type="Resource" script_class="EventResource" format=3]
+
+[ext_resource type="Script" uid="uid://bwoliaoytwc7e" path="res://scripts/resources/EventResource.cs" id="1"]
+[ext_resource type="Script" uid="uid://2wwbq38npbrd" path="res://scripts/resources/EventOption.cs" id="2"]
+[ext_resource type="Script" uid="uid://wjlfxffqq08k" path="res://scripts/resources/StatCheck.cs" id="3"]
+[ext_resource type="Script" uid="uid://ln4cmwg8ep8" path="res://scripts/resources/EventConsequence.cs" id="4"]
+
+[sub_resource type="Resource" id="sc_decode"]
+script = ExtResource("3")
+Stat = 1
+Threshold = 7
+
+[sub_resource type="Resource" id="con_decode_success"]
+script = ExtResource("4")
+StatName = "doom"
+Value = 6
+
+[sub_resource type="Resource" id="con_decode_fail"]
+script = ExtResource("4")
+StatName = "reason"
+Value = -4
+
+[sub_resource type="Resource" id="opt_decode"]
+script = ExtResource("2")
+OptionText = "Attempt to decode the pattern"
+StatCheck = SubResource("sc_decode")
+SuccessConsequences = Array[ExtResource("4")]([SubResource("con_decode_success")])
+FailureConsequences = Array[ExtResource("4")]([SubResource("con_decode_fail")])
+SuccessText = "Three hours pass in what feels like ten minutes. The pattern is not code—it is language, direct and grammatically alien. The message is a single sentence. You transcribe it without understanding it. Your hands are shaking by the time you finish."
+FailureText = "You stare into the pattern until your eyes water. Something in the rhythm locks onto your heartbeat, trying to sync them. You tear yourself away and stagger back from the edge. Your pulse is still wrong."
+
+[sub_resource type="Resource" id="con_signal"]
+script = ExtResource("4")
+StatName = "doom"
+Value = 10
+
+[sub_resource type="Resource" id="opt_signal"]
+script = ExtResource("2")
+OptionText = "Signal back with your lantern — mirror the pattern"
+Consequences = Array[ExtResource("4")]([SubResource("con_signal")])
+SuccessText = "The response is immediate. The lights below accelerate, overlapping into something almost white. Then stop. The silence that follows is different than before—expectant. Something was answered. Something is coming to investigate."
+FailureText = "The response is immediate. The lights below accelerate, overlapping into something almost white. Then stop. The silence that follows is different than before—expectant. Something was answered. Something is coming to investigate."
+
+[sub_resource type="Resource" id="opt_wait"]
+script = ExtResource("2")
+OptionText = "Cover the lantern and wait for the signal to stop"
+SuccessText = "You sit in the dark and wait it out. After perhaps an hour, the lights dim and cease. Whatever was sending the signal has either given up or moved on. The sea sounds normal again. Almost."
+FailureText = "You sit in the dark and wait it out. After perhaps an hour, the lights dim and cease. Whatever was sending the signal has either given up or moved on. The sea sounds normal again. Almost."
+
+[resource]
+script = ExtResource("1")
+EventId = "cliff_deep_signal"
+EventText = "The lights below the water are not random. They pulse in sequence—two long, three short, one long—repeating. Over the sound of the waves, if you strain, you can almost hear a corresponding tone. Something beneath the surface is broadcasting."
+Options = Array[ExtResource("2")]([SubResource("opt_decode"), SubResource("opt_signal"), SubResource("opt_wait")])

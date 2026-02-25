@@ -8,6 +8,6 @@ LocationId = "coastal_cliff"
 LocationName = "Coastal Cliff"
 Description = "Jagged rocks overlook a churning black sea. Strange lights pulse beneath the waves. The wind carries inhuman songs."
 ImagePath = ""
-EventPool = ["test_dark_room"]
+EventPool = ["cliff_drowned_sailor", "cliff_deep_signal"]
 TurnCost = 1
 UnlockedByDefault = true

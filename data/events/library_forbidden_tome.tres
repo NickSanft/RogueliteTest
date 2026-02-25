@@ -1,0 +1,66 @@
+[gd_resource type="Resource" script_class="EventResource" format=3]
+
+[ext_resource type="Script" uid="uid://bwoliaoytwc7e" path="res://scripts/resources/EventResource.cs" id="1"]
+[ext_resource type="Script" uid="uid://2wwbq38npbrd" path="res://scripts/resources/EventOption.cs" id="2"]
+[ext_resource type="Script" uid="uid://wjlfxffqq08k" path="res://scripts/resources/StatCheck.cs" id="3"]
+[ext_resource type="Script" uid="uid://ln4cmwg8ep8" path="res://scripts/resources/EventConsequence.cs" id="4"]
+
+[sub_resource type="Resource" id="sc_read"]
+script = ExtResource("3")
+Stat = 1
+Threshold = 6
+
+[sub_resource type="Resource" id="con_read_success"]
+script = ExtResource("4")
+StatName = "reason"
+Value = -1
+
+[sub_resource type="Resource" id="con_read_fail"]
+script = ExtResource("4")
+StatName = "reason"
+Value = -3
+
+[sub_resource type="Resource" id="opt_read"]
+script = ExtResource("2")
+OptionText = "Study the forbidden diagrams"
+StatCheck = SubResource("sc_read")
+SuccessConsequences = Array[ExtResource("4")]([SubResource("con_read_success")])
+FailureConsequences = Array[ExtResource("4")]([SubResource("con_read_fail")])
+SuccessText = "The patterns resolve into something almost comprehensible. A terrible understanding blooms behind your eyes. Your reason erodes at the price of knowing."
+FailureText = "The diagrams twist into shapes the mind cannot process. Pain lances through your skull. You drop the book and stagger back, something inside you permanently bent."
+
+[sub_resource type="Resource" id="sc_transcribe"]
+script = ExtResource("3")
+Stat = 0
+Threshold = 4
+
+[sub_resource type="Resource" id="con_transcribe_fail"]
+script = ExtResource("4")
+StatName = "stamina"
+Value = -2
+
+[sub_resource type="Resource" id="opt_transcribe"]
+script = ExtResource("2")
+OptionText = "Transcribe a single page before closing it"
+StatCheck = SubResource("sc_transcribe")
+FailureConsequences = Array[ExtResource("4")]([SubResource("con_transcribe_fail")])
+SuccessText = "Hours slide past unnoticed. Your fingers ache and your eyes burn, but the page is reproduced faithfully. You slide the notes into your coat without looking at them again."
+FailureText = "You lose yourself in the copying. When awareness returns, the candle has burned to a stub. Your transcription is perfect on one half of the page; the other half is someone else's handwriting."
+
+[sub_resource type="Resource" id="con_burn"]
+script = ExtResource("4")
+StatName = "doom"
+Value = -5
+
+[sub_resource type="Resource" id="opt_burn"]
+script = ExtResource("2")
+OptionText = "Commit it to the flames"
+Consequences = Array[ExtResource("4")]([SubResource("con_burn")])
+SuccessText = "The book does not go quietly. An inhuman shriek fills the library as the pages blacken. When the smoke clears and your heartbeat steadies, the air feels marginally less wrong."
+FailureText = "The book does not go quietly. An inhuman shriek fills the library as the pages blacken. When the smoke clears and your heartbeat steadies, the air feels marginally less wrong."
+
+[resource]
+script = ExtResource("1")
+EventId = "library_forbidden_tome"
+EventText = "Between the crumbling shelves, a slim volume pulses with dim phosphorescent light. The symbols on its cover rearrange themselves as you watch. The other books lean away from it."
+Options = Array[ExtResource("2")]([SubResource("opt_read"), SubResource("opt_transcribe"), SubResource("opt_burn")])

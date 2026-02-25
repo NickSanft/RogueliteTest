@@ -1,0 +1,59 @@
+[gd_resource type="Resource" script_class="EventResource" format=3]
+
+[ext_resource type="Script" uid="uid://bwoliaoytwc7e" path="res://scripts/resources/EventResource.cs" id="1"]
+[ext_resource type="Script" uid="uid://2wwbq38npbrd" path="res://scripts/resources/EventOption.cs" id="2"]
+[ext_resource type="Script" uid="uid://wjlfxffqq08k" path="res://scripts/resources/StatCheck.cs" id="3"]
+[ext_resource type="Script" uid="uid://ln4cmwg8ep8" path="res://scripts/resources/EventConsequence.cs" id="4"]
+
+[sub_resource type="Resource" id="sc_observe"]
+script = ExtResource("3")
+Stat = 1
+Threshold = 7
+
+[sub_resource type="Resource" id="con_observe_success"]
+script = ExtResource("4")
+StatName = "doom"
+Value = 5
+
+[sub_resource type="Resource" id="con_observe_fail"]
+script = ExtResource("4")
+StatName = "reason"
+Value = -4
+
+[sub_resource type="Resource" id="opt_observe"]
+script = ExtResource("2")
+OptionText = "Observe silently and memorize the ritual"
+StatCheck = SubResource("sc_observe")
+SuccessConsequences = Array[ExtResource("4")]([SubResource("con_observe_success")])
+FailureConsequences = Array[ExtResource("4")]([SubResource("con_observe_fail")])
+SuccessText = "You catalogue everything with the discipline of a naturalist studying a deadly animal. The ritual's structure becomes clear to you—and then immediately unbearable. You carry the knowledge out of the shrine."
+FailureText = "You are seen. The shadows stop. Every one of them orients toward you without turning, without having eyes. Seconds pass before they resume. You are dismissed. That is somehow worse than being attacked."
+
+[sub_resource type="Resource" id="con_step_doom"]
+script = ExtResource("4")
+StatName = "doom"
+Value = 8
+
+[sub_resource type="Resource" id="con_step_reason"]
+script = ExtResource("4")
+StatName = "reason"
+Value = -1
+
+[sub_resource type="Resource" id="opt_step"]
+script = ExtResource("2")
+OptionText = "Step into the ritual space"
+Consequences = Array[ExtResource("4")]([SubResource("con_step_doom"), SubResource("con_step_reason")])
+SuccessText = "The shadows absorb you briefly. You are aware of everything in the shrine simultaneously. The experience ends when the ritual does. You stand at the altar's edge with no memory of walking there and a hollow feeling behind your sternum."
+FailureText = "The shadows absorb you briefly. You are aware of everything in the shrine simultaneously. The experience ends when the ritual does. You stand at the altar's edge with no memory of walking there and a hollow feeling behind your sternum."
+
+[sub_resource type="Resource" id="opt_retreat"]
+script = ExtResource("2")
+OptionText = "Retreat to the entrance and wait for it to end"
+SuccessText = "You watch from the doorway until the shadows dissipate. Nothing pursues you. The shrine is empty and cold. You cannot shake the sense that you have failed some test you were not told you were taking."
+FailureText = "You watch from the doorway until the shadows dissipate. Nothing pursues you. The shrine is empty and cold. You cannot shake the sense that you have failed some test you were not told you were taking."
+
+[resource]
+script = ExtResource("1")
+EventId = "shrine_shadow_gathering"
+EventText = "In the deepest corner of the shrine, shadows move against the direction of the light. They are not your shadows. They convene around something you cannot make out, performing a ritual you cannot name."
+Options = Array[ExtResource("2")]([SubResource("opt_observe"), SubResource("opt_step"), SubResource("opt_retreat")])

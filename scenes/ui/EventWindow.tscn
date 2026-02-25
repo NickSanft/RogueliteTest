@@ -3,7 +3,7 @@
 [ext_resource type="Script" uid="uid://cxnu1uj52yqa0" path="res://scripts/ui/EventWindow.cs" id="1"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_panel"]
-bg_color = Color(0.04, 0.04, 0.08, 1)
+bg_color = Color(0.04, 0.04, 0.08, 0.88)
 
 [node name="EventWindow" type="Panel" unique_id=18906494]
 anchors_preset = 15

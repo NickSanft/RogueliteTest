@@ -1,0 +1,66 @@
+[gd_resource type="Resource" script_class="EventResource" format=3]
+
+[ext_resource type="Script" uid="uid://bwoliaoytwc7e" path="res://scripts/resources/EventResource.cs" id="1"]
+[ext_resource type="Script" uid="uid://2wwbq38npbrd" path="res://scripts/resources/EventOption.cs" id="2"]
+[ext_resource type="Script" uid="uid://wjlfxffqq08k" path="res://scripts/resources/StatCheck.cs" id="3"]
+[ext_resource type="Script" uid="uid://ln4cmwg8ep8" path="res://scripts/resources/EventConsequence.cs" id="4"]
+
+[sub_resource type="Resource" id="sc_approach"]
+script = ExtResource("3")
+Stat = 1
+Threshold = 5
+
+[sub_resource type="Resource" id="con_approach_success"]
+script = ExtResource("4")
+StatName = "doom"
+Value = 5
+
+[sub_resource type="Resource" id="con_approach_fail"]
+script = ExtResource("4")
+StatName = "reason"
+Value = -3
+
+[sub_resource type="Resource" id="opt_approach"]
+script = ExtResource("2")
+OptionText = "Descend the cliff path and approach it"
+StatCheck = SubResource("sc_approach")
+SuccessConsequences = Array[ExtResource("4")]([SubResource("con_approach_success")])
+FailureConsequences = Array[ExtResource("4")]([SubResource("con_approach_fail")])
+SuccessText = "It speaks in something adjacent to your language. The words decay at the edges, but the meaning holds: something beneath the water wants you to visit. The sailor gave this message at great personal cost. You try not to think about what that cost was."
+FailureText = "The closer you get, the less it looks like a person. By the time you are close enough to speak, you realize the face is a suggestion—designed to read as human from a distance. You flee up the cliff path while it calls after you in a sound like water in a drain."
+
+[sub_resource type="Resource" id="sc_shout"]
+script = ExtResource("3")
+Stat = 0
+Threshold = 4
+
+[sub_resource type="Resource" id="con_shout_success"]
+script = ExtResource("4")
+StatName = "doom"
+Value = 3
+
+[sub_resource type="Resource" id="con_shout_fail"]
+script = ExtResource("4")
+StatName = "stamina"
+Value = -3
+
+[sub_resource type="Resource" id="opt_shout"]
+script = ExtResource("2")
+OptionText = "Shout down to it from the clifftop"
+StatCheck = SubResource("sc_shout")
+SuccessConsequences = Array[ExtResource("4")]([SubResource("con_shout_success")])
+FailureConsequences = Array[ExtResource("4")]([SubResource("con_shout_fail")])
+SuccessText = "The wind fights you the whole way. Eventually you make out that it is reciting coordinates—latitude and longitude, over and over. You write them down before realizing the numbers describe the bottom of the ocean."
+FailureText = "The wind cuts through you in the effort of shouting. The figure below seems to drift closer without moving. When you stop, your throat raw and your chest aching, it has reached the cliff base."
+
+[sub_resource type="Resource" id="opt_withdraw"]
+script = ExtResource("2")
+OptionText = "Back away from the cliff edge before it notices you"
+SuccessText = "You ease back from the edge. Whether it saw you or not is unknown. The figure remains at the waterline for another hour before the sea reclaims it. You watch from concealment, cold and thoughtful."
+FailureText = "You ease back from the edge. Whether it saw you or not is unknown. The figure remains at the waterline for another hour before the sea reclaims it. You watch from concealment, cold and thoughtful."
+
+[resource]
+script = ExtResource("1")
+EventId = "cliff_drowned_sailor"
+EventText = "Something hauls itself out of the surf below the cliff. It was human, once—the shape is right, the clothing suggests a fisherman. But it has been in the water too long. It looks up at you with complete calm, as if it has been waiting."
+Options = Array[ExtResource("2")]([SubResource("opt_approach"), SubResource("opt_shout"), SubResource("opt_withdraw")])

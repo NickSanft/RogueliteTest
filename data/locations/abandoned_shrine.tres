@@ -8,6 +8,6 @@ LocationId = "abandoned_shrine"
 LocationName = "Abandoned Shrine"
 Description = "A forgotten temple to nameless gods. Blood stains mar the altar, and the shadows seem to move with malevolent purpose."
 ImagePath = ""
-EventPool = ["test_dark_room"]
+EventPool = ["shrine_blood_altar", "shrine_shadow_gathering"]
 TurnCost = 2
 UnlockedByDefault = true
