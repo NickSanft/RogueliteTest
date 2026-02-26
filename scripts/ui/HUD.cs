@@ -61,7 +61,8 @@ public partial class HUD : CanvasLayer
 	public void RefreshInventory()
 	{
 		if (_inventoryLabel == null || _gameManager == null) return;
-		_inventoryLabel.Text = _gameManager.GetInventoryDisplay();
+		_inventoryLabel.Text        = _gameManager.GetInventoryDisplay();
+		_inventoryLabel.TooltipText = _gameManager.GetInventoryTooltip();
 	}
 
 	// ── Internal ──────────────────────────────────────────────────────────────

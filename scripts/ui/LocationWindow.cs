@@ -40,7 +40,7 @@ public partial class LocationWindow : Panel
 		foreach (var location in locations)
 		{
 			var button = new Button();
-			button.Text = $"{location.LocationName} ({location.TurnCost} turn{(location.TurnCost > 1 ? "s" : "")})";
+			button.Text = $"{location.LocationName} ({location.TurnCost} turn{(location.TurnCost > 1 ? "s" : "")}, +{location.TurnCost * 2} doom)";
 			button.ToggleMode = true;
 			button.ButtonGroup = _buttonGroup;
 			button.SizeFlagsHorizontal = SizeFlags.Fill;
@@ -73,7 +73,7 @@ public partial class LocationWindow : Panel
 			_locationDescription.Text = location.Description;
 
 		if (_investigateButton != null)
-			_investigateButton.Text = $"Investigate ({location.TurnCost} turn{(location.TurnCost > 1 ? "s" : "")})";
+			_investigateButton.Text = $"Investigate ({location.TurnCost} turn{(location.TurnCost > 1 ? "s" : "")}, +{location.TurnCost * 2} doom)";
 
 		if (_locationImage != null)
 		{

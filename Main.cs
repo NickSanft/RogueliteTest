@@ -11,13 +11,20 @@ public partial class Main : Node2D
 	private EventManager? _eventManager;
 
 	private List<LocationResource> _availableLocations = new();
-	private int _currentTurn = 1;
 
 	private ColorRect? _locationEffectRect;
 	private Dictionary<string, ShaderMaterial> _locationMaterials = new();
 
 	private ColorRect? _transitionRect;
 	private WindowManager? _windowManager;
+
+	// End screen (game-over and win)
+	private Control? _endScreen;
+	private Label? _endScreenTitle;
+	private Label? _endScreenBody;
+
+	// Deferred win text — stored so it can be shown after the current event closes
+	private string _pendingWinText = "";
 
 	public override void _Ready()
 	{
@@ -66,8 +73,10 @@ public partial class Main : Node2D
 		LoadLocations();
 		SetupLocationEffects();
 		SetupTransitionOverlay();
+		SetupEndScreen();
 
 		_hud?.UpdateLocation("Town Square");
+		_hud?.UpdateTurn(_gameManager.CurrentTurn);
 	}
 
 	private void LoadLocations()
@@ -102,20 +111,6 @@ public partial class Main : Node2D
 		if (_windowManager?.HasOpenWindow == true)
 			return;
 
-		// SPACE — show test event
-		if (@event.IsActionPressed("ui_accept"))
-		{
-			if (_eventWindow != null && _eventManager != null)
-			{
-				var testEvent = _eventManager.LoadEvent("res://data/events/test_dark_room.tres");
-				if (testEvent != null)
-					_eventWindow.ShowEvent(testEvent);
-				else
-					GD.PrintErr("Failed to load test event resource.");
-			}
-			GetViewport().SetInputAsHandled();
-		}
-
 		// TAB — show location selection
 		if (@event is InputEventKey keyEvent && keyEvent.Pressed && !keyEvent.Echo && keyEvent.Keycode == Key.Tab)
 		{
@@ -129,11 +124,11 @@ public partial class Main : Node2D
 		await FadeOut();
 
 		_hud?.UpdateLocation(location.LocationName);
-		_currentTurn += location.TurnCost;
-		_hud?.UpdateTurn(_currentTurn);
-		_gameManager?.ModifyStat("doom", location.TurnCost * 2);
+		_gameManager!.CurrentTurn += location.TurnCost;
+		_hud?.UpdateTurn(_gameManager.CurrentTurn);
+		_gameManager.ModifyStat("doom", location.TurnCost * 2);
 		ApplyLocationEffect(location.LocationId);
-		_gameManager?.SaveGame();
+		_gameManager.SaveGame();
 
 		await FadeIn();
 
@@ -155,9 +150,11 @@ public partial class Main : Node2D
 
 	private void OnGameOver(string reason)
 	{
-		GD.Print($"GAME OVER: {reason}");
-		_gameManager?.IncrementRunCount();
-		GetTree().Paused = true;
+		var gm = _gameManager;
+		string stats = gm != null
+			? $"Turns: {gm.CurrentTurn}   Stamina: {gm.Stamina}/{gm.MaxStamina}   Reason: {gm.Reason}/{gm.MaxReason}   Doom: {gm.Doom}/100"
+			: "";
+		ShowEndScreen("INVESTIGATION FAILED", $"{reason}\n\n{stats}");
 	}
 
 	private void OnMysteryCompleted(string mysteryId, string completionText)
@@ -167,21 +164,38 @@ public partial class Main : Node2D
 
 	private void OnRunWon(string winText)
 	{
+		_pendingWinText = winText;
+
+		// If an event is currently showing, wait for it to close before displaying
+		// the win event — pushing EventWindow while it's already on the stack would
+		// be silently ignored by WindowManager's deduplication check.
+		if (_eventWindow?.Visible == true)
+			_eventWindow.VisibilityChanged += ShowWinEventWhenReady;
+		else
+			ShowWinEvent();
+	}
+
+	private void ShowWinEventWhenReady()
+	{
+		if (_eventWindow?.Visible != false) return;
+		_eventWindow.VisibilityChanged -= ShowWinEventWhenReady;
+		ShowWinEvent();
+	}
+
+	private void ShowWinEvent()
+	{
 		if (_eventWindow == null) return;
 
-		// Build a win event dynamically from the mystery's completion text
 		var winEvent = new EventResource();
 		winEvent.EventId   = "run_won";
-		winEvent.EventText = winText;
+		winEvent.EventText = _pendingWinText;
 
 		var endOption = new EventOption();
-		endOption.OptionText   = "The investigation concludes.";
-		endOption.SuccessText  = "You carry the knowledge out of the abyss. Some part of you has stayed behind.";
+		endOption.OptionText  = "The investigation concludes.";
+		endOption.SuccessText = "You carry the knowledge out of the abyss. Some part of you has stayed behind.";
 		winEvent.Options.Add(endOption);
 
 		_eventWindow.ShowEvent(winEvent);
-
-		// Pause and update meta once the window closes
 		_eventWindow.VisibilityChanged += OnWinEventClosed;
 	}
 
@@ -190,8 +204,11 @@ public partial class Main : Node2D
 		if (_eventWindow?.Visible != false) return;
 		_eventWindow.VisibilityChanged -= OnWinEventClosed;
 
-		_gameManager?.ResetGame();
-		GetTree().Paused = true;
+		var gm = _gameManager;
+		string stats = gm != null
+			? $"Turns: {gm.CurrentTurn}   Stamina: {gm.Stamina}/{gm.MaxStamina}   Reason: {gm.Reason}/{gm.MaxReason}   Doom: {gm.Doom}/100"
+			: "";
+		ShowEndScreen("INVESTIGATION COMPLETE", stats);
 	}
 
 	private void OnLocationUnlocked(string locationId)
@@ -210,6 +227,76 @@ public partial class Main : Node2D
 			_locationMaterials[locationId] = new ShaderMaterial { Shader = shader };
 
 		GD.Print($"Location unlocked: {location.LocationName}");
+	}
+
+	// ── End screen (game-over / win) ─────────────────────────────────────────
+
+	private void SetupEndScreen()
+	{
+		var layer = new CanvasLayer();
+		layer.Layer = 220;
+		AddChild(layer);
+
+		_endScreen = new Panel();
+		_endScreen.SetAnchorsPreset(Control.LayoutPreset.FullRect);
+		_endScreen.MouseFilter = Control.MouseFilterEnum.Stop;
+		var bg = new StyleBoxFlat();
+		bg.BgColor = new Color(0.03f, 0.03f, 0.07f, 0.95f);
+		((Panel)_endScreen).AddThemeStyleboxOverride("panel", bg);
+		layer.AddChild(_endScreen);
+
+		var center = new CenterContainer();
+		center.SetAnchorsPreset(Control.LayoutPreset.FullRect);
+		_endScreen.AddChild(center);
+
+		var vbox = new VBoxContainer();
+		vbox.CustomMinimumSize = new Vector2(560, 0);
+		vbox.AddThemeConstantOverride("separation", 20);
+		center.AddChild(vbox);
+
+		_endScreenTitle = new Label();
+		_endScreenTitle.HorizontalAlignment = HorizontalAlignment.Center;
+		_endScreenTitle.AddThemeColorOverride("font_color", Colors.White);
+		_endScreenTitle.AddThemeColorOverride("font_outline_color", Colors.Black);
+		_endScreenTitle.AddThemeConstantOverride("outline_size", 2);
+		vbox.AddChild(_endScreenTitle);
+
+		vbox.AddChild(new HSeparator());
+
+		_endScreenBody = new Label();
+		_endScreenBody.AutowrapMode = TextServer.AutowrapMode.Word;
+		_endScreenBody.CustomMinimumSize = new Vector2(560, 0);
+		_endScreenBody.HorizontalAlignment = HorizontalAlignment.Center;
+		_endScreenBody.AddThemeColorOverride("font_color", Colors.White);
+		_endScreenBody.AddThemeColorOverride("font_outline_color", Colors.Black);
+		_endScreenBody.AddThemeConstantOverride("outline_size", 2);
+		vbox.AddChild(_endScreenBody);
+
+		vbox.AddChild(new HSeparator());
+
+		var button = new Button();
+		button.Text = "Begin New Investigation";
+		button.SizeFlagsHorizontal = Control.SizeFlags.ShrinkCenter;
+		button.AddThemeColorOverride("font_color", Colors.White);
+		button.AddThemeColorOverride("font_outline_color", Colors.Black);
+		button.AddThemeConstantOverride("outline_size", 2);
+		button.Pressed += OnEndScreenContinue;
+		vbox.AddChild(button);
+
+		_endScreen.Visible = false;
+	}
+
+	private void ShowEndScreen(string title, string body)
+	{
+		if (_endScreenTitle != null) _endScreenTitle.Text = title;
+		if (_endScreenBody  != null) _endScreenBody.Text  = body;
+		if (_endScreen      != null) _endScreen.Visible   = true;
+	}
+
+	private void OnEndScreenContinue()
+	{
+		_gameManager?.ResetGame();
+		Callable.From(() => GetTree().ReloadCurrentScene()).CallDeferred();
 	}
 
 	// ── Location effects ─────────────────────────────────────────────────────

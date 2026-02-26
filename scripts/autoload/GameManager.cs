@@ -21,6 +21,7 @@ public partial class GameManager : Node
 	public List<string> EventQueue { get; set; } = new();
 	public List<string> ActiveMysteries { get; set; } = new();
 	public System.Collections.Generic.Dictionary<string, int> MysteryProgress { get; set; } = new();
+	public int CurrentTurn { get; set; } = 1;
 
 	// Meta-progression (persists across runs)
 	public int TotalRuns { get; private set; } = 0;
@@ -122,6 +123,19 @@ public partial class GameManager : Node
 		return "Items: " + string.Join(", ", names);
 	}
 
+	public string GetInventoryTooltip()
+	{
+		if (Inventory.Count == 0)
+			return "";
+
+		var lines = new List<string>();
+		foreach (var id in Inventory)
+			if (_loadedItems.TryGetValue(id, out var item))
+				lines.Add($"{item.ItemName}: {item.Description}");
+
+		return string.Join("\n\n", lines);
+	}
+
 	// ── Event queue ──────────────────────────────────────────────────────────
 
 	public void QueueEvent(string eventId)
@@ -202,9 +216,10 @@ public partial class GameManager : Node
 	public void SaveGame()
 	{
 		var config = new ConfigFile();
-		config.SetValue("stats", "stamina", Stamina);
-		config.SetValue("stats", "reason",  Reason);
-		config.SetValue("stats", "doom",    Doom);
+		config.SetValue("stats", "stamina",       Stamina);
+		config.SetValue("stats", "reason",        Reason);
+		config.SetValue("stats", "doom",          Doom);
+		config.SetValue("stats", "current_turn",  CurrentTurn);
 
 		var invArr = new Godot.Collections.Array();
 		foreach (var id in Inventory) invArr.Add(id);
@@ -226,9 +241,10 @@ public partial class GameManager : Node
 		if (config.Load(SavePath) != Error.Ok)
 			return false;
 
-		Stamina = (int)config.GetValue("stats", "stamina", (Variant)MaxStamina);
-		Reason  = (int)config.GetValue("stats", "reason",  (Variant)MaxReason);
-		Doom    = (int)config.GetValue("stats", "doom",    (Variant)0);
+		Stamina      = (int)config.GetValue("stats", "stamina",      (Variant)MaxStamina);
+		Reason       = (int)config.GetValue("stats", "reason",       (Variant)MaxReason);
+		Doom         = (int)config.GetValue("stats", "doom",         (Variant)0);
+		CurrentTurn  = (int)config.GetValue("stats", "current_turn", (Variant)1);
 
 		Inventory.Clear();
 		var invArr = config.GetValue("inventory", "items", new Godot.Collections.Array()).AsGodotArray();
@@ -282,9 +298,10 @@ public partial class GameManager : Node
 		TotalRuns++;
 		SaveMeta();
 
-		Stamina = MaxStamina;
-		Reason  = MaxReason;
-		Doom    = 0;
+		Stamina     = MaxStamina;
+		Reason      = MaxReason;
+		Doom        = 0;
+		CurrentTurn = 1;
 		Inventory.Clear();
 		EventQueue.Clear();
 
