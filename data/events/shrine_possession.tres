@@ -1,0 +1,81 @@
+[gd_resource type="Resource" script_class="EventResource" format=3]
+
+[ext_resource type="Script" uid="uid://bwoliaoytwc7e" path="res://scripts/resources/EventResource.cs" id="1"]
+[ext_resource type="Script" uid="uid://2wwbq38npbrd" path="res://scripts/resources/EventOption.cs" id="2"]
+[ext_resource type="Script" uid="uid://wjlfxffqq08k" path="res://scripts/resources/StatCheck.cs" id="3"]
+[ext_resource type="Script" uid="uid://ln4cmwg8ep8" path="res://scripts/resources/EventConsequence.cs" id="4"]
+
+[sub_resource type="Resource" id="sc_resist"]
+script = ExtResource("3")
+Stat = 1
+Threshold = 5
+
+[sub_resource type="Resource" id="con_resist_success_doom"]
+script = ExtResource("4")
+StatName = "doom"
+Value = 2
+
+[sub_resource type="Resource" id="con_resist_fail_reason"]
+script = ExtResource("4")
+StatName = "reason"
+Value = -3
+
+[sub_resource type="Resource" id="con_resist_fail_doom"]
+script = ExtResource("4")
+StatName = "doom"
+Value = 4
+
+[sub_resource type="Resource" id="opt_resist"]
+script = ExtResource("2")
+OptionText = "Resist — force it back out"
+StatCheck = SubResource("sc_resist")
+SuccessConsequences = Array[ExtResource("4")]([SubResource("con_resist_success_doom")])
+FailureConsequences = Array[ExtResource("4")]([SubResource("con_resist_fail_reason"), SubResource("con_resist_fail_doom")])
+SuccessText = "You find the edge of yourself and hold it. The presence retreats like water from a cupped hand — slowly, with the sense it will return. Your thoughts are your own again. For now."
+FailureText = "It makes use of your hands before you force it out. You do not know what it touched. The altar stone is warm where it wasn't before. Something has been moved."
+
+[sub_resource type="Resource" id="con_submit_mystery"]
+script = ExtResource("4")
+Type = 3
+MysteryProgress = 2
+
+[sub_resource type="Resource" id="con_submit_doom"]
+script = ExtResource("4")
+StatName = "doom"
+Value = 6
+
+[sub_resource type="Resource" id="opt_submit"]
+script = ExtResource("2")
+OptionText = "Let it look through your eyes briefly"
+Consequences = Array[ExtResource("4")]([SubResource("con_submit_mystery"), SubResource("con_submit_doom")])
+SuccessText = "It moves through you like water through gauze. In exchange — though it did not offer, and you did not ask — you understand something about the shape of the thing below. The understanding costs more than you expected."
+FailureText = "It moves through you like water through gauze. In exchange — though it did not offer, and you did not ask — you understand something about the shape of the thing below. The understanding costs more than you expected."
+
+[sub_resource type="Resource" id="sc_flee"]
+script = ExtResource("3")
+Stat = 0
+Threshold = 4
+
+[sub_resource type="Resource" id="con_flee_fail_stamina"]
+script = ExtResource("4")
+StatName = "stamina"
+Value = -2
+
+[sub_resource type="Resource" id="con_flee_fail_doom"]
+script = ExtResource("4")
+StatName = "doom"
+Value = 3
+
+[sub_resource type="Resource" id="opt_flee"]
+script = ExtResource("2")
+OptionText = "Run from the shrine immediately"
+StatCheck = SubResource("sc_flee")
+FailureConsequences = Array[ExtResource("4")]([SubResource("con_flee_fail_stamina"), SubResource("con_flee_fail_doom")])
+SuccessText = "You are outside before you form the intention to leave. Distance helps. By the time the town is visible ahead, whatever was at the edge of your mind has retreated. You do not look back."
+FailureText = "Your legs refuse the first three commands. By the time they agree, it has had enough time to understand the architecture of your fear. You carry that knowledge of its knowledge out of the shrine with you."
+
+[resource]
+script = ExtResource("1")
+EventId = "shrine_possession"
+EventText = "The air at the shrine's threshold thickens. Something presses against the inside of your skull — not quite a thought, not quite a sound. It is patient. It has been waiting a long time for something with eyes."
+Options = Array[ExtResource("2")]([SubResource("opt_resist"), SubResource("opt_submit"), SubResource("opt_flee")])

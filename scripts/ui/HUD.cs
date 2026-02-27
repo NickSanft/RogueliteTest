@@ -8,6 +8,7 @@ public partial class HUD : CanvasLayer
 	private Label? _staminaLabel;
 	private Label? _reasonLabel;
 	private Label? _doomLabel;
+	private Label? _mysteryLabel;
 	private Label? _turnLabel;
 	private Label? _locationLabel;
 	private Label? _inventoryLabel;
@@ -23,6 +24,13 @@ public partial class HUD : CanvasLayer
 		_turnLabel    = GetNode<Label>("%TurnLabel");
 		_locationLabel = GetNode<Label>("%LocationLabel");
 
+		// Mystery progress label — inserted into the top bar after DoomLabel
+		var topBar = GetNode<HBoxContainer>("MarginContainer/VBoxContainer/TopBar");
+		_mysteryLabel = new Label();
+		ApplyLabelStyle(_mysteryLabel);
+		topBar.AddChild(_mysteryLabel);
+		topBar.MoveChild(_mysteryLabel, 3); // After DoomLabel, before Spacer
+
 		// Inventory label — inserted into the bottom bar between location and the spacer
 		var bottomBar = GetNode<HBoxContainer>("MarginContainer/VBoxContainer/BottomBar");
 		_inventoryLabel = new Label();
@@ -37,11 +45,16 @@ public partial class HUD : CanvasLayer
 		AddChild(_floatRoot);
 
 		_gameManager = GetNode<GameManager>("/root/GameManager");
-		_gameManager.StatChanged += OnStatChanged;
-		_gameManager.ItemGained  += _ => RefreshInventory();
+		_gameManager.StatChanged            += OnStatChanged;
+		_gameManager.ItemGained             += _ => RefreshInventory();
+		_gameManager.MysteryProgressChanged += UpdateMystery;
 
 		UpdateAllStats();
 		RefreshInventory();
+
+		// Initialise mystery display from loaded state
+		var (prog, req) = _gameManager.GetCurrentMysteryProgress();
+		UpdateMystery(prog, req);
 	}
 
 	// ── Public update methods ─────────────────────────────────────────────────
@@ -56,6 +69,20 @@ public partial class HUD : CanvasLayer
 	{
 		if (_locationLabel != null)
 			_locationLabel.Text = $"Location: {locationName}";
+	}
+
+	public void UpdateMystery(int progress, int required)
+	{
+		if (_mysteryLabel == null) return;
+		if (required <= 0)
+		{
+			_mysteryLabel.Text = "";
+			return;
+		}
+		_mysteryLabel.Text = $"MYSTERY: {progress}/{required}";
+		_mysteryLabel.Modulate = progress >= required
+			? new Color(0.3f, 1f, 0.3f)
+			: Colors.White;
 	}
 
 	public void RefreshInventory()

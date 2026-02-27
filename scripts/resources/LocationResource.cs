@@ -1,5 +1,6 @@
 ﻿using Godot;
 using Godot.Collections;
+using System.Collections.Generic;
 
 /// <summary>
 /// Represents a location the player can visit
@@ -28,14 +29,24 @@ public partial class LocationResource : Resource
     [Export] public bool UnlockedByDefault { get; set; } = true;
 
     /// <summary>
-    /// Get a random event from this location's pool
+    /// Get a random event from this location's pool, preferring unseen events.
+    /// Falls back to the full pool if all events have been seen.
     /// </summary>
-    public string? GetRandomEvent()
+    public string? GetRandomEvent(HashSet<string>? seen = null)
     {
         if (EventPool.Count == 0)
             return null;
-        
-        int randomIndex = GD.RandRange(0, EventPool.Count - 1);
-        return EventPool[randomIndex];
+
+        if (seen != null)
+        {
+            var unseen = new System.Collections.Generic.List<string>();
+            foreach (var id in EventPool)
+                if (!seen.Contains(id)) unseen.Add(id);
+
+            if (unseen.Count > 0)
+                return unseen[GD.RandRange(0, unseen.Count - 1)];
+        }
+
+        return EventPool[GD.RandRange(0, EventPool.Count - 1)];
     }
 }

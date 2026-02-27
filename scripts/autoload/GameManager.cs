@@ -23,7 +23,9 @@ public partial class GameManager : Node
 	public List<EventResource> EventResourceQueue { get; private set; } = new();
 	public List<string> ActiveMysteries { get; set; } = new();
 	public System.Collections.Generic.Dictionary<string, int> MysteryProgress { get; set; } = new();
+	public HashSet<string> SeenEvents { get; private set; } = new();
 	public int CurrentTurn { get; set; } = 1;
+	public string LastLocationName { get; set; } = "Town Square";
 
 	// Meta-progression (persists across runs)
 	public int TotalRuns { get; private set; } = 0;
@@ -32,6 +34,7 @@ public partial class GameManager : Node
 	// Signals
 	[Signal] public delegate void StatChangedEventHandler(string statName, int oldValue, int newValue);
 	[Signal] public delegate void GameOverEventHandler(string reason);
+	[Signal] public delegate void MysteryProgressChangedEventHandler(int progress, int required);
 	[Signal] public delegate void MysteryCompletedEventHandler(string mysteryId, string completionText);
 	[Signal] public delegate void RunWonEventHandler(string winText);
 	[Signal] public delegate void LocationUnlockedEventHandler(string locationId);
@@ -173,6 +176,10 @@ public partial class GameManager : Node
 		if (!_loadedMysteries.TryGetValue(currentMystery, out var mystery))
 			return;
 
+		EmitSignal(SignalName.MysteryProgressChanged,
+			MysteryProgress[currentMystery],
+			mystery.RequiredProgress);
+
 		if (MysteryProgress[currentMystery] < mystery.RequiredProgress)
 			return;
 
@@ -185,7 +192,25 @@ public partial class GameManager : Node
 
 		if (ActiveMysteries.Count == 0)
 			EmitSignal(SignalName.RunWon, mystery.CompletionText);
+		else
+		{
+			// Emit progress for the newly active mystery (starts at 0)
+			string nextId = ActiveMysteries[0];
+			int nextRequired = _loadedMysteries.TryGetValue(nextId, out var nextM) ? nextM.RequiredProgress : 1;
+			EmitSignal(SignalName.MysteryProgressChanged, 0, nextRequired);
+		}
 	}
+
+	public (int progress, int required) GetCurrentMysteryProgress()
+	{
+		if (ActiveMysteries.Count == 0) return (0, 0);
+		string id = ActiveMysteries[0];
+		int progress = MysteryProgress.TryGetValue(id, out int p) ? p : 0;
+		int required = _loadedMysteries.TryGetValue(id, out var m) ? m.RequiredProgress : 0;
+		return (progress, required);
+	}
+
+	public void MarkEventSeen(string eventId) => SeenEvents.Add(eventId);
 
 	private void InitialiseMysteries()
 	{
@@ -228,9 +253,15 @@ public partial class GameManager : Node
 		config.SetValue("stats", "doom",          Doom);
 		config.SetValue("stats", "current_turn",  CurrentTurn);
 
+		config.SetValue("run", "last_location", LastLocationName);
+
 		var invArr = new Godot.Collections.Array();
 		foreach (var id in Inventory) invArr.Add(id);
 		config.SetValue("inventory", "items", invArr);
+
+		var seenArr = new Godot.Collections.Array();
+		foreach (var id in SeenEvents) seenArr.Add(id);
+		config.SetValue("events", "seen", seenArr);
 
 		var mystArr = new Godot.Collections.Array();
 		foreach (var id in ActiveMysteries) mystArr.Add(id);
@@ -248,14 +279,19 @@ public partial class GameManager : Node
 		if (config.Load(SavePath) != Error.Ok)
 			return false;
 
-		Stamina      = (int)config.GetValue("stats", "stamina",      (Variant)MaxStamina);
-		Reason       = (int)config.GetValue("stats", "reason",       (Variant)MaxReason);
-		Doom         = (int)config.GetValue("stats", "doom",         (Variant)0);
-		CurrentTurn  = (int)config.GetValue("stats", "current_turn", (Variant)1);
+		Stamina          = (int)config.GetValue("stats", "stamina",      (Variant)MaxStamina);
+		Reason           = (int)config.GetValue("stats", "reason",       (Variant)MaxReason);
+		Doom             = (int)config.GetValue("stats", "doom",         (Variant)0);
+		CurrentTurn      = (int)config.GetValue("stats", "current_turn", (Variant)1);
+		LastLocationName = (string)config.GetValue("run",   "last_location", (Variant)"Town Square");
 
 		Inventory.Clear();
 		var invArr = config.GetValue("inventory", "items", new Godot.Collections.Array()).AsGodotArray();
 		foreach (var v in invArr) Inventory.Add(v.AsString());
+
+		SeenEvents.Clear();
+		var seenArr = config.GetValue("events", "seen", new Godot.Collections.Array()).AsGodotArray();
+		foreach (var v in seenArr) SeenEvents.Add(v.AsString());
 
 		ActiveMysteries.Clear();
 		MysteryProgress.Clear();
@@ -305,13 +341,15 @@ public partial class GameManager : Node
 		TotalRuns++;
 		SaveMeta();
 
-		Stamina     = MaxStamina;
-		Reason      = MaxReason;
-		Doom        = 0;
-		CurrentTurn = 1;
+		Stamina          = MaxStamina;
+		Reason           = MaxReason;
+		Doom             = 0;
+		CurrentTurn      = 1;
+		LastLocationName = "Town Square";
 		Inventory.Clear();
 		EventQueue.Clear();
 		EventResourceQueue.Clear();
+		SeenEvents.Clear();
 
 		InitialiseMysteries();
 		ApplyMetaBonuses();

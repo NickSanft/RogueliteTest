@@ -8,6 +8,6 @@ LocationId = "town_square"
 LocationName = "Town Square"
 Description = "The centre of a town that has been quietly emptying for years. The remaining residents do not make eye contact. The fountain has been dry since last spring, though no one can agree when it stopped."
 ImagePath = ""
-EventPool = ["town_strange_sermon", "town_disappearances"]
+EventPool = ["town_strange_sermon", "town_disappearances", "town_lodgings"]
 TurnCost = 1
 UnlockedByDefault = true

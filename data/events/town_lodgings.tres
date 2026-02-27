@@ -1,0 +1,70 @@
+[gd_resource type="Resource" script_class="EventResource" format=3]
+
+[ext_resource type="Script" uid="uid://bwoliaoytwc7e" path="res://scripts/resources/EventResource.cs" id="1"]
+[ext_resource type="Script" uid="uid://2wwbq38npbrd" path="res://scripts/resources/EventOption.cs" id="2"]
+[ext_resource type="Script" uid="uid://wjlfxffqq08k" path="res://scripts/resources/StatCheck.cs" id="3"]
+[ext_resource type="Script" uid="uid://ln4cmwg8ep8" path="res://scripts/resources/EventConsequence.cs" id="4"]
+
+[sub_resource type="Resource" id="con_sleep_stamina"]
+script = ExtResource("4")
+StatName = "stamina"
+Value = 3
+
+[sub_resource type="Resource" id="opt_sleep"]
+script = ExtResource("2")
+OptionText = "Take a room for the night"
+Consequences = Array[ExtResource("4")]([SubResource("con_sleep_stamina")])
+SuccessText = "The mattress is thin and the walls are thin. Sometime after midnight the couple in the next room stop talking mid-sentence and do not start again. You sleep poorly, but you sleep. In the morning you feel restored to the degree that this town permits."
+FailureText = "The mattress is thin and the walls are thin. Sometime after midnight the couple in the next room stop talking mid-sentence and do not start again. You sleep poorly, but you sleep. In the morning you feel restored to the degree that this town permits."
+
+[sub_resource type="Resource" id="sc_review"]
+script = ExtResource("3")
+Stat = 1
+Threshold = 4
+
+[sub_resource type="Resource" id="con_review_reason"]
+script = ExtResource("4")
+StatName = "reason"
+Value = 2
+
+[sub_resource type="Resource" id="con_review_doom"]
+script = ExtResource("4")
+StatName = "doom"
+Value = 2
+
+[sub_resource type="Resource" id="con_review_fail_doom"]
+script = ExtResource("4")
+StatName = "doom"
+Value = 3
+
+[sub_resource type="Resource" id="opt_review"]
+script = ExtResource("2")
+OptionText = "Sit in the common room and review your notes"
+StatCheck = SubResource("sc_review")
+SuccessConsequences = Array[ExtResource("4")]([SubResource("con_review_reason"), SubResource("con_review_doom")])
+FailureConsequences = Array[ExtResource("4")]([SubResource("con_review_fail_doom")])
+SuccessText = "Your notes cohere in ways they did not when you wrote them. The pattern is not reassuring, but it is legible. Knowing is better than not knowing — probably."
+FailureText = "An hour passes without your awareness. You surface to find your notes spread across the table in an order you do not remember arranging. Some of the writing is not yours. The handwriting is close to yours, but the pressure is wrong."
+
+[sub_resource type="Resource" id="con_letter_reason"]
+script = ExtResource("4")
+StatName = "reason"
+Value = 1
+
+[sub_resource type="Resource" id="con_letter_doom"]
+script = ExtResource("4")
+StatName = "doom"
+Value = -2
+
+[sub_resource type="Resource" id="opt_letter"]
+script = ExtResource("2")
+OptionText = "Write a letter home — then burn it"
+Consequences = Array[ExtResource("4")]([SubResource("con_letter_reason"), SubResource("con_letter_doom")])
+SuccessText = "You describe everything in plain language. The writing forces clarity: this is what you know, this is what you suspect, this is what you have done. You re-read it twice. Then you hold it over the candle and watch it go. Some things are better not received."
+FailureText = "You describe everything in plain language. The writing forces clarity: this is what you know, this is what you suspect, this is what you have done. You re-read it twice. Then you hold it over the candle and watch it go. Some things are better not received."
+
+[resource]
+script = ExtResource("1")
+EventId = "town_lodgings"
+EventText = "The lodging house at the edge of the square is half-empty. The proprietor takes your money without comment and does not ask your name. You have the evening to yourself in a town that has learned not to look at strangers too closely."
+Options = Array[ExtResource("2")]([SubResource("opt_sleep"), SubResource("opt_review"), SubResource("opt_letter")])

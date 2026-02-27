@@ -26,6 +26,10 @@ public partial class Main : Node2D
 	// Deferred win text — stored so it can be shown after the current event closes
 	private string _pendingWinText = "";
 
+	// Deferred game-over — defers end screen until any open EventWindow closes
+	private string _pendingGameOverStats = "";
+	private bool _gameOverTriggered = false;
+
 	public override void _Ready()
 	{
 		_gameManager = GetNode<GameManager>("/root/GameManager");
@@ -75,7 +79,7 @@ public partial class Main : Node2D
 		SetupTransitionOverlay();
 		SetupEndScreen();
 
-		_hud?.UpdateLocation("Town Square");
+		_hud?.UpdateLocation(_gameManager.LastLocationName);
 		_hud?.UpdateTurn(_gameManager.CurrentTurn);
 	}
 
@@ -121,18 +125,25 @@ public partial class Main : Node2D
 
 	private async void OnLocationInvestigated(LocationResource location)
 	{
+		if (_gameOverTriggered || _endScreen?.Visible == true) return;
+
 		await FadeOut();
 
 		_hud?.UpdateLocation(location.LocationName);
+		_gameManager!.LastLocationName = location.LocationName;
 		_gameManager!.CurrentTurn += location.TurnCost;
 		_hud?.UpdateTurn(_gameManager.CurrentTurn);
 		_gameManager.ModifyStat("doom", location.TurnCost * 2);
 		ApplyLocationEffect(location.LocationId);
+
+		string? eventId = location.GetRandomEvent(_gameManager.SeenEvents);
+		if (eventId != null)
+			_gameManager.MarkEventSeen(eventId);
+
 		_gameManager.SaveGame();
 
 		await FadeIn();
 
-		string? eventId = location.GetRandomEvent();
 		if (eventId != null && _eventManager != null && _eventWindow != null)
 		{
 			var locationEvent = _eventManager.LoadEvent($"res://data/events/{eventId}.tres");
@@ -150,11 +161,25 @@ public partial class Main : Node2D
 
 	private void OnGameOver(string reason)
 	{
+		if (_gameOverTriggered || _endScreen?.Visible == true) return;
+		_gameOverTriggered = true;
+
 		var gm = _gameManager;
-		string stats = gm != null
-			? $"Turns: {gm.CurrentTurn}   Stamina: {gm.Stamina}/{gm.MaxStamina}   Reason: {gm.Reason}/{gm.MaxReason}   Doom: {gm.Doom}/100"
-			: "";
-		ShowEndScreen("INVESTIGATION FAILED", $"{reason}\n\n{stats}");
+		_pendingGameOverStats = gm != null
+			? $"{reason}\n\nTurns: {gm.CurrentTurn}   Stamina: {gm.Stamina}/{gm.MaxStamina}   Reason: {gm.Reason}/{gm.MaxReason}   Doom: {gm.Doom}/100"
+			: reason;
+
+		if (_eventWindow?.Visible == true)
+			_eventWindow.VisibilityChanged += ShowGameOverWhenReady;
+		else
+			ShowEndScreen("INVESTIGATION FAILED", _pendingGameOverStats);
+	}
+
+	private void ShowGameOverWhenReady()
+	{
+		if (_eventWindow?.Visible != false) return;
+		_eventWindow.VisibilityChanged -= ShowGameOverWhenReady;
+		ShowEndScreen("INVESTIGATION FAILED", _pendingGameOverStats);
 	}
 
 	private void OnMysteryCompleted(string mysteryId, string completionText)
@@ -311,6 +336,7 @@ public partial class Main : Node2D
 
 	private void OnEndScreenContinue()
 	{
+		_gameOverTriggered = false;
 		_gameManager?.ResetGame();
 		Callable.From(() => GetTree().ReloadCurrentScene()).CallDeferred();
 	}
