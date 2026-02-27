@@ -1,0 +1,498 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>RogueliteTest — Content Overview</title>
+<style>
+:root {
+  --bg:       #09090f;
+  --bg2:      #11111c;
+  --bg3:      #181828;
+  --border:   #252535;
+  --text:     #c0c0d4;
+  --dim:      #5a5a7a;
+  --accent:   #7070ee;
+  --doom:     #e05020;
+  --stamina:  #30b050;
+  --reason:   #4090e0;
+  --mystery:  #a040e0;
+  --item:     #30c0a0;
+  --unlock:   #d0a020;
+  --trigger:  #50b0e0;
+  --success:  #30b050;
+  --failure:  #e03030;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  background: var(--bg); color: var(--text);
+  font-family: Georgia, 'Times New Roman', serif;
+  font-size: 14px; line-height: 1.65;
+}
+a { color: var(--accent); text-decoration: none; }
+a:hover { text-decoration: underline; }
+
+/* ── Header ── */
+header {
+  background: var(--bg2); border-bottom: 1px solid var(--border);
+  padding: 10px 20px; display: flex; align-items: center; gap: 20px;
+  position: sticky; top: 0; z-index: 100;
+}
+header h1 { font-size: 16px; color: var(--accent); letter-spacing: .12em; text-transform: uppercase; }
+.tabs { display: flex; gap: 4px; }
+.tab-btn {
+  background: none; border: 1px solid var(--border); color: var(--dim);
+  padding: 5px 14px; cursor: pointer; font-family: inherit; font-size: 12px;
+  border-radius: 3px; transition: all .15s; text-transform: uppercase; letter-spacing: .08em;
+}
+.tab-btn:hover { color: var(--text); border-color: var(--accent); }
+.tab-btn.active { background: var(--accent); color: #fff; border-color: var(--accent); }
+.summary { margin-left: auto; font-size: 11px; color: var(--dim); font-family: monospace; }
+
+/* ── Layout ── */
+main { padding: 18px 22px; max-width: 1140px; margin: 0 auto; }
+.tab-pane { display: none; }
+.tab-pane.active { display: block; }
+
+/* ── Filter bar ── */
+.filter-bar { margin-bottom: 14px; }
+.filter-bar input {
+  background: var(--bg2); border: 1px solid var(--border); color: var(--text);
+  padding: 7px 12px; width: 280px; font-family: inherit; font-size: 13px;
+  border-radius: 3px; outline: none;
+}
+.filter-bar input:focus { border-color: var(--accent); }
+
+/* ── Location grid ── */
+.location-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(330px, 1fr)); gap: 14px; }
+.location-card { background: var(--bg2); border: 1px solid var(--border); border-radius: 4px; overflow: hidden; }
+.loc-header {
+  padding: 11px 14px; background: var(--bg3); display: flex; align-items: center;
+  gap: 8px; cursor: pointer; user-select: none;
+}
+.loc-header:hover { background: #1c1c2e; }
+.loc-name { font-size: 14px; font-weight: bold; flex: 1; }
+.loc-badges { display: flex; gap: 5px; align-items: center; flex-shrink: 0; }
+.loc-body { padding: 12px 14px; }
+.loc-body.hidden { display: none; }
+.loc-desc { color: var(--dim); font-size: 12px; font-style: italic; margin-bottom: 10px; }
+.pool-label { font-size: 10px; text-transform: uppercase; letter-spacing: .1em; color: var(--dim); margin-bottom: 5px; }
+.event-link {
+  display: flex; align-items: center; gap: 6px;
+  padding: 5px 9px; background: var(--bg); border: 1px solid var(--border);
+  border-radius: 3px; margin-bottom: 3px; cursor: pointer;
+  font-size: 12px; color: var(--dim); font-family: monospace; transition: all .1s;
+}
+.event-link:hover { color: var(--accent); border-color: var(--accent); }
+.event-link-id { flex: 1; }
+
+/* ── Badges ── */
+.badge {
+  font-size: 10px; padding: 2px 5px; border-radius: 2px;
+  font-family: monospace; letter-spacing: .04em; white-space: nowrap;
+}
+.b-locked   { background: #2a1010; color: #b05050; }
+.b-turn     { background: #0e1a28; color: #5080b0; }
+.b-doom     { background: #28140a; color: var(--doom); }
+.b-mystery  { background: #1c082c; color: var(--mystery); }
+.b-item     { background: #082820; color: var(--item); }
+.b-chain    { background: #081828; color: var(--trigger); }
+.b-unlock   { background: #28200a; color: var(--unlock); }
+
+/* ── Event cards ── */
+.event-card { background: var(--bg2); border: 1px solid var(--border); border-radius: 4px; margin-bottom: 8px; overflow: hidden; }
+.ev-header {
+  padding: 9px 13px; display: flex; align-items: center; gap: 9px;
+  cursor: pointer; user-select: none; background: var(--bg3);
+}
+.ev-header:hover { background: #1c1c2e; }
+.ev-id { font-family: monospace; font-size: 13px; color: var(--accent); flex: 1; }
+.ev-badges { display: flex; gap: 4px; }
+.expand-icon { color: var(--dim); font-size: 9px; flex-shrink: 0; }
+.ev-body { padding: 12px 14px; display: none; }
+.ev-body.open { display: block; }
+.ev-text {
+  color: var(--text); margin-bottom: 12px; padding: 9px 11px;
+  background: var(--bg); border-left: 3px solid var(--border); font-style: italic; font-size: 13px;
+}
+
+/* ── Options ── */
+.option { border: 1px solid var(--border); border-radius: 3px; margin-bottom: 8px; overflow: hidden; }
+.opt-header {
+  padding: 7px 11px; background: var(--bg3); display: flex; align-items: center; gap: 9px;
+}
+.opt-text { flex: 1; font-size: 13px; }
+.stat-check {
+  font-size: 10px; padding: 2px 6px; border-radius: 2px;
+  font-family: monospace; white-space: nowrap; flex-shrink: 0;
+}
+.sc-stamina { background: #081c10; color: var(--stamina); }
+.sc-reason  { background: #081018; color: var(--reason); }
+.sc-doom    { background: #200800; color: var(--doom); }
+.sc-none    { background: #141414; color: var(--dim); }
+.opt-paths { padding: 9px 11px; display: flex; flex-direction: column; gap: 8px; }
+.path-block {}
+.path-label {
+  font-size: 10px; font-family: monospace; text-transform: uppercase;
+  letter-spacing: .1em; margin-bottom: 3px;
+}
+.pl-success { color: var(--success); }
+.pl-failure { color: var(--failure); }
+.pl-always  { color: var(--dim); }
+.path-narr {
+  font-size: 12px; color: var(--dim); font-style: italic;
+  margin-bottom: 5px; padding-left: 8px; border-left: 2px solid var(--border);
+}
+.cons-row { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 3px; }
+.con {
+  font-size: 10px; padding: 2px 5px; border-radius: 2px;
+  font-family: monospace; white-space: nowrap;
+}
+.c-sp  { background: #082010; color: var(--stamina); }
+.c-sn  { background: #200808; color: var(--failure); }
+.c-dp  { background: #200d00; color: var(--doom); }
+.c-dn  { background: #002010; color: var(--stamina); }
+.c-my  { background: #160828; color: var(--mystery); }
+.c-it  { background: #001c16; color: var(--item); }
+.c-tr  { background: #000e1c; color: var(--trigger); }
+.c-ul  { background: #1c1600; color: var(--unlock); }
+
+/* ── Mystery paths ── */
+.mystery-section { background: var(--bg2); border: 1px solid var(--border); border-radius: 4px; margin-bottom: 16px; overflow: hidden; }
+.mystery-header { padding: 13px 15px; background: #0c0c20; border-bottom: 1px solid var(--border); }
+.mystery-name { font-size: 15px; color: var(--mystery); margin-bottom: 3px; }
+.mystery-meta { font-size: 11px; color: var(--dim); font-family: monospace; }
+.pbar-wrap { height: 5px; background: var(--bg); border-radius: 3px; margin-top: 8px; overflow: hidden; }
+.pbar { height: 100%; background: var(--mystery); border-radius: 3px; transition: width .3s; }
+.mystery-body { padding: 13px 15px; }
+.sec-title {
+  font-size: 10px; text-transform: uppercase; letter-spacing: .12em;
+  color: var(--dim); margin-bottom: 8px; padding-bottom: 5px;
+  border-bottom: 1px solid var(--border);
+}
+.m-event {
+  background: var(--bg); border: 1px solid var(--border); border-radius: 3px;
+  padding: 9px 11px; display: flex; gap: 10px; align-items: flex-start;
+  margin-bottom: 6px;
+}
+.m-event-info { flex: 1; }
+.m-event-id { font-family: monospace; font-size: 12px; color: var(--accent); margin-bottom: 2px; }
+.m-event-desc { font-size: 12px; color: var(--dim); }
+.m-prog-badge {
+  font-family: monospace; font-size: 13px; color: var(--mystery);
+  background: #160828; padding: 3px 9px; border-radius: 3px;
+  white-space: nowrap; align-self: center; flex-shrink: 0;
+}
+
+/* ── Items section ── */
+.item-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 10px; }
+.item-card { background: var(--bg2); border: 1px solid var(--border); border-radius: 4px; padding: 11px 14px; }
+.item-name { font-size: 14px; color: var(--item); margin-bottom: 4px; }
+.item-id { font-family: monospace; font-size: 11px; color: var(--dim); margin-bottom: 6px; }
+.item-desc { font-size: 12px; color: var(--dim); font-style: italic; margin-bottom: 8px; }
+.item-bonuses { display: flex; gap: 6px; flex-wrap: wrap; }
+
+/* ── Misc ── */
+.no-results { color: var(--dim); font-style: italic; padding: 16px 0; font-size: 13px; }
+.completion-text { margin-top: 10px; }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>RogueliteTest</h1>
+  <div class="tabs">
+    <button class="tab-btn active" onclick="showTab('locations')">Locations</button>
+    <button class="tab-btn"        onclick="showTab('events')">Events</button>
+    <button class="tab-btn"        onclick="showTab('paths')">Mystery Paths</button>
+    <button class="tab-btn"        onclick="showTab('items')">Items</button>
+  </div>
+  <div class="summary" id="summary"></div>
+</header>
+
+<main>
+  <div id="tab-locations" class="tab-pane active"></div>
+  <div id="tab-events"    class="tab-pane"></div>
+  <div id="tab-paths"     class="tab-pane"></div>
+  <div id="tab-items"     class="tab-pane"></div>
+</main>
+
+<script>
+const DATA = {"events": {"catacomb_flooded_passage": {"id": "catacomb_flooded_passage", "text": "A side passage branches from the main catacomb corridor, descending steeply into standing water. The water is perfectly still despite the passage of air from deeper in the rock. Something below its surface glows intermittently — not bioluminescent, not electric. The light has a rhythm.", "options": [{"text": "Wade through — there must be something worth reaching on the other side", "stat_check": {"stat": "Stamina", "threshold": 6, "check_type": "Fixed"}, "always": [], "on_success": [{"type": "AdvanceMystery", "amount": 1}, {"type": "StatChange", "stat": "doom", "value": 6}], "on_failure": [{"type": "StatChange", "stat": "stamina", "value": -3}, {"type": "StatChange", "stat": "doom", "value": 4}], "success_text": "The water reaches your chest before the passage opens into an air pocket. On the far wall: a relief carving, detailed and purposeful, depicting something ascending from depth. It is not a warning. It is a schedule. The date carved at the bottom, accounting for calendar drift, is very soon.", "failure_text": "The cold defeats you halfway through. You stagger back to the entrance, soaked and shaking. Whatever is on the other side of that flooded section remains unknown. The water level seems to have risen slightly since you entered."}, {"text": "Listen from the entrance — sound carries in flooded tunnels", "stat_check": {"stat": "Reason", "threshold": 5, "check_type": "Fixed"}, "always": [], "on_success": [{"type": "StatChange", "stat": "doom", "value": 4}], "on_failure": [{"type": "StatChange", "stat": "reason", "value": -3}], "success_text": "You hear rhythm. Not the rhythm of water moving through stone—something with intention behind it, something that slows and quickens in response to your own heartbeat. It takes you a long moment to realise it stopped the second you began to count it.", "failure_text": "The sounds from the passage are ordinary — water, stone, the settling of an old structure. You listen for forty minutes and find nothing. On the walk back, you realise you cannot account for those forty minutes, and that your boots are wet."}, {"text": "Mark the water level and come back later", "stat_check": null, "always": [{"type": "StatChange", "stat": "doom", "value": -2}], "on_success": [], "on_failure": [], "success_text": "You scratch a line at the waterline and note the time. The passage is here; it will keep. Prudence is not the same as cowardice. As you leave, you hear the water behind you rise slightly — not with the sound of inflow, but with the sound of something displacing it.", "failure_text": "You scratch a line at the waterline and note the time. The passage is here; it will keep. Prudence is not the same as cowardice. As you leave, you hear the water behind you rise slightly — not with the sound of inflow, but with the sound of something displacing it."}]}, "catacomb_the_truth_below": {"id": "catacomb_the_truth_below", "text": "The catacomb opens into a chamber that should not exist at this depth. The walls are covered in carvings that predate any local stoneworking tradition. They depict a coastline you do not recognise, and something in the water beneath it. The carvings are not a warning. They are a record.", "options": [{"text": "Study the carvings — let them tell you what they are", "stat_check": {"stat": "Reason", "threshold": 7, "check_type": "Fixed"}, "always": [], "on_success": [{"type": "AdvanceMystery", "amount": 3}, {"type": "StatChange", "stat": "doom", "value": 8}], "on_failure": [{"type": "StatChange", "stat": "reason", "value": -4}], "success_text": "You read for hours with a torch held close to the stone. The carvings describe an entity that predates the coastline, that directed the geological formation of the bay, that has been waiting beneath the water with the patience of something that measures time in continental drift. You understand it now. You carry that understanding out of the catacomb like a stone in your chest.", "failure_text": "The carvings will not hold still. You trace a shape and find it has changed when you look back. After an hour you realize you cannot tell which marks are intentional and which are water damage, and that the distinction may not exist. You sit in the dark until your torch burns low."}, {"text": "Copy the carvings into your journal — you will understand them later", "stat_check": {"stat": "Stamina", "threshold": 5, "check_type": "Fixed"}, "always": [{"type": "AdvanceMystery", "amount": 1}], "on_success": [], "on_failure": [{"type": "StatChange", "stat": "stamina", "value": -2}], "success_text": "Your hand cramps badly before you finish. The copies are imperfect but legible. Whatever these carvings mean, the record exists now. You emerged from the catacomb with the feeling of having stolen something.", "failure_text": "The cold and the damp exhaust you before you finish. What copies you managed are smeared and incomplete. You emerge stiff, cold, and uncertain whether what you recorded has any value."}, {"text": "Leave it alone — this knowledge has kept well enough without you", "stat_check": null, "always": [{"type": "StatChange", "stat": "doom", "value": -3}], "on_success": [], "on_failure": [], "success_text": "You back out of the chamber the way you came, keeping the carvings in view until you round the first corner. Above ground, the air tastes less wrong. Whatever lives down here, you have declined its acquaintance for another day.", "failure_text": "You back out of the chamber the way you came, keeping the carvings in view until you round the first corner. Above ground, the air tastes less wrong. Whatever lives down here, you have declined its acquaintance for another day."}]}, "cliff_deep_signal": {"id": "cliff_deep_signal", "text": "The lights below the water are not random. They pulse in sequence—two long, three short, one long—repeating. Over the sound of the waves, if you strain, you can almost hear a corresponding tone. Something beneath the surface is broadcasting.", "options": [{"text": "Attempt to decode the pattern", "stat_check": {"stat": "Reason", "threshold": 7, "check_type": "Fixed"}, "always": [], "on_success": [{"type": "StatChange", "stat": "doom", "value": 6}], "on_failure": [{"type": "StatChange", "stat": "reason", "value": -4}], "success_text": "Three hours pass in what feels like ten minutes. The pattern is not code—it is language, direct and grammatically alien. The message is a single sentence. You transcribe it without understanding it. Your hands are shaking by the time you finish.", "failure_text": "You stare into the pattern until your eyes water. Something in the rhythm locks onto your heartbeat, trying to sync them. You tear yourself away and stagger back from the edge. Your pulse is still wrong."}, {"text": "Signal back with your lantern — mirror the pattern", "stat_check": null, "always": [{"type": "StatChange", "stat": "doom", "value": 10}, {"type": "TriggerEvent", "next_event_id": "cliff_the_visitor"}], "on_success": [], "on_failure": [], "success_text": "The response is immediate. The lights below accelerate, overlapping into something almost white. Then stop. The silence that follows is different than before—expectant. Something was answered. Something is coming to investigate.", "failure_text": "The response is immediate. The lights below accelerate, overlapping into something almost white. Then stop. The silence that follows is different than before—expectant. Something was answered. Something is coming to investigate."}, {"text": "Cover the lantern and wait for the signal to stop", "stat_check": null, "always": [], "on_success": [], "on_failure": [], "success_text": "You sit in the dark and wait it out. After perhaps an hour, the lights dim and cease. Whatever was sending the signal has either given up or moved on. The sea sounds normal again. Almost.", "failure_text": "You sit in the dark and wait it out. After perhaps an hour, the lights dim and cease. Whatever was sending the signal has either given up or moved on. The sea sounds normal again. Almost."}]}, "cliff_drowned_sailor": {"id": "cliff_drowned_sailor", "text": "Something hauls itself out of the surf below the cliff. It was human, once—the shape is right, the clothing suggests a fisherman. But it has been in the water too long. It looks up at you with complete calm, as if it has been waiting.", "options": [{"text": "Descend the cliff path and approach it", "stat_check": {"stat": "Reason", "threshold": 5, "check_type": "Fixed"}, "always": [], "on_success": [{"type": "StatChange", "stat": "doom", "value": 5}, {"type": "AdvanceMystery", "amount": 1}, {"type": "ItemGain", "item_id": "tidal_compass"}], "on_failure": [{"type": "StatChange", "stat": "reason", "value": -3}], "success_text": "It speaks in something adjacent to your language. The words decay at the edges, but the meaning holds: something beneath the water wants you to visit. The sailor gave this message at great personal cost. You try not to think about what that cost was.", "failure_text": "The closer you get, the less it looks like a person. By the time you are close enough to speak, you realize the face is a suggestion—designed to read as human from a distance. You flee up the cliff path while it calls after you in a sound like water in a drain."}, {"text": "Shout down to it from the clifftop", "stat_check": {"stat": "Stamina", "threshold": 4, "check_type": "Fixed"}, "always": [], "on_success": [{"type": "StatChange", "stat": "doom", "value": 3}], "on_failure": [{"type": "StatChange", "stat": "stamina", "value": -3}], "success_text": "The wind fights you the whole way. Eventually you make out that it is reciting coordinates—latitude and longitude, over and over. You write them down before realizing the numbers describe the bottom of the ocean.", "failure_text": "The wind cuts through you in the effort of shouting. The figure below seems to drift closer without moving. When you stop, your throat raw and your chest aching, it has reached the cliff base."}, {"text": "Back away from the cliff edge before it notices you", "stat_check": null, "always": [], "on_success": [], "on_failure": [], "success_text": "You ease back from the edge. Whether it saw you or not is unknown. The figure remains at the waterline for another hour before the sea reclaims it. You watch from concealment, cold and thoughtful.", "failure_text": "You ease back from the edge. Whether it saw you or not is unknown. The figure remains at the waterline for another hour before the sea reclaims it. You watch from concealment, cold and thoughtful."}]}, "cliff_the_visitor": {"id": "cliff_the_visitor", "text": "There is a figure on the shore that was not there before. It stands at the tide line, ankle-deep in the surf, facing the cliff with the patience of something that does not need to breathe. It is dressed like a fisherman. Its posture is wrong in ways you cannot immediately name. When it sees you looking, it raises one hand — a greeting or a signal.", "options": [{"text": "Examine the visitor closely — it wants to show you something", "stat_check": {"stat": "Reason", "threshold": 6, "check_type": "Fixed"}, "always": [], "on_success": [{"type": "UnlockLocation", "location_id": ""}, {"type": "AdvanceMystery", "amount": 2}, {"type": "StatChange", "stat": "doom", "value": 5}], "on_failure": [{"type": "StatChange", "stat": "reason", "value": -3}], "success_text": "It peels back the waterlogged sleeve to reveal coordinates tattooed in a hand that is not quite right — too many bones in the fingers, spaced wrong. Below the cliff, past the tidal shelf, at a depth no one would survive: something waits. You know where to go now. The visitor turns and walks back into the sea without looking back.", "failure_text": "You lean in too close. For a moment you are not at the cliff — you are below it, in cold water, in the dark, with something enormous passing overhead. When the vision ends you are on your knees on the clifftop and the visitor is gone."}, {"text": "Tell it to return to the sea — your investigation is your own", "stat_check": {"stat": "Stamina", "threshold": 5, "check_type": "Fixed"}, "always": [], "on_success": [{"type": "StatChange", "stat": "doom", "value": -5}], "on_failure": [{"type": "StatChange", "stat": "stamina", "value": -2}, {"type": "StatChange", "stat": "doom", "value": 3}], "success_text": "You hold its gaze and speak with authority. It pauses. Then, with the deliberation of something that has all the time in the world, it turns and walks back into the surf. You have bought yourself nothing except the impression that you are being assessed.", "failure_text": "You try, but your voice comes out wrong. It cocks its head the way a dog tracks a sound. The standoff lasts until dawn, when it finally retreats with the tide. You are exhausted and badly cold."}, {"text": "Drive it off with your torch — it should not be here", "stat_check": null, "always": [{"type": "StatChange", "stat": "doom", "value": 2}], "on_success": [], "on_failure": [], "success_text": "The flame keeps it back. It retreats into the surf foot by foot, unhurried, watching you. The fire doesn't frighten it — it simply finds the light inconvenient. Before the water takes it, it raises one hand in something that might be a gesture of farewell.", "failure_text": "The flame keeps it back. It retreats into the surf foot by foot, unhurried, watching you. The fire doesn't frighten it — it simply finds the light inconvenient. Before the water takes it, it raises one hand in something that might be a gesture of farewell."}]}, "library_dusty_mirror": {"id": "library_dusty_mirror", "text": "A full-length mirror stands at the library's far end, filmed with decades of dust. Your reflection moves a moment too soon—stepping forward before you do, tilting its head in the opposite direction.", "options": [{"text": "Wipe away the dust and stare directly at it", "stat_check": {"stat": "Reason", "threshold": 5, "check_type": "Fixed"}, "always": [], "on_success": [{"type": "AdvanceMystery", "amount": 1}], "on_failure": [{"type": "StatChange", "stat": "reason", "value": -2}], "success_text": "Your reflection snaps into sync, then looks ashamed. Whatever was using it retreats. The glass shows only you, diminished and breathing too fast.", "failure_text": "As your cloth touches the surface, your reflection grabs your wrist from the other side. You feel nothing—but you cannot pull away. Finally it releases you, grinning. You did not grin."}, {"text": "Speak your full name aloud to the reflection", "stat_check": null, "always": [{"type": "StatChange", "stat": "doom", "value": 5}], "on_success": [], "on_failure": [], "success_text": "The reflection mouths your name one beat behind. Then it stops, and the silence is worse. Something has been given something it wanted. As you leave, your own voice follows from the mirror: 'Come back.'", "failure_text": "The reflection mouths your name one beat behind. Then it stops, and the silence is worse. Something has been given something it wanted. As you leave, your own voice follows from the mirror: 'Come back.'"}, {"text": "Cover the mirror with your coat and leave quickly", "stat_check": null, "always": [], "on_success": [], "on_failure": [], "success_text": "You back away without looking at it again. The cloth rustles once. You choose to believe it was a draft.", "failure_text": "You back away without looking at it again. The cloth rustles once. You choose to believe it was a draft."}]}, "library_forbidden_tome": {"id": "library_forbidden_tome", "text": "Between the crumbling shelves, a slim volume pulses with dim phosphorescent light. The symbols on its cover rearrange themselves as you watch. The other books lean away from it.", "options": [{"text": "Study the forbidden diagrams", "stat_check": {"stat": "Reason", "threshold": 6, "check_type": "Fixed"}, "always": [], "on_success": [{"type": "StatChange", "stat": "reason", "value": -1}, {"type": "AdvanceMystery", "amount": 1}], "on_failure": [{"type": "StatChange", "stat": "reason", "value": -3}], "success_text": "The patterns resolve into something almost comprehensible. A terrible understanding blooms behind your eyes. Your reason erodes at the price of knowing.", "failure_text": "The diagrams twist into shapes the mind cannot process. Pain lances through your skull. You drop the book and stagger back, something inside you permanently bent."}, {"text": "Transcribe a single page before closing it", "stat_check": {"stat": "Stamina", "threshold": 4, "check_type": "Fixed"}, "always": [], "on_success": [], "on_failure": [{"type": "StatChange", "stat": "stamina", "value": -2}], "success_text": "Hours slide past unnoticed. Your fingers ache and your eyes burn, but the page is reproduced faithfully. You slide the notes into your coat without looking at them again.", "failure_text": "You lose yourself in the copying. When awareness returns, the candle has burned to a stub. Your transcription is perfect on one half of the page; the other half is someone else's handwriting."}, {"text": "Commit it to the flames", "stat_check": null, "always": [{"type": "StatChange", "stat": "doom", "value": -5}], "on_success": [], "on_failure": [], "success_text": "The book does not go quietly. An inhuman shriek fills the library as the pages blacken. When the smoke clears and your heartbeat steadies, the air feels marginally less wrong.", "failure_text": "The book does not go quietly. An inhuman shriek fills the library as the pages blacken. When the smoke clears and your heartbeat steadies, the air feels marginally less wrong."}]}, "library_hidden_archive": {"id": "library_hidden_archive", "text": "Behind a section of shelving that swings outward is a room that the library's floor plan does not account for. It is filled with documents in cases of black glass — organised, catalogued, and maintained to a standard the visible library could not aspire to. The air here is colder and does not smell of dust. It smells of preservation.", "options": [{"text": "Read the archive — all of it, until you understand", "stat_check": {"stat": "Reason", "threshold": 7, "check_type": "Fixed"}, "always": [], "on_success": [{"type": "AdvanceMystery", "amount": 2}, {"type": "StatChange", "stat": "doom", "value": 6}], "on_failure": [{"type": "StatChange", "stat": "reason", "value": -4}], "success_text": "The archive is a complete record: every person who visited this library, what they read, what it cost them, and what they subsequently did. It goes back four hundred years. Your own name appears on the last page, already filled in, in handwriting you do not recognise as your own.", "failure_text": "The density of the material defeats you. Too many cross-references, too many marginal notations in too many hands. You emerge from the archive hours later with the structural outline of something vast and the specific knowledge that you are missing crucial context. Your head aches."}, {"text": "Remove the most dangerous volumes for safekeeping", "stat_check": {"stat": "Stamina", "threshold": 5, "check_type": "Fixed"}, "always": [], "on_success": [{"type": "AdvanceMystery", "amount": 1}], "on_failure": [{"type": "StatChange", "stat": "stamina", "value": -3}], "success_text": "You fill your coat with as many as you can carry. The books are heavier than their size warrants and do not sit still in your grip. By the time you reach the street your arms are exhausted, but the volumes are out of the archive.", "failure_text": "The books resist you in ways that are difficult to explain. They are slippery, or the light changes, or the section appears to rearrange itself. You emerge empty-handed and breathing hard, with the impression that the archive found you insufficient."}, {"text": "Seal the passage and pretend it was never there", "stat_check": null, "always": [], "on_success": [], "on_failure": [], "success_text": "You replace the bookcase and wedge it shut. It moves back slightly on its own. You wedge it shut again. It holds. As you leave the library you hear, from somewhere beneath the floor, something shifting through paper.", "failure_text": "You replace the bookcase and wedge it shut. It moves back slightly on its own. You wedge it shut again. It holds. As you leave the library you hear, from somewhere beneath the floor, something shifting through paper."}]}, "shrine_blood_altar": {"id": "shrine_blood_altar", "text": "The stone altar is slick with fresh blood—dark and still-steaming despite the shrine's obvious abandonment. No animal tracks. No signs of recent occupation. The blood has no source you can see.", "options": [{"text": "Place your hand upon the altar", "stat_check": {"stat": "Stamina", "threshold": 5, "check_type": "Fixed"}, "always": [{"type": "StatChange", "stat": "stamina", "value": -1}], "on_success": [{"type": "StatChange", "stat": "doom", "value": -8}], "on_failure": [{"type": "StatChange", "stat": "doom", "value": 10}], "success_text": "Cold. The altar drinks your warmth. In exchange, something terrible acknowledges you—not as prey, but as kin. The doom pressing at the edge of your mind recedes slightly.", "failure_text": "The moment your skin touches the stone, the blood surges upward and traces patterns on your palm. You jerk back but the marks remain, faintly luminescent. Something has marked you."}, {"text": "Inspect the blood — search for its source", "stat_check": {"stat": "Reason", "threshold": 6, "check_type": "Fixed"}, "always": [], "on_success": [{"type": "StatChange", "stat": "doom", "value": 3}], "on_failure": [{"type": "StatChange", "stat": "reason", "value": -3}], "success_text": "Logic cannot explain it, but you can describe what you see with clinical precision. The blood seeps upward through the stone from below. You close your notes and breathe carefully.", "failure_text": "You stare too long. The blood begins to form shapes—faces, then scenes from your own memory, but wrong. You back away before it can finish whatever it is showing you."}, {"text": "Overturn the altar's offerings and defile it", "stat_check": {"stat": "Stamina", "threshold": 7, "check_type": "Fixed"}, "always": [], "on_success": [{"type": "StatChange", "stat": "doom", "value": -5}], "on_failure": [{"type": "StatChange", "stat": "doom", "value": 15}, {"type": "StatChange", "stat": "stamina", "value": -2}], "success_text": "The blood hisses and recoils as you shove everything from the stone. A shriek that you feel in your bones fills the shrine. Then silence. The altar is just rock now.", "failure_text": "Your hands slip. The offerings fall in a pattern you didn't intend—apparently a more significant one. The shadows in the corners lurch toward the altar. You run."}]}, "shrine_possession": {"id": "shrine_possession", "text": "The air at the shrine's threshold thickens. Something presses against the inside of your skull — not quite a thought, not quite a sound. It is patient. It has been waiting a long time for something with eyes.", "options": [{"text": "Resist — force it back out", "stat_check": {"stat": "Reason", "threshold": 5, "check_type": "Fixed"}, "always": [], "on_success": [{"type": "StatChange", "stat": "doom", "value": 2}], "on_failure": [{"type": "StatChange", "stat": "reason", "value": -3}, {"type": "StatChange", "stat": "doom", "value": 4}], "success_text": "You find the edge of yourself and hold it. The presence retreats like water from a cupped hand — slowly, with the sense it will return. Your thoughts are your own again. For now.", "failure_text": "It makes use of your hands before you force it out. You do not know what it touched. The altar stone is warm where it wasn't before. Something has been moved."}, {"text": "Let it look through your eyes briefly", "stat_check": null, "always": [{"type": "AdvanceMystery", "amount": 2}, {"type": "StatChange", "stat": "doom", "value": 6}], "on_success": [], "on_failure": [], "success_text": "It moves through you like water through gauze. In exchange — though it did not offer, and you did not ask — you understand something about the shape of the thing below. The understanding costs more than you expected.", "failure_text": "It moves through you like water through gauze. In exchange — though it did not offer, and you did not ask — you understand something about the shape of the thing below. The understanding costs more than you expected."}, {"text": "Run from the shrine immediately", "stat_check": {"stat": "Stamina", "threshold": 4, "check_type": "Fixed"}, "always": [], "on_success": [], "on_failure": [{"type": "StatChange", "stat": "stamina", "value": -2}, {"type": "StatChange", "stat": "doom", "value": 3}], "success_text": "You are outside before you form the intention to leave. Distance helps. By the time the town is visible ahead, whatever was at the edge of your mind has retreated. You do not look back.", "failure_text": "Your legs refuse the first three commands. By the time they agree, it has had enough time to understand the architecture of your fear. You carry that knowledge of its knowledge out of the shrine with you."}]}, "shrine_shadow_gathering": {"id": "shrine_shadow_gathering", "text": "In the deepest corner of the shrine, shadows move against the direction of the light. They are not your shadows. They convene around something you cannot make out, performing a ritual you cannot name.", "options": [{"text": "Observe silently and memorize the ritual", "stat_check": {"stat": "Reason", "threshold": 7, "check_type": "Fixed"}, "always": [], "on_success": [{"type": "StatChange", "stat": "doom", "value": 5}, {"type": "AdvanceMystery", "amount": 1}], "on_failure": [{"type": "StatChange", "stat": "reason", "value": -4}], "success_text": "You catalogue everything with the discipline of a naturalist studying a deadly animal. The ritual's structure becomes clear to you—and then immediately unbearable. You carry the knowledge out of the shrine.", "failure_text": "You are seen. The shadows stop. Every one of them orients toward you without turning, without having eyes. Seconds pass before they resume. You are dismissed. That is somehow worse than being attacked."}, {"text": "Step into the ritual space", "stat_check": null, "always": [{"type": "StatChange", "stat": "doom", "value": 8}, {"type": "StatChange", "stat": "reason", "value": -1}], "on_success": [], "on_failure": [], "success_text": "The shadows absorb you briefly. You are aware of everything in the shrine simultaneously. The experience ends when the ritual does. You stand at the altar's edge with no memory of walking there and a hollow feeling behind your sternum.", "failure_text": "The shadows absorb you briefly. You are aware of everything in the shrine simultaneously. The experience ends when the ritual does. You stand at the altar's edge with no memory of walking there and a hollow feeling behind your sternum."}, {"text": "Retreat to the entrance and wait for it to end", "stat_check": null, "always": [], "on_success": [], "on_failure": [], "success_text": "You watch from the doorway until the shadows dissipate. Nothing pursues you. The shrine is empty and cold. You cannot shake the sense that you have failed some test you were not told you were taking.", "failure_text": "You watch from the doorway until the shadows dissipate. Nothing pursues you. The shrine is empty and cold. You cannot shake the sense that you have failed some test you were not told you were taking."}]}, "town_disappearances": {"id": "town_disappearances", "text": "A notice board near the square has been papered over with handwritten names and dates — residents have been keeping a record of who is missing. The list goes back further than you expected. The handwriting changes at the bottom, becoming more recent and more frightened.", "options": [{"text": "Investigate the pattern — cross-reference the names and dates", "stat_check": {"stat": "Reason", "threshold": 5, "check_type": "Fixed"}, "always": [], "on_success": [{"type": "StatChange", "stat": "doom", "value": 5}], "on_failure": [{"type": "StatChange", "stat": "reason", "value": -2}], "success_text": "The disappearances follow the tidal calendar almost exactly. The exceptions are not random — they cluster on nights with particular lunar angles. Whoever or whatever is selecting these people has access to an almanac, a preference, and patience measured in years.", "failure_text": "The records are inconsistent in ways that feel intentional. Names are misspelled differently in different registers. Dates contradict. You cannot tell if the records were badly kept or if someone has been maintaining a specific kind of confusion."}, {"text": "Canvass the remaining residents door to door", "stat_check": {"stat": "Stamina", "threshold": 4, "check_type": "Fixed"}, "always": [], "on_success": [{"type": "StatChange", "stat": "stamina", "value": -1}], "on_failure": [{"type": "StatChange", "stat": "stamina", "value": -3}], "success_text": "Most doors do not open. Of those that do, four people give you the same story using slightly different words: a sound at low tide, then quiet. One elderly woman gives you a list of thirty-one names going back four generations. 'We knew it would come to this,' she says, and closes the door.", "failure_text": "Hours of walking and most doors closed. Your feet ache and you have three contradictory stories, none of which can be verified. By the time you return to the square you are tired and no wiser, and the afternoon has gone."}, {"text": "Post a notice asking for information — let people come to you", "stat_check": null, "always": [], "on_success": [], "on_failure": [], "success_text": "Three notes appear under your door overnight. One is a warning in a language you do not recognise. One lists the cliff path and a time. One is blank, but smells of salt and something organic. You keep all three.", "failure_text": "Three notes appear under your door overnight. One is a warning in a language you do not recognise. One lists the cliff path and a time. One is blank, but smells of salt and something organic. You keep all three."}]}, "town_lodgings": {"id": "town_lodgings", "text": "The lodging house at the edge of the square is half-empty. The proprietor takes your money without comment and does not ask your name. You have the evening to yourself in a town that has learned not to look at strangers too closely.", "options": [{"text": "Take a room for the night", "stat_check": null, "always": [{"type": "StatChange", "stat": "stamina", "value": 3}], "on_success": [], "on_failure": [], "success_text": "The mattress is thin and the walls are thin. Sometime after midnight the couple in the next room stop talking mid-sentence and do not start again. You sleep poorly, but you sleep. In the morning you feel restored to the degree that this town permits.", "failure_text": "The mattress is thin and the walls are thin. Sometime after midnight the couple in the next room stop talking mid-sentence and do not start again. You sleep poorly, but you sleep. In the morning you feel restored to the degree that this town permits."}, {"text": "Sit in the common room and review your notes", "stat_check": {"stat": "Reason", "threshold": 4, "check_type": "Fixed"}, "always": [], "on_success": [{"type": "StatChange", "stat": "reason", "value": 2}, {"type": "StatChange", "stat": "doom", "value": 2}], "on_failure": [{"type": "StatChange", "stat": "doom", "value": 3}], "success_text": "Your notes cohere in ways they did not when you wrote them. The pattern is not reassuring, but it is legible. Knowing is better than not knowing — probably.", "failure_text": "An hour passes without your awareness. You surface to find your notes spread across the table in an order you do not remember arranging. Some of the writing is not yours. The handwriting is close to yours, but the pressure is wrong."}, {"text": "Write a letter home — then burn it", "stat_check": null, "always": [{"type": "StatChange", "stat": "reason", "value": 1}, {"type": "StatChange", "stat": "doom", "value": -2}], "on_success": [], "on_failure": [], "success_text": "You describe everything in plain language. The writing forces clarity: this is what you know, this is what you suspect, this is what you have done. You re-read it twice. Then you hold it over the candle and watch it go. Some things are better not received.", "failure_text": "You describe everything in plain language. The writing forces clarity: this is what you know, this is what you suspect, this is what you have done. You re-read it twice. Then you hold it over the candle and watch it go. Some things are better not received."}]}, "town_strange_sermon": {"id": "town_strange_sermon", "text": "A man in a fisherman's coat stands on the dry fountain rim, preaching to a small crowd with the confidence of someone delivering news rather than theology. He is describing the geometry of the deep ocean in terms that suggest personal experience. The crowd listens without the discomfort of people hearing heresy.", "options": [{"text": "Listen carefully — there is structure beneath the rambling", "stat_check": {"stat": "Reason", "threshold": 6, "check_type": "Fixed"}, "always": [], "on_success": [{"type": "StatChange", "stat": "doom", "value": 4}], "on_failure": [{"type": "StatChange", "stat": "reason", "value": -2}], "success_text": "The words resolve into a coherent cosmology—wrong in ways you cannot articulate, but internally consistent. He is describing the entity beneath the cliff in terms borrowed from the Book of Job. The passages he quotes do not appear in any Bible you have ever read.", "failure_text": "You try to find the pattern and it nearly pulls you under. The words stop meaning things and start meaning something else—something that does not translate into thought you can use. You extract yourself and stand in the square breathing hard until the shapes in the language fade."}, {"text": "Challenge him — demand he explain himself to a rational audience", "stat_check": {"stat": "Stamina", "threshold": 5, "check_type": "Fixed"}, "always": [], "on_success": [{"type": "StatChange", "stat": "doom", "value": -3}], "on_failure": [{"type": "StatChange", "stat": "stamina", "value": -2}, {"type": "StatChange", "stat": "doom", "value": 3}], "success_text": "He rounds on you, delighted. The argument lasts twenty minutes and ends when he cannot counter your objection about agency. He thanks you warmly. 'You've given It less room to work with,' he says, as if this was a service you performed for the entity, not against it.", "failure_text": "He is ready for you. His counter-arguments have the quality of something rehearsed for a long time — prepared against a specific objection that you happen to be making. The crowd that has gathered watches you struggle and says nothing. You lose the argument. You are not sure what that means."}, {"text": "Watch the crowd — who is listening, and how do they look?", "stat_check": null, "always": [], "on_success": [], "on_failure": [], "success_text": "Twelve people. Six of them have the expression of people who already know the ending of the story being told. Two of them are not breathing at the rate you would expect. One of them looks directly at you and smiles before you have time to look at them.", "failure_text": "Twelve people. Six of them have the expression of people who already know the ending of the story being told. Two of them are not breathing at the rate you would expect. One of them looks directly at you and smiles before you have time to look at them."}]}}, "locations": {"abandoned_shrine": {"id": "abandoned_shrine", "name": "Abandoned Shrine", "description": "A forgotten temple to nameless gods. Blood stains mar the altar, and the shadows seem to move with malevolent purpose.", "turn_cost": 2, "unlocked_default": true, "event_pool": ["shrine_blood_altar", "shrine_shadow_gathering", "shrine_possession"]}, "coastal_cliff": {"id": "coastal_cliff", "name": "Coastal Cliff", "description": "Jagged rocks overlook a churning black sea. Strange lights pulse beneath the waves. The wind carries inhuman songs.", "turn_cost": 1, "unlocked_default": true, "event_pool": ["cliff_drowned_sailor", "cliff_deep_signal"]}, "old_library": {"id": "old_library", "name": "Old Library", "description": "Dusty tomes line crumbling shelves. The air smells of decay and forgotten knowledge. Strange whispers echo between the stacks.", "turn_cost": 1, "unlocked_default": true, "event_pool": ["library_forbidden_tome", "library_dusty_mirror", "library_hidden_archive"]}, "sunken_catacomb": {"id": "sunken_catacomb", "name": "Sunken Catacomb", "description": "Below the coastal shelf, accessible only at the lowest tides, a passage descends into the rock. Water has been here recently. The carvings on the walls are older than the town.", "turn_cost": 3, "unlocked_default": false, "event_pool": ["catacomb_the_truth_below", "catacomb_flooded_passage"]}, "town_square": {"id": "town_square", "name": "Town Square", "description": "The centre of a town that has been quietly emptying for years. The remaining residents do not make eye contact. The fountain has been dry since last spring, though no one can agree when it stopped.", "turn_cost": 1, "unlocked_default": true, "event_pool": ["town_strange_sermon", "town_disappearances", "town_lodgings"]}}, "mysteries": {"the_forbidden_knowledge": {"id": "the_forbidden_knowledge", "name": "the_forbidden_knowledge", "description": "The library holds more than books. Its deeper shelves contain records that predate the building itself — pressed into surfaces that are not paper, in scripts that shift when read. Something curated this collection deliberately, for an audience that has not arrived yet.", "required_progress": 3, "completion_text": "You understand the library now. Not its catalogue — the library itself, as an entity. It has been waiting for a reader capable of comprehension. Every book that drove a previous visitor mad was a test. You have passed. The knowledge settles into you like sediment: permanent, heavy, and cold. You are the first archivist. You will not be the last.", "sort_order": 2}, "the_sunken_truth": {"id": "the_sunken_truth", "name": "the_sunken_truth", "description": "Something ancient stirs beneath the coastal waters. Its servants walk among the drowned. Its signals pulse from the deep. The truth of what lies below can be uncovered — if you are willing to descend.", "required_progress": 5, "completion_text": "You understand now. Not in words — words are too small for this — but in the way a body understands cold, or height, or the wrongness of a sound in an empty house. The thing beneath the water has been here since before the town, before the cliff, before the sea had its current name. It did not call to you. It simply noticed you, the way a tide notices a stone. You carry this knowledge out of the catacomb and back into the pale daylight, and you know that you will never entirely leave.", "sort_order": 1}}, "items": {"rope_and_torch": {"id": "rope_and_torch", "name": "Rope & Torch", "description": "Practical tools for practical dangers. The rope is long enough to descend most things. The torch burns steadily, even in wind that should extinguish it.", "stamina_bonus": 1, "reason_bonus": 0}, "tidal_compass": {"id": "tidal_compass", "name": "Tidal Compass", "description": "The needle does not point north. It points toward something beneath the water that is not north, but is consistent. You find that orienting yourself by it clarifies your thinking in ways that true north never did.", "stamina_bonus": 0, "reason_bonus": 1}, "worn_journal": {"id": "worn_journal", "name": "Worn Journal", "description": "Dense handwriting fills every margin. The author understood things you are only beginning to suspect. Reading between their fear, you find clarity.", "stamina_bonus": 0, "reason_bonus": 1}}};
+
+// ── Tab switching ─────────────────────────────────────────────────────────────
+function showTab(name) {
+  document.querySelectorAll('.tab-pane').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('tab-' + name).classList.add('active');
+  const labels = {locations:'loc', events:'eve', paths:'mys', items:'ite'};
+  document.querySelectorAll('.tab-btn').forEach(b => {
+    if (b.textContent.toLowerCase().startsWith(labels[name] || name.substring(0,3)))
+      b.classList.add('active');
+  });
+}
+
+// ── Summary ───────────────────────────────────────────────────────────────────
+document.getElementById('summary').textContent =
+  Object.keys(DATA.locations).length + ' locations · ' +
+  Object.keys(DATA.events).length    + ' events · ' +
+  Object.keys(DATA.mysteries).length + ' mysteries · ' +
+  Object.keys(DATA.items).length     + ' items';
+
+// ── Consequence rendering ─────────────────────────────────────────────────────
+function renderCon(c) {
+  if (c.type === 'StatChange') {
+    const stat = c.stat.toLowerCase(), sign = c.value > 0 ? '+' : '';
+    if (stat === 'doom')
+      return '<span class="con ' + (c.value > 0 ? 'c-dp' : 'c-dn') + '">DOOM ' + sign + c.value + '</span>';
+    return '<span class="con ' + (c.value > 0 ? 'c-sp' : 'c-sn') + '">' + stat.toUpperCase() + ' ' + sign + c.value + '</span>';
+  }
+  if (c.type === 'AdvanceMystery')
+    return '<span class="con c-my">MYSTERY +' + c.amount + '</span>';
+  if (c.type === 'ItemGain') {
+    const item = DATA.items[c.item_id];
+    return '<span class="con c-it">ITEM: ' + (item ? item.name : c.item_id) + '</span>';
+  }
+  if (c.type === 'TriggerEvent')
+    return '<span class="con c-tr">→ ' + c.next_event_id + '</span>';
+  if (c.type === 'UnlockLocation')
+    return '<span class="con c-ul">UNLOCK: ' + c.location_id + '</span>';
+  return '';
+}
+
+function renderConList(cons) {
+  if (!cons || !cons.length) return '';
+  return '<div class="cons-row">' + cons.map(renderCon).join('') + '</div>';
+}
+
+function statCheckHtml(sc) {
+  if (!sc) return '<span class="stat-check sc-none">No check</span>';
+  return '<span class="stat-check sc-' + sc.stat.toLowerCase() + '">' +
+         sc.stat.toUpperCase() + ' ≥ ' + sc.threshold +
+         (sc.check_type === 'DiceRoll' ? ' (dice)' : '') + '</span>';
+}
+
+// ── Event badges ──────────────────────────────────────────────────────────────
+function allCons(evt) {
+  return evt.options.flatMap(o => [...(o.always||[]), ...(o.on_success||[]), ...(o.on_failure||[])]);
+}
+function eventBadges(evt) {
+  const cons = allCons(evt);
+  return [
+    cons.some(c => c.type === 'AdvanceMystery') ? '<span class="badge b-mystery">MYSTERY</span>' : '',
+    cons.some(c => c.type === 'ItemGain')        ? '<span class="badge b-item">ITEM</span>'       : '',
+    cons.some(c => c.type === 'TriggerEvent')    ? '<span class="badge b-chain">CHAIN</span>'     : '',
+    cons.some(c => c.type === 'UnlockLocation')  ? '<span class="badge b-unlock">UNLOCK</span>'   : '',
+  ].join('');
+}
+
+// ── Single event card ─────────────────────────────────────────────────────────
+function renderEventCard(evt) {
+  const optHtml = evt.options.map(opt => {
+    const paths = [];
+    if (opt.always && opt.always.length)
+      paths.push('<div class="path-block"><div class="path-label pl-always">Always</div>' +
+                 renderConList(opt.always) + '</div>');
+    if (opt.stat_check) {
+      paths.push(
+        '<div class="path-block"><div class="path-label pl-success">✓ Success</div>' +
+        (opt.success_text ? '<p class="path-narr">' + opt.success_text + '</p>' : '') +
+        renderConList(opt.on_success) + '</div>',
+        '<div class="path-block"><div class="path-label pl-failure">✗ Failure</div>' +
+        (opt.failure_text ? '<p class="path-narr">' + opt.failure_text + '</p>' : '') +
+        renderConList(opt.on_failure) + '</div>'
+      );
+    } else if (opt.success_text) {
+      paths.push('<div class="path-block"><div class="path-label pl-always">Outcome</div>' +
+                 '<p class="path-narr">' + opt.success_text + '</p></div>');
+    }
+    return '<div class="option">' +
+           '<div class="opt-header"><span class="opt-text">' + opt.text + '</span>' +
+           statCheckHtml(opt.stat_check) + '</div>' +
+           '<div class="opt-paths">' + paths.join('') + '</div></div>';
+  }).join('');
+
+  return '<div class="event-card" id="ev-' + evt.id + '">' +
+    '<div class="ev-header" onclick="toggleCard(this)">' +
+    '<span class="ev-id">' + evt.id + '</span>' +
+    '<span class="ev-badges">' + eventBadges(evt) + '</span>' +
+    '<span class="expand-icon">▶</span></div>' +
+    '<div class="ev-body">' +
+    '<div class="ev-text">' + evt.text + '</div>' +
+    optHtml + '</div></div>';
+}
+
+// ── Locations tab ─────────────────────────────────────────────────────────────
+function renderLocations() {
+  const locs = Object.values(DATA.locations).sort((a, b) => a.name.localeCompare(b.name));
+  const cards = locs.map(loc => {
+    const poolLinks = loc.event_pool.map(eid => {
+      const evt = DATA.events[eid];
+      return '<div class="event-link" onclick="jumpToEvent(\'' + eid + '\')">'+
+             '<span class="event-link-id">' + eid + '</span>'+
+             (evt ? eventBadges(evt) : '') + '</div>';
+    }).join('');
+
+    return '<div class="location-card">' +
+      '<div class="loc-header" onclick="toggleLocCard(this)">' +
+      '<span class="loc-name">' + loc.name + '</span>' +
+      '<span class="loc-badges">' +
+      (!loc.unlocked_default ? '<span class="badge b-locked">LOCKED</span>' : '') +
+      '<span class="badge b-turn">' + loc.turn_cost + ' turn' + (loc.turn_cost !== 1 ? 's' : '') + '</span>' +
+      '<span class="badge b-doom">+' + (loc.turn_cost * 2) + ' doom</span>' +
+      '</span></div>' +
+      '<div class="loc-body">' +
+      (loc.description ? '<p class="loc-desc">' + loc.description + '</p>' : '') +
+      (loc.event_pool.length
+        ? '<div class="pool-label">Events (' + loc.event_pool.length + ')</div>' + poolLinks
+        : '<p class="loc-desc">No events in pool.</p>') +
+      '</div></div>';
+  }).join('');
+
+  document.getElementById('tab-locations').innerHTML =
+    '<div class="location-grid">' + cards + '</div>';
+}
+
+// ── Events tab ────────────────────────────────────────────────────────────────
+function renderEventsTab(filter) {
+  filter = (filter || '').toLowerCase();
+  const all = Object.values(DATA.events).sort((a, b) => a.id.localeCompare(b.id));
+  const shown = filter
+    ? all.filter(e =>
+        e.id.toLowerCase().includes(filter) ||
+        e.text.toLowerCase().includes(filter) ||
+        e.options.some(o => o.text.toLowerCase().includes(filter)))
+    : all;
+
+  document.getElementById('tab-events').innerHTML =
+    '<div class="filter-bar"><input type="text" placeholder="Filter by ID or text…"' +
+    ' oninput="renderEventsTab(this.value)" value="' + (filter || '') + '"' +
+    ' id="ev-filter-input"></div>' +
+    (shown.length ? shown.map(renderEventCard).join('') : '<p class="no-results">No matching events.</p>');
+}
+
+// ── Mystery paths tab ─────────────────────────────────────────────────────────
+function renderPaths() {
+  // Collect all events with AdvanceMystery consequences
+  const contributors = [];  // {eventId, amount, optText, onSuccess, hasCheck}
+  Object.values(DATA.events).forEach(evt => {
+    evt.options.forEach(opt => {
+      const alwaysCons   = (opt.always     || []).filter(c => c.type === 'AdvanceMystery');
+      const successCons  = (opt.on_success || []).filter(c => c.type === 'AdvanceMystery');
+      alwaysCons.forEach(c  => contributors.push({eventId: evt.id, amount: c.amount, optText: opt.text, onSuccess: false, hasCheck: !!opt.stat_check}));
+      successCons.forEach(c => contributors.push({eventId: evt.id, amount: c.amount, optText: opt.text, onSuccess: true,  hasCheck: !!opt.stat_check}));
+    });
+  });
+
+  // Merge by event (keep highest total per event)
+  const byEvent = {};
+  contributors.forEach(c => {
+    if (!byEvent[c.eventId]) byEvent[c.eventId] = {total: 0, entries: []};
+    byEvent[c.eventId].total += c.amount;
+    byEvent[c.eventId].entries.push(c);
+  });
+
+  const totalProgress = contributors.reduce((s, c) => s + c.amount, 0);
+
+  const mysteries = Object.values(DATA.mysteries).sort((a, b) => a.sort_order - b.sort_order);
+  if (!mysteries.length) {
+    document.getElementById('tab-paths').innerHTML = '<p class="no-results">No mystery data found.</p>';
+    return;
+  }
+
+  // Note: AdvanceMystery always targets the currently-active mystery at runtime.
+  // Show contributing events alongside each mystery; the viewer infers sequence from sort_order.
+  const mysteryHtml = mysteries.map(m => {
+    const pct = Math.min(100, Math.round(totalProgress / m.required_progress * 100));
+    const eventRows = Object.entries(byEvent)
+      .sort((a, b) => b[1].total - a[1].total)
+      .map(([eid, info]) => {
+        const entryDesc = info.entries.map(e =>
+          '<span style="color:var(--dim)">' + e.optText +
+          (e.onSuccess ? ' <em>(on success)</em>' : '') + '</span>'
+        ).join('<br>');
+        return '<div class="m-event">' +
+          '<div class="m-event-info">' +
+          '<div class="m-event-id">' + eid + '</div>' +
+          '<div class="m-event-desc">' + entryDesc + '</div></div>' +
+          '<div class="m-prog-badge">+' + info.total + '</div></div>';
+      }).join('');
+
+    return '<div class="mystery-section">' +
+      '<div class="mystery-header">' +
+      '<div class="mystery-name">' + m.name + '</div>' +
+      '<div class="mystery-meta">Required: ' + m.required_progress +
+      ' &nbsp;|&nbsp; Max available: ' + totalProgress +
+      ' &nbsp;|&nbsp; Sort order: ' + m.sort_order + '</div>' +
+      '<div class="pbar-wrap"><div class="pbar" style="width:' + pct + '%"></div></div></div>' +
+      '<div class="mystery-body">' +
+      (m.description ? '<p class="loc-desc" style="margin-bottom:12px">' + m.description + '</p>' : '') +
+      '<div class="sec-title">Contributing events (all target the currently-active mystery at runtime)</div>' +
+      (eventRows || '<p class="no-results">No events with AdvanceMystery consequences found.</p>') +
+      (m.completion_text
+        ? '<div class="sec-title completion-text">Completion text</div><div class="ev-text">' + m.completion_text + '</div>'
+        : '') +
+      '</div></div>';
+  }).join('');
+
+  document.getElementById('tab-paths').innerHTML = mysteryHtml;
+}
+
+// ── Items tab ─────────────────────────────────────────────────────────────────
+function renderItems() {
+  const items = Object.values(DATA.items).sort((a, b) => a.name.localeCompare(b.name));
+  const cards = items.map(item => {
+    const bonuses = [];
+    if (item.stamina_bonus) bonuses.push('<span class="con c-sp">STAMINA +' + item.stamina_bonus + '</span>');
+    if (item.reason_bonus)  bonuses.push('<span class="con c-sp" style="color:var(--reason)">REASON +'  + item.reason_bonus  + '</span>');
+
+    return '<div class="item-card">' +
+      '<div class="item-name">' + item.name + '</div>' +
+      '<div class="item-id">' + item.id + '</div>' +
+      (item.description ? '<p class="item-desc">' + item.description + '</p>' : '') +
+      (bonuses.length ? '<div class="item-bonuses">' + bonuses.join('') + '</div>' : '') +
+      '</div>';
+  }).join('');
+
+  document.getElementById('tab-items').innerHTML =
+    '<div class="item-grid">' + (cards || '<p class="no-results">No items found.</p>') + '</div>';
+}
+
+// ── Expand / collapse ─────────────────────────────────────────────────────────
+function toggleCard(header) {
+  const body = header.nextElementSibling;
+  const icon = header.querySelector('.expand-icon');
+  const open = body.classList.toggle('open');
+  if (icon) icon.textContent = open ? '▼' : '▶';
+}
+function toggleLocCard(header) {
+  header.nextElementSibling.classList.toggle('hidden');
+}
+
+// ── Jump from location to event ───────────────────────────────────────────────
+function jumpToEvent(eid) {
+  showTab('events');
+  renderEventsTab('');
+  setTimeout(() => {
+    const el = document.getElementById('ev-' + eid);
+    if (!el) return;
+    el.scrollIntoView({behavior: 'smooth', block: 'start'});
+    const body = el.querySelector('.ev-body');
+    const icon = el.querySelector('.expand-icon');
+    if (body && !body.classList.contains('open')) {
+      body.classList.add('open');
+      if (icon) icon.textContent = '▼';
+    }
+    el.style.outline = '2px solid var(--accent)';
+    setTimeout(() => { el.style.outline = ''; }, 2000);
+  }, 40);
+}
+
+// ── Init ──────────────────────────────────────────────────────────────────────
+renderLocations();
+renderEventsTab();
+renderPaths();
+renderItems();
+</script>
+</body>
+</html>
