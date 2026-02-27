@@ -1,5 +1,6 @@
 using Godot;
 using System;
+using System.Collections.Generic;
 
 /// <summary>
 /// Displays event text, image, and player choices
@@ -14,6 +15,8 @@ public partial class EventWindow : Panel
 	private EventResource? _currentEvent;
 	private GameManager? _gameManager;
 	private EventManager? _eventManager;
+	private string _currentLocationName = "";
+	private readonly List<int> _visibleOptionIndices = new();
 
 	public override void _Ready()
 	{
@@ -41,14 +44,29 @@ public partial class EventWindow : Panel
 	}
 
 	/// <summary>
+	/// Sets the location name shown as a dim header above event text.
+	/// Call before ShowEvent when the event originates from a location visit.
+	/// </summary>
+	public void SetLocationContext(string locationName)
+	{
+		_currentLocationName = locationName;
+	}
+
+	/// <summary>
 	/// Display an event with options
 	/// </summary>
 	public void ShowEvent(EventResource eventResource)
 	{
 		_currentEvent = eventResource;
+		_visibleOptionIndices.Clear();
 
 		if (_eventText != null)
-			_eventText.Text = eventResource.EventText;
+		{
+			string header = string.IsNullOrEmpty(_currentLocationName)
+				? ""
+				: $"[color=#888888][{_currentLocationName}][/color]\n\n";
+			_eventText.Text = header + eventResource.EventText;
+		}
 
 		if (_eventImage != null && !string.IsNullOrEmpty(eventResource.EventImagePath))
 		{
@@ -70,18 +88,31 @@ public partial class EventWindow : Panel
 
 		ClearOptions();
 
+		int doom = _gameManager?.Doom ?? 0;
+		int buttonIndex = 0;
 		for (int i = 0; i < eventResource.Options.Count; i++)
 		{
 			var option = eventResource.Options[i];
+
+			// Skip options the player doesn't qualify for
+			if (!string.IsNullOrEmpty(option.RequiredItem) &&
+				(_gameManager == null || !_gameManager.Inventory.Contains(option.RequiredItem)))
+				continue;
+			if (option.MinDoom > 0 && doom < option.MinDoom)
+				continue;
+
+			_visibleOptionIndices.Add(i);
+
 			var button = new Button();
-			button.Text = FormatOptionText(option, i);
+			button.Text = FormatOptionText(option, buttonIndex);
 			button.SizeFlagsHorizontal = SizeFlags.Fill;
 			ApplyButtonTextStyle(button);
 
-			int optionIndex = i;
-			button.Pressed += () => OnOptionSelected(optionIndex);
+			int realIndex = i;
+			button.Pressed += () => OnOptionSelected(realIndex);
 
 			_optionsContainer?.AddChild(button);
+			buttonIndex++;
 		}
 
 		if (_gameManager != null)
@@ -153,6 +184,7 @@ public partial class EventWindow : Panel
 		if (_eventText != null)
 			_eventText.Text = resultText;
 
+		_visibleOptionIndices.Clear();
 		ClearOptions();
 
 		var continueButton = new Button();
@@ -227,14 +259,14 @@ public partial class EventWindow : Panel
 			return;
 		}
 
-		// Number keys 1–9 select options
-		if (_currentEvent != null && @event is InputEventKey keyEvent && keyEvent.Pressed && !keyEvent.Echo)
+		// Number keys 1–9 select visible options
+		if (_visibleOptionIndices.Count > 0 && @event is InputEventKey keyEvent && keyEvent.Pressed && !keyEvent.Echo)
 		{
-			for (int i = 0; i < Math.Min(_currentEvent.Options.Count, 9); i++)
+			for (int k = 0; k < Math.Min(_visibleOptionIndices.Count, 9); k++)
 			{
-				if (keyEvent.Keycode == (Key)((int)Key.Key1 + i))
+				if (keyEvent.Keycode == (Key)((int)Key.Key1 + k))
 				{
-					OnOptionSelected(i);
+					OnOptionSelected(_visibleOptionIndices[k]);
 					GetViewport().SetInputAsHandled();
 					break;
 				}

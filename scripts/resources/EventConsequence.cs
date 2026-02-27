@@ -16,11 +16,17 @@ public partial class EventConsequence : Resource
 	[Export] public int MysteryProgress { get; set; } = 1;
 	[Export] public string LocationIdToUnlock { get; set; } = "";
 
+	/// <summary>Optional stat check; if set the consequence only fires when the check passes.</summary>
+	[Export] public StatCheck? Condition { get; set; }
+
 	/// <summary>
 	/// Apply this consequence to the game state
 	/// </summary>
 	public void Apply(GameManager gameManager)
 	{
+		if (Condition != null && !Condition.Evaluate(gameManager.GetPlayerStats()))
+			return;
+
 		switch (Type)
 		{
 			case ConsequenceType.StatChange:

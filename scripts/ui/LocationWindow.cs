@@ -1,5 +1,6 @@
 using Godot;
 using System.Collections.Generic;
+using System.Linq;
 
 /// <summary>
 /// Displays available locations and allows player to investigate
@@ -16,6 +17,7 @@ public partial class LocationWindow : Panel
 
 	private LocationResource? _selectedLocation;
 	private ButtonGroup _buttonGroup = new();
+	private GameManager? _gameManager;
 
 	public override void _Ready()
 	{
@@ -24,6 +26,8 @@ public partial class LocationWindow : Panel
 		_locationImage = GetNode<TextureRect>("%LocationImage");
 		_locationDescription = GetNode<RichTextLabel>("%LocationDescription");
 		_investigateButton = GetNode<Button>("%InvestigateButton");
+
+		_gameManager = GetNode<GameManager>("/root/GameManager");
 
 		// Close button routes through WindowManager so the stack stays consistent
 		GetNode<Button>("%CloseButton").Pressed += () => WindowManager.Instance?.Pop();
@@ -37,10 +41,13 @@ public partial class LocationWindow : Panel
 		foreach (Node child in _locationList!.GetChildren())
 			child.QueueFree();
 
-		foreach (var location in locations)
+		var sorted = locations.OrderBy(l => l.SortOrder).ToList();
+
+		foreach (var location in sorted)
 		{
+			string seenIndicator = BuildSeenIndicator(location);
 			var button = new Button();
-			button.Text = $"{location.LocationName} ({location.TurnCost} turn{(location.TurnCost > 1 ? "s" : "")}, +{location.TurnCost * 2} doom)";
+			button.Text = $"{location.LocationName}{seenIndicator} ({location.TurnCost} turn{(location.TurnCost > 1 ? "s" : "")}, +{location.TurnCost * 2} doom)";
 			button.ToggleMode = true;
 			button.ButtonGroup = _buttonGroup;
 			button.SizeFlagsHorizontal = SizeFlags.Fill;
@@ -49,9 +56,9 @@ public partial class LocationWindow : Panel
 			_locationList.AddChild(button);
 		}
 
-		if (locations.Count > 0)
+		if (sorted.Count > 0)
 		{
-			OnLocationSelected(locations[0]);
+			OnLocationSelected(sorted[0]);
 			if (_locationList.GetChild(0) is Button firstButton)
 				firstButton.ButtonPressed = true;
 		}
@@ -60,6 +67,14 @@ public partial class LocationWindow : Panel
 		WindowManager.Instance?.Push(this);
 		if (WindowManager.Instance == null)
 			Visible = true;
+	}
+
+	private string BuildSeenIndicator(LocationResource location)
+	{
+		if (_gameManager == null || location.EventPool.Count == 0)
+			return "";
+		int seen = location.EventPool.Count(id => _gameManager.SeenEvents.Contains(id));
+		return $" [{seen}/{location.EventPool.Count}]";
 	}
 
 	private void OnLocationSelected(LocationResource location)

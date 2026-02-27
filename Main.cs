@@ -148,7 +148,10 @@ public partial class Main : Node2D
 		{
 			var locationEvent = _eventManager.LoadEvent($"res://data/events/{eventId}.tres");
 			if (locationEvent != null)
+			{
+				_eventWindow.SetLocationContext(location.LocationName);
 				_eventWindow.ShowEvent(locationEvent);
+			}
 		}
 	}
 
@@ -166,7 +169,7 @@ public partial class Main : Node2D
 
 		var gm = _gameManager;
 		_pendingGameOverStats = gm != null
-			? $"{reason}\n\nTurns: {gm.CurrentTurn}   Stamina: {gm.Stamina}/{gm.MaxStamina}   Reason: {gm.Reason}/{gm.MaxReason}   Doom: {gm.Doom}/100"
+			? $"{reason}\n\n{gm.FormatRunSummary()}"
 			: reason;
 
 		if (_eventWindow?.Visible == true)
@@ -245,10 +248,7 @@ public partial class Main : Node2D
 		if (_eventWindow?.Visible != false) return;
 		_eventWindow.VisibilityChanged -= OnWinEventClosed;
 
-		var gm = _gameManager;
-		string stats = gm != null
-			? $"Turns: {gm.CurrentTurn}   Stamina: {gm.Stamina}/{gm.MaxStamina}   Reason: {gm.Reason}/{gm.MaxReason}   Doom: {gm.Doom}/100"
-			: "";
+		string stats = _gameManager?.FormatRunSummary() ?? "";
 		ShowEndScreen("INVESTIGATION COMPLETE", stats);
 	}
 

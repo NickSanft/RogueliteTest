@@ -19,4 +19,7 @@ public partial class MysteryResource : Resource
 
 	/// <summary>Text shown to the player when the mystery is solved.</summary>
 	[Export(PropertyHint.MultilineText)] public string CompletionText { get; set; } = "";
+
+	/// <summary>If false, this mystery starts locked and is only activated when the previous mystery completes.</summary>
+	[Export] public bool UnlockedByDefault { get; set; } = true;
 }

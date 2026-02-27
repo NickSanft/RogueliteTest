@@ -34,7 +34,7 @@ public partial class GameManager : Node
 	// Signals
 	[Signal] public delegate void StatChangedEventHandler(string statName, int oldValue, int newValue);
 	[Signal] public delegate void GameOverEventHandler(string reason);
-	[Signal] public delegate void MysteryProgressChangedEventHandler(int progress, int required);
+	[Signal] public delegate void MysteryProgressChangedEventHandler(int progress, int required, string mysteryName);
 	[Signal] public delegate void MysteryCompletedEventHandler(string mysteryId, string completionText);
 	[Signal] public delegate void RunWonEventHandler(string winText);
 	[Signal] public delegate void LocationUnlockedEventHandler(string locationId);
@@ -178,7 +178,8 @@ public partial class GameManager : Node
 
 		EmitSignal(SignalName.MysteryProgressChanged,
 			MysteryProgress[currentMystery],
-			mystery.RequiredProgress);
+			mystery.RequiredProgress,
+			mystery.Name);
 
 		if (MysteryProgress[currentMystery] < mystery.RequiredProgress)
 			return;
@@ -190,34 +191,85 @@ public partial class GameManager : Node
 
 		EmitSignal(SignalName.MysteryCompleted, currentMystery, mystery.CompletionText);
 
+		// Activate the next locked mystery (if any) before checking for run win
+		UnlockNextLockedMystery();
+
 		if (ActiveMysteries.Count == 0)
 			EmitSignal(SignalName.RunWon, mystery.CompletionText);
 		else
 		{
 			// Emit progress for the newly active mystery (starts at 0)
 			string nextId = ActiveMysteries[0];
-			int nextRequired = _loadedMysteries.TryGetValue(nextId, out var nextM) ? nextM.RequiredProgress : 1;
-			EmitSignal(SignalName.MysteryProgressChanged, 0, nextRequired);
+			if (_loadedMysteries.TryGetValue(nextId, out var nextM))
+				EmitSignal(SignalName.MysteryProgressChanged, 0, nextM.RequiredProgress, nextM.Name);
+			else
+				EmitSignal(SignalName.MysteryProgressChanged, 0, 1, "");
 		}
 	}
 
-	public (int progress, int required) GetCurrentMysteryProgress()
+	/// <summary>
+	/// Activates the first locked mystery (UnlockedByDefault=false) not yet in the active list.
+	/// Called automatically when any mystery completes.
+	/// </summary>
+	private void UnlockNextLockedMystery()
 	{
-		if (ActiveMysteries.Count == 0) return (0, 0);
+		foreach (var m in _loadedMysteries.Values.OrderBy(m => m.SortOrder))
+		{
+			if (!m.UnlockedByDefault && !ActiveMysteries.Contains(m.MysteryId))
+			{
+				ActiveMysteries.Add(m.MysteryId);
+				GD.Print($"Mystery unlocked: {m.Name}");
+				return;
+			}
+		}
+	}
+
+	public (int progress, int required, string name) GetCurrentMysteryProgress()
+	{
+		if (ActiveMysteries.Count == 0) return (0, 0, "");
 		string id = ActiveMysteries[0];
 		int progress = MysteryProgress.TryGetValue(id, out int p) ? p : 0;
-		int required = _loadedMysteries.TryGetValue(id, out var m) ? m.RequiredProgress : 0;
-		return (progress, required);
+		if (!_loadedMysteries.TryGetValue(id, out var m)) return (progress, 0, "");
+		return (progress, m.RequiredProgress, m.Name);
 	}
 
 	public void MarkEventSeen(string eventId) => SeenEvents.Add(eventId);
+
+	/// <summary>
+	/// Builds the run summary string shown on the end screen.
+	/// </summary>
+	public string FormatRunSummary()
+	{
+		var parts = new List<string>
+		{
+			$"Turns: {CurrentTurn}",
+			$"Stamina: {Stamina}/{MaxStamina}   Reason: {Reason}/{MaxReason}   Doom: {Doom}/100",
+			$"Events witnessed: {SeenEvents.Count}"
+		};
+
+		if (Inventory.Count > 0)
+		{
+			var names = new List<string>();
+			foreach (var id in Inventory)
+				names.Add(_loadedItems.TryGetValue(id, out var item) ? item.ItemName : id);
+			parts.Add($"Items: {string.Join(", ", names)}");
+		}
+
+		int totalMysteries = _loadedMysteries.Count;
+		int solved = totalMysteries - ActiveMysteries.Count;
+		if (totalMysteries > 0)
+			parts.Add($"Mysteries: {solved}/{totalMysteries}");
+
+		return string.Join("\n", parts);
+	}
 
 	private void InitialiseMysteries()
 	{
 		ActiveMysteries.Clear();
 		MysteryProgress.Clear();
 		foreach (var m in _loadedMysteries.Values.OrderBy(m => m.SortOrder))
-			ActiveMysteries.Add(m.MysteryId);
+			if (m.UnlockedByDefault)
+				ActiveMysteries.Add(m.MysteryId);
 	}
 
 	// ── Meta-progression ─────────────────────────────────────────────────────

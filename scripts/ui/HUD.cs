@@ -53,8 +53,8 @@ public partial class HUD : CanvasLayer
 		RefreshInventory();
 
 		// Initialise mystery display from loaded state
-		var (prog, req) = _gameManager.GetCurrentMysteryProgress();
-		UpdateMystery(prog, req);
+		var (prog, req, mName) = _gameManager.GetCurrentMysteryProgress();
+		UpdateMystery(prog, req, mName);
 	}
 
 	// ── Public update methods ─────────────────────────────────────────────────
@@ -71,7 +71,7 @@ public partial class HUD : CanvasLayer
 			_locationLabel.Text = $"Location: {locationName}";
 	}
 
-	public void UpdateMystery(int progress, int required)
+	public void UpdateMystery(int progress, int required, string mysteryName)
 	{
 		if (_mysteryLabel == null) return;
 		if (required <= 0)
@@ -79,7 +79,8 @@ public partial class HUD : CanvasLayer
 			_mysteryLabel.Text = "";
 			return;
 		}
-		_mysteryLabel.Text = $"MYSTERY: {progress}/{required}";
+		string label = string.IsNullOrEmpty(mysteryName) ? "MYSTERY" : mysteryName.ToUpper();
+		_mysteryLabel.Text = $"{label}: {progress}/{required}";
 		_mysteryLabel.Modulate = progress >= required
 			? new Color(0.3f, 1f, 0.3f)
 			: Colors.White;

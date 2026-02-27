@@ -18,6 +18,12 @@ public partial class EventOption : Resource
 	[Export(PropertyHint.MultilineText)] public string SuccessText { get; set; } = "";
 	[Export(PropertyHint.MultilineText)] public string FailureText { get; set; } = "";
 
+	/// <summary>Item ID required to see this option. Empty = always visible.</summary>
+	[Export] public string RequiredItem { get; set; } = "";
+
+	/// <summary>Minimum doom required to see this option. 0 = always visible.</summary>
+	[Export] public int MinDoom { get; set; } = 0;
+
 	/// <summary>
 	/// If stat_check exists, returns true if player passes the check
 	/// </summary>

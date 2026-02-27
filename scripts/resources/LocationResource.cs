@@ -22,7 +22,12 @@ public partial class LocationResource : Resource
     /// Cost in turns to investigate this location
     /// </summary>
     [Export] public int TurnCost { get; set; } = 1;
-    
+
+    /// <summary>
+    /// Controls display order in the location list. Lower values appear first.
+    /// </summary>
+    [Export] public int SortOrder { get; set; } = 0;
+
     /// <summary>
     /// Is this location available from the start?
     /// </summary>

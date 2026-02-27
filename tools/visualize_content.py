@@ -181,13 +181,15 @@ def build_option(raw: dict) -> dict:
         v = raw.get(key, [])
         return [build_consequence(c) for c in v if isinstance(c, dict)] if isinstance(v, list) else []
     return {
-        "text":         raw.get("OptionText", ""),
-        "stat_check":   build_stat_check(raw.get("StatCheck")),
-        "always":       cons("Consequences"),
-        "on_success":   cons("SuccessConsequences"),
-        "on_failure":   cons("FailureConsequences"),
-        "success_text": raw.get("SuccessText", ""),
-        "failure_text": raw.get("FailureText", ""),
+        "text":          raw.get("OptionText", ""),
+        "stat_check":    build_stat_check(raw.get("StatCheck")),
+        "always":        cons("Consequences"),
+        "on_success":    cons("SuccessConsequences"),
+        "on_failure":    cons("FailureConsequences"),
+        "success_text":  raw.get("SuccessText", ""),
+        "failure_text":  raw.get("FailureText", ""),
+        "required_item": raw.get("RequiredItem", ""),
+        "min_doom":      raw.get("MinDoom", 0),
     }
 
 
@@ -216,6 +218,7 @@ def build_location(tres: dict) -> dict | None:
         "name":             main.get("LocationName", lid),
         "description":      main.get("Description", ""),
         "turn_cost":        main.get("TurnCost", 1),
+        "sort_order":       main.get("SortOrder", 0),
         "unlocked_default": main.get("UnlockedByDefault", True),
         "event_pool":       [e for e in pool if isinstance(e, str)] if isinstance(pool, list) else [],
     }
@@ -228,11 +231,12 @@ def build_mystery(tres: dict) -> dict | None:
         return None
     return {
         "id":                mid,
-        "name":              main.get("MysteryName", mid),
+        "name":              main.get("Name", mid),
         "description":       main.get("Description", ""),
         "required_progress": main.get("RequiredProgress", 1),
         "completion_text":   main.get("CompletionText", ""),
         "sort_order":        main.get("SortOrder", 0),
+        "unlocked_default":  main.get("UnlockedByDefault", True),
     }
 
 
@@ -603,9 +607,13 @@ function renderEventCard(evt) {
       paths.push('<div class="path-block"><div class="path-label pl-always">Outcome</div>' +
                  '<p class="path-narr">' + opt.success_text + '</p></div>');
     }
+    const gateBadges = [
+      opt.required_item ? '<span class="badge b-item">ITEM: ' + opt.required_item + '</span>' : '',
+      opt.min_doom      ? '<span class="badge b-doom">DOOM\u2265' + opt.min_doom + '</span>'  : '',
+    ].join('');
     return '<div class="option">' +
            '<div class="opt-header"><span class="opt-text">' + opt.text + '</span>' +
-           statCheckHtml(opt.stat_check) + '</div>' +
+           gateBadges + statCheckHtml(opt.stat_check) + '</div>' +
            '<div class="opt-paths">' + paths.join('') + '</div></div>';
   }).join('');
 
@@ -621,7 +629,7 @@ function renderEventCard(evt) {
 
 // ── Locations tab ─────────────────────────────────────────────────────────────
 function renderLocations() {
-  const locs = Object.values(DATA.locations).sort((a, b) => a.name.localeCompare(b.name));
+  const locs = Object.values(DATA.locations).sort((a, b) => a.sort_order - b.sort_order);
   const cards = locs.map(loc => {
     const poolLinks = loc.event_pool.map(eid => {
       const evt = DATA.events[eid];
@@ -715,9 +723,10 @@ function renderPaths() {
           '<div class="m-prog-badge">+' + info.total + '</div></div>';
       }).join('');
 
+    const lockedBadge = m.unlocked_default === false ? ' <span class="badge b-locked">LOCKED</span>' : '';
     return '<div class="mystery-section">' +
       '<div class="mystery-header">' +
-      '<div class="mystery-name">' + m.name + '</div>' +
+      '<div class="mystery-name">' + m.name + lockedBadge + '</div>' +
       '<div class="mystery-meta">Required: ' + m.required_progress +
       ' &nbsp;|&nbsp; Max available: ' + totalProgress +
       ' &nbsp;|&nbsp; Sort order: ' + m.sort_order + '</div>' +
