@@ -9,4 +9,5 @@ Name = "The Forbidden Knowledge"
 Description = "The library holds more than books. Its deeper shelves contain records that predate the building itself — pressed into surfaces that are not paper, in scripts that shift when read. Something curated this collection deliberately, for an audience that has not arrived yet."
 SortOrder = 2
 RequiredProgress = 3
+UnlockedByDefault = false
 CompletionText = "You understand the library now. Not its catalogue — the library itself, as an entity. It has been waiting for a reader capable of comprehension. Every book that drove a previous visitor mad was a test. You have passed. The knowledge settles into you like sediment: permanent, heavy, and cold. You are the first archivist. You will not be the last."

@@ -1,0 +1,76 @@
+[gd_resource type="Resource" script_class="EventResource" format=3]
+
+[ext_resource type="Script" uid="uid://bwoliaoytwc7e" path="res://scripts/resources/EventResource.cs" id="1"]
+[ext_resource type="Script" uid="uid://2wwbq38npbrd" path="res://scripts/resources/EventOption.cs" id="2"]
+[ext_resource type="Script" uid="uid://wjlfxffqq08k" path="res://scripts/resources/StatCheck.cs" id="3"]
+[ext_resource type="Script" uid="uid://ln4cmwg8ep8" path="res://scripts/resources/EventConsequence.cs" id="4"]
+
+[sub_resource type="Resource" id="sc_listen"]
+script = ExtResource("3")
+Stat = 1
+Threshold = 6
+
+[sub_resource type="Resource" id="con_listen_success_mystery"]
+script = ExtResource("4")
+Type = 3
+MysteryProgress = 2
+
+[sub_resource type="Resource" id="con_listen_success_doom"]
+script = ExtResource("4")
+StatName = "doom"
+Value = 2
+
+[sub_resource type="Resource" id="con_listen_fail_reason"]
+script = ExtResource("4")
+StatName = "reason"
+Value = -2
+
+[sub_resource type="Resource" id="con_listen_fail_doom"]
+script = ExtResource("4")
+StatName = "doom"
+Value = 3
+
+[sub_resource type="Resource" id="opt_listen"]
+script = ExtResource("2")
+OptionText = "Catalogue what you hear — attempt to find pattern and meaning"
+StatCheck = SubResource("sc_listen")
+SuccessConsequences = Array[ExtResource("4")]([SubResource("con_listen_success_mystery"), SubResource("con_listen_success_doom")])
+FailureConsequences = Array[ExtResource("4")]([SubResource("con_listen_fail_reason"), SubResource("con_listen_fail_doom")])
+SuccessText = "Pattern emerges after an hour. Not language — not yet — but syntax. The voices are not calling to you; they are recounting something to each other in a register just beyond comprehension. You transcribe what you can. The notes make no sense now. They will later, in the wrong moments: standing in doorways, watching ceilings in the dark."
+FailureText = "You try to impose structure where there is none that your mind can hold. The voices do not get louder, but they get closer, somehow — as though they have noticed your attempt to understand and find it amusing. You stop before you start believing the words. The walk out takes longer than it should."
+
+[sub_resource type="Resource" id="con_compass_mystery"]
+script = ExtResource("4")
+Type = 3
+MysteryProgress = 3
+
+[sub_resource type="Resource" id="con_compass_doom"]
+script = ExtResource("4")
+StatName = "doom"
+Value = 3
+
+[sub_resource type="Resource" id="opt_compass"]
+script = ExtResource("2")
+OptionText = "Use the tidal compass to locate the source of the voices"
+RequiredItem = "tidal_compass"
+Consequences = Array[ExtResource("4")]([SubResource("con_compass_mystery"), SubResource("con_compass_doom")])
+SuccessText = "The compass does not merely point — it resonates. The needle aligns with the loudest voice and stays aligned as you move, tracking it through chambers the map doesn't show. You find the source in a room that floods and drains with each breath of the tide: a ring of carved stone surrounding a column of water that should not be standing upright. You understand, finally, what the catacombs were built to contain. The knowledge costs you something you cannot name."
+FailureText = "The compass does not merely point — it resonates. The needle aligns with the loudest voice and stays aligned as you move, tracking it through chambers the map doesn't show. You find the source in a room that floods and drains with each breath of the tide: a ring of carved stone surrounding a column of water that should not be standing upright. You understand, finally, what the catacombs were built to contain. The knowledge costs you something you cannot name."
+
+[sub_resource type="Resource" id="con_leave_doom"]
+script = ExtResource("4")
+StatName = "doom"
+Value = 2
+
+[sub_resource type="Resource" id="opt_leave"]
+script = ExtResource("2")
+OptionText = "Leave the voices unanswered — some doors are better closed"
+Consequences = Array[ExtResource("4")]([SubResource("con_leave_doom")])
+SuccessText = "Wisdom, perhaps. The voices continue after you have gone, indifferent to your departure — which is either reassuring or the opposite. You find the exit in good time. The tide is still out. You did not linger long enough to learn anything, and that is sometimes its own kind of knowledge."
+FailureText = "Wisdom, perhaps. The voices continue after you have gone, indifferent to your departure — which is either reassuring or the opposite. You find the exit in good time. The tide is still out. You did not linger long enough to learn anything, and that is sometimes its own kind of knowledge."
+
+[resource]
+script = ExtResource("1")
+EventId = "catacomb_sunken_voices"
+EventText = "The lower chambers are full of sound — not water-sound, not echo, but voices. They speak in overlapping registers, never quite resolving into anything audible from above. Some are close. Some are distant in a way that doesn't correspond to distance within the catacomb. The water on the floor is warm."
+Options = Array[ExtResource("2")]([SubResource("opt_listen"), SubResource("opt_compass"), SubResource("opt_leave")])

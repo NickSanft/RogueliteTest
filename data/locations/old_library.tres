@@ -10,4 +10,5 @@ Description = "Dusty tomes line crumbling shelves. The air smells of decay and f
 ImagePath = ""
 EventPool = ["library_forbidden_tome", "library_dusty_mirror", "library_hidden_archive"]
 TurnCost = 1
+SortOrder = 1
 UnlockedByDefault = true

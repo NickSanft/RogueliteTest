@@ -1,0 +1,94 @@
+[gd_resource type="Resource" script_class="EventResource" format=3]
+
+[ext_resource type="Script" uid="uid://bwoliaoytwc7e" path="res://scripts/resources/EventResource.cs" id="1"]
+[ext_resource type="Script" uid="uid://2wwbq38npbrd" path="res://scripts/resources/EventOption.cs" id="2"]
+[ext_resource type="Script" uid="uid://wjlfxffqq08k" path="res://scripts/resources/StatCheck.cs" id="3"]
+[ext_resource type="Script" uid="uid://ln4cmwg8ep8" path="res://scripts/resources/EventConsequence.cs" id="4"]
+
+[sub_resource type="Resource" id="sc_watch"]
+script = ExtResource("3")
+Stat = 1
+Threshold = 5
+
+[sub_resource type="Resource" id="con_watch_success_mystery"]
+script = ExtResource("4")
+StatName = "doom"
+Value = 1
+
+[sub_resource type="Resource" id="con_watch_success_mystery2"]
+script = ExtResource("4")
+Type = 3
+MysteryProgress = 1
+
+[sub_resource type="Resource" id="con_watch_fail_stamina"]
+script = ExtResource("4")
+StatName = "stamina"
+Value = -2
+
+[sub_resource type="Resource" id="con_watch_fail_doom"]
+script = ExtResource("4")
+StatName = "doom"
+Value = 2
+
+[sub_resource type="Resource" id="opt_watch"]
+script = ExtResource("2")
+OptionText = "Stay through the night — watch and record what surfaces"
+StatCheck = SubResource("sc_watch")
+SuccessConsequences = Array[ExtResource("4")]([SubResource("con_watch_success_mystery"), SubResource("con_watch_success_mystery2")])
+FailureConsequences = Array[ExtResource("4")]([SubResource("con_watch_fail_stamina"), SubResource("con_watch_fail_doom")])
+SuccessText = "You hold yourself to the rock and watch. Just before dawn, something surfaces at the far edge of the cove — too large, too deliberate, too aware of being observed. It submerges before you can confirm its shape. But you saw enough. You have seen enough. You write it down with hands that do not quite stop shaking."
+FailureText = "You last until midnight before the cold and the sound together undo you. You do not remember walking back. You wake inland with no boots and a cut on your palm that matches nothing nearby."
+
+[sub_resource type="Resource" id="con_compass_mystery"]
+script = ExtResource("4")
+Type = 3
+MysteryProgress = 2
+
+[sub_resource type="Resource" id="con_compass_doom"]
+script = ExtResource("4")
+StatName = "doom"
+Value = 2
+
+[sub_resource type="Resource" id="opt_compass"]
+script = ExtResource("2")
+OptionText = "Use the tidal compass to trace the signals"
+RequiredItem = "tidal_compass"
+Consequences = Array[ExtResource("4")]([SubResource("con_compass_mystery"), SubResource("con_compass_doom")])
+SuccessText = "The compass was not made for this — but it responds as though it was. The needle swings in a pattern that corresponds to nothing in any chart, and then again, and then you understand: it is a response. Something below is answering the compass's wobble with signals of its own. By the time dawn greys the water, you have traced the source to a shelf of rock three miles offshore. The understanding settles heavily."
+FailureText = "The compass was not made for this — but it responds as though it was. The needle swings in a pattern that corresponds to nothing in any chart, and then again, and then you understand: it is a response. Something below is answering the compass's wobble with signals of its own. By the time dawn greys the water, you have traced the source to a shelf of rock three miles offshore. The understanding settles heavily."
+
+[sub_resource type="Resource" id="con_bargain_doom"]
+script = ExtResource("4")
+StatName = "doom"
+Value = -15
+
+[sub_resource type="Resource" id="con_bargain_stamina"]
+script = ExtResource("4")
+StatName = "stamina"
+Value = -3
+
+[sub_resource type="Resource" id="opt_bargain"]
+script = ExtResource("2")
+OptionText = "Answer what calls — offer something in exchange for distance"
+MinDoom = 60
+Consequences = Array[ExtResource("4")]([SubResource("con_bargain_doom"), SubResource("con_bargain_stamina")])
+SuccessText = "You speak aloud — not words, exactly, but the right shape of intention. There is a pause in the rhythmic sound from below. Then something exhales at a frequency you feel in your teeth rather than hear. The weight lifts. You do not know what you gave. You feel lighter in a way that has nothing to do with relief. The sea still pulses, but no longer toward you."
+FailureText = "You speak aloud — not words, exactly, but the right shape of intention. There is a pause in the rhythmic sound from below. Then something exhales at a frequency you feel in your teeth rather than hear. The weight lifts. You do not know what you gave. You feel lighter in a way that has nothing to do with relief. The sea still pulses, but no longer toward you."
+
+[sub_resource type="Resource" id="con_leave_doom"]
+script = ExtResource("4")
+StatName = "doom"
+Value = 1
+
+[sub_resource type="Resource" id="opt_leave"]
+script = ExtResource("2")
+OptionText = "Return inland before the signals grow stronger"
+Consequences = Array[ExtResource("4")]([SubResource("con_leave_doom")])
+SuccessText = "You leave before dark. The sound follows you to the edge of town, then stops at the first streetlamp as though repelled by the light. Whatever boundary exists, you are still on the right side of it. For now."
+FailureText = "You leave before dark. The sound follows you to the edge of town, then stops at the first streetlamp as though repelled by the light. Whatever boundary exists, you are still on the right side of it. For now."
+
+[resource]
+script = ExtResource("1")
+EventId = "cliff_night_watch"
+EventText = "The cliff at night is a different country. The lights below the water pulse in a regular rhythm — too regular to be waves, too variable to be mechanical. The sound that accompanies them has no source direction. It does not echo. It simply arrives, always at the same volume, regardless of where you stand."
+Options = Array[ExtResource("2")]([SubResource("opt_watch"), SubResource("opt_compass"), SubResource("opt_bargain"), SubResource("opt_leave")])

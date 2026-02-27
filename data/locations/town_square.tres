@@ -10,4 +10,5 @@ Description = "The centre of a town that has been quietly emptying for years. Th
 ImagePath = ""
 EventPool = ["town_strange_sermon", "town_disappearances", "town_lodgings"]
 TurnCost = 1
+SortOrder = 0
 UnlockedByDefault = true
