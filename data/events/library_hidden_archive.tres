@@ -1,0 +1,71 @@
+[gd_resource type="Resource" script_class="EventResource" format=3]
+
+[ext_resource type="Script" uid="uid://bwoliaoytwc7e" path="res://scripts/resources/EventResource.cs" id="1"]
+[ext_resource type="Script" uid="uid://2wwbq38npbrd" path="res://scripts/resources/EventOption.cs" id="2"]
+[ext_resource type="Script" uid="uid://wjlfxffqq08k" path="res://scripts/resources/StatCheck.cs" id="3"]
+[ext_resource type="Script" uid="uid://ln4cmwg8ep8" path="res://scripts/resources/EventConsequence.cs" id="4"]
+
+[sub_resource type="Resource" id="sc_study"]
+script = ExtResource("3")
+Stat = 1
+Threshold = 7
+
+[sub_resource type="Resource" id="con_study_mystery"]
+script = ExtResource("4")
+Type = 3
+MysteryProgress = 2
+
+[sub_resource type="Resource" id="con_study_doom"]
+script = ExtResource("4")
+StatName = "doom"
+Value = 6
+
+[sub_resource type="Resource" id="con_study_fail"]
+script = ExtResource("4")
+StatName = "reason"
+Value = -4
+
+[sub_resource type="Resource" id="opt_study"]
+script = ExtResource("2")
+OptionText = "Read the archive — all of it, until you understand"
+StatCheck = SubResource("sc_study")
+SuccessConsequences = Array[ExtResource("4")]([SubResource("con_study_mystery"), SubResource("con_study_doom")])
+FailureConsequences = Array[ExtResource("4")]([SubResource("con_study_fail")])
+SuccessText = "The archive is a complete record: every person who visited this library, what they read, what it cost them, and what they subsequently did. It goes back four hundred years. Your own name appears on the last page, already filled in, in handwriting you do not recognise as your own."
+FailureText = "The density of the material defeats you. Too many cross-references, too many marginal notations in too many hands. You emerge from the archive hours later with the structural outline of something vast and the specific knowledge that you are missing crucial context. Your head aches."
+
+[sub_resource type="Resource" id="sc_remove"]
+script = ExtResource("3")
+Stat = 0
+Threshold = 5
+
+[sub_resource type="Resource" id="con_remove_mystery"]
+script = ExtResource("4")
+Type = 3
+MysteryProgress = 1
+
+[sub_resource type="Resource" id="con_remove_fail"]
+script = ExtResource("4")
+StatName = "stamina"
+Value = -3
+
+[sub_resource type="Resource" id="opt_remove"]
+script = ExtResource("2")
+OptionText = "Remove the most dangerous volumes for safekeeping"
+StatCheck = SubResource("sc_remove")
+SuccessConsequences = Array[ExtResource("4")]([SubResource("con_remove_mystery")])
+FailureConsequences = Array[ExtResource("4")]([SubResource("con_remove_fail")])
+SuccessText = "You fill your coat with as many as you can carry. The books are heavier than their size warrants and do not sit still in your grip. By the time you reach the street your arms are exhausted, but the volumes are out of the archive."
+FailureText = "The books resist you in ways that are difficult to explain. They are slippery, or the light changes, or the section appears to rearrange itself. You emerge empty-handed and breathing hard, with the impression that the archive found you insufficient."
+
+[sub_resource type="Resource" id="opt_seal"]
+script = ExtResource("2")
+OptionText = "Seal the passage and pretend it was never there"
+SuccessText = "You replace the bookcase and wedge it shut. It moves back slightly on its own. You wedge it shut again. It holds. As you leave the library you hear, from somewhere beneath the floor, something shifting through paper."
+FailureText = "You replace the bookcase and wedge it shut. It moves back slightly on its own. You wedge it shut again. It holds. As you leave the library you hear, from somewhere beneath the floor, something shifting through paper."
+
+[resource]
+script = ExtResource("1")
+EventId = "library_hidden_archive"
+EventText = "Behind a section of shelving that swings outward is a room that the library's floor plan does not account for. It is filled with documents in cases of black glass — organised, catalogued, and maintained to a standard the visible library could not aspire to. The air here is colder and does not smell of dust. It smells of preservation."
+Options = Array[ExtResource("2")]([SubResource("opt_study"), SubResource("opt_remove"), SubResource("opt_seal")])

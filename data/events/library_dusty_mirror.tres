@@ -10,6 +10,11 @@ script = ExtResource("3")
 Stat = 1
 Threshold = 5
 
+[sub_resource type="Resource" id="con_stare_mystery"]
+script = ExtResource("4")
+Type = 3
+MysteryProgress = 1
+
 [sub_resource type="Resource" id="con_stare_fail"]
 script = ExtResource("4")
 StatName = "reason"
@@ -19,6 +24,7 @@ Value = -2
 script = ExtResource("2")
 OptionText = "Wipe away the dust and stare directly at it"
 StatCheck = SubResource("sc_stare")
+SuccessConsequences = Array[ExtResource("4")]([SubResource("con_stare_mystery")])
 FailureConsequences = Array[ExtResource("4")]([SubResource("con_stare_fail")])
 SuccessText = "Your reflection snaps into sync, then looks ashamed. Whatever was using it retreats. The glass shows only you, diminished and breathing too fast."
 FailureText = "As your cloth touches the surface, your reflection grabs your wrist from the other side. You feel nothing—but you cannot pull away. Finally it releases you, grinning. You did not grin."

@@ -1,0 +1,82 @@
+[gd_resource type="Resource" script_class="EventResource" format=3]
+
+[ext_resource type="Script" uid="uid://bwoliaoytwc7e" path="res://scripts/resources/EventResource.cs" id="1"]
+[ext_resource type="Script" uid="uid://2wwbq38npbrd" path="res://scripts/resources/EventOption.cs" id="2"]
+[ext_resource type="Script" uid="uid://wjlfxffqq08k" path="res://scripts/resources/StatCheck.cs" id="3"]
+[ext_resource type="Script" uid="uid://ln4cmwg8ep8" path="res://scripts/resources/EventConsequence.cs" id="4"]
+
+[sub_resource type="Resource" id="sc_wade"]
+script = ExtResource("3")
+Stat = 0
+Threshold = 6
+
+[sub_resource type="Resource" id="con_wade_mystery"]
+script = ExtResource("4")
+Type = 3
+MysteryProgress = 1
+
+[sub_resource type="Resource" id="con_wade_doom"]
+script = ExtResource("4")
+StatName = "doom"
+Value = 6
+
+[sub_resource type="Resource" id="con_wade_fail_stamina"]
+script = ExtResource("4")
+StatName = "stamina"
+Value = -3
+
+[sub_resource type="Resource" id="con_wade_fail_doom"]
+script = ExtResource("4")
+StatName = "doom"
+Value = 4
+
+[sub_resource type="Resource" id="opt_wade"]
+script = ExtResource("2")
+OptionText = "Wade through — there must be something worth reaching on the other side"
+StatCheck = SubResource("sc_wade")
+SuccessConsequences = Array[ExtResource("4")]([SubResource("con_wade_mystery"), SubResource("con_wade_doom")])
+FailureConsequences = Array[ExtResource("4")]([SubResource("con_wade_fail_stamina"), SubResource("con_wade_fail_doom")])
+SuccessText = "The water reaches your chest before the passage opens into an air pocket. On the far wall: a relief carving, detailed and purposeful, depicting something ascending from depth. It is not a warning. It is a schedule. The date carved at the bottom, accounting for calendar drift, is very soon."
+FailureText = "The cold defeats you halfway through. You stagger back to the entrance, soaked and shaking. Whatever is on the other side of that flooded section remains unknown. The water level seems to have risen slightly since you entered."
+
+[sub_resource type="Resource" id="sc_sound"]
+script = ExtResource("3")
+Stat = 1
+Threshold = 5
+
+[sub_resource type="Resource" id="con_sound_doom"]
+script = ExtResource("4")
+StatName = "doom"
+Value = 4
+
+[sub_resource type="Resource" id="con_sound_fail"]
+script = ExtResource("4")
+StatName = "reason"
+Value = -3
+
+[sub_resource type="Resource" id="opt_sound"]
+script = ExtResource("2")
+OptionText = "Listen from the entrance — sound carries in flooded tunnels"
+StatCheck = SubResource("sc_sound")
+SuccessConsequences = Array[ExtResource("4")]([SubResource("con_sound_doom")])
+FailureConsequences = Array[ExtResource("4")]([SubResource("con_sound_fail")])
+SuccessText = "You hear rhythm. Not the rhythm of water moving through stone—something with intention behind it, something that slows and quickens in response to your own heartbeat. It takes you a long moment to realise it stopped the second you began to count it."
+FailureText = "The sounds from the passage are ordinary — water, stone, the settling of an old structure. You listen for forty minutes and find nothing. On the walk back, you realise you cannot account for those forty minutes, and that your boots are wet."
+
+[sub_resource type="Resource" id="con_mark_doom"]
+script = ExtResource("4")
+StatName = "doom"
+Value = -2
+
+[sub_resource type="Resource" id="opt_mark"]
+script = ExtResource("2")
+OptionText = "Mark the water level and come back later"
+Consequences = Array[ExtResource("4")]([SubResource("con_mark_doom")])
+SuccessText = "You scratch a line at the waterline and note the time. The passage is here; it will keep. Prudence is not the same as cowardice. As you leave, you hear the water behind you rise slightly — not with the sound of inflow, but with the sound of something displacing it."
+FailureText = "You scratch a line at the waterline and note the time. The passage is here; it will keep. Prudence is not the same as cowardice. As you leave, you hear the water behind you rise slightly — not with the sound of inflow, but with the sound of something displacing it."
+
+[resource]
+script = ExtResource("1")
+EventId = "catacomb_flooded_passage"
+EventText = "A side passage branches from the main catacomb corridor, descending steeply into standing water. The water is perfectly still despite the passage of air from deeper in the rock. Something below its surface glows intermittently — not bioluminescent, not electric. The light has a rhythm."
+Options = Array[ExtResource("2")]([SubResource("opt_wade"), SubResource("opt_sound"), SubResource("opt_mark")])

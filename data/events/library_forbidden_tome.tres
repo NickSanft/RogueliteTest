@@ -15,6 +15,11 @@ script = ExtResource("4")
 StatName = "reason"
 Value = -1
 
+[sub_resource type="Resource" id="con_read_mystery"]
+script = ExtResource("4")
+Type = 3
+MysteryProgress = 1
+
 [sub_resource type="Resource" id="con_read_fail"]
 script = ExtResource("4")
 StatName = "reason"
@@ -24,7 +29,7 @@ Value = -3
 script = ExtResource("2")
 OptionText = "Study the forbidden diagrams"
 StatCheck = SubResource("sc_read")
-SuccessConsequences = Array[ExtResource("4")]([SubResource("con_read_success")])
+SuccessConsequences = Array[ExtResource("4")]([SubResource("con_read_success"), SubResource("con_read_mystery")])
 FailureConsequences = Array[ExtResource("4")]([SubResource("con_read_fail")])
 SuccessText = "The patterns resolve into something almost comprehensible. A terrible understanding blooms behind your eyes. Your reason erodes at the price of knowing."
 FailureText = "The diagrams twist into shapes the mind cannot process. Pain lances through your skull. You drop the book and stagger back, something inside you permanently bent."

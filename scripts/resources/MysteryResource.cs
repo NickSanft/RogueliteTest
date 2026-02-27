@@ -11,6 +11,9 @@ public partial class MysteryResource : Resource
 	[Export] public string Name { get; set; } = "";
 	[Export(PropertyHint.MultilineText)] public string Description { get; set; } = "";
 
+	/// <summary>Determines the order mysteries are queued. Lower values complete first.</summary>
+	[Export] public int SortOrder { get; set; } = 0;
+
 	/// <summary>Total AdvanceMystery points needed to complete this mystery.</summary>
 	[Export] public int RequiredProgress { get; set; } = 5;
 

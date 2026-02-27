@@ -1,0 +1,71 @@
+[gd_resource type="Resource" script_class="EventResource" format=3]
+
+[ext_resource type="Script" uid="uid://bwoliaoytwc7e" path="res://scripts/resources/EventResource.cs" id="1"]
+[ext_resource type="Script" uid="uid://2wwbq38npbrd" path="res://scripts/resources/EventOption.cs" id="2"]
+[ext_resource type="Script" uid="uid://wjlfxffqq08k" path="res://scripts/resources/StatCheck.cs" id="3"]
+[ext_resource type="Script" uid="uid://ln4cmwg8ep8" path="res://scripts/resources/EventConsequence.cs" id="4"]
+
+[sub_resource type="Resource" id="sc_listen"]
+script = ExtResource("3")
+Stat = 1
+Threshold = 6
+
+[sub_resource type="Resource" id="con_listen_doom"]
+script = ExtResource("4")
+StatName = "doom"
+Value = 4
+
+[sub_resource type="Resource" id="con_listen_fail"]
+script = ExtResource("4")
+StatName = "reason"
+Value = -2
+
+[sub_resource type="Resource" id="opt_listen"]
+script = ExtResource("2")
+OptionText = "Listen carefully — there is structure beneath the rambling"
+StatCheck = SubResource("sc_listen")
+SuccessConsequences = Array[ExtResource("4")]([SubResource("con_listen_doom")])
+FailureConsequences = Array[ExtResource("4")]([SubResource("con_listen_fail")])
+SuccessText = "The words resolve into a coherent cosmology—wrong in ways you cannot articulate, but internally consistent. He is describing the entity beneath the cliff in terms borrowed from the Book of Job. The passages he quotes do not appear in any Bible you have ever read."
+FailureText = "You try to find the pattern and it nearly pulls you under. The words stop meaning things and start meaning something else—something that does not translate into thought you can use. You extract yourself and stand in the square breathing hard until the shapes in the language fade."
+
+[sub_resource type="Resource" id="sc_challenge"]
+script = ExtResource("3")
+Stat = 0
+Threshold = 5
+
+[sub_resource type="Resource" id="con_challenge_success"]
+script = ExtResource("4")
+StatName = "doom"
+Value = -3
+
+[sub_resource type="Resource" id="con_challenge_fail_stamina"]
+script = ExtResource("4")
+StatName = "stamina"
+Value = -2
+
+[sub_resource type="Resource" id="con_challenge_fail_doom"]
+script = ExtResource("4")
+StatName = "doom"
+Value = 3
+
+[sub_resource type="Resource" id="opt_challenge"]
+script = ExtResource("2")
+OptionText = "Challenge him — demand he explain himself to a rational audience"
+StatCheck = SubResource("sc_challenge")
+SuccessConsequences = Array[ExtResource("4")]([SubResource("con_challenge_success")])
+FailureConsequences = Array[ExtResource("4")]([SubResource("con_challenge_fail_stamina"), SubResource("con_challenge_fail_doom")])
+SuccessText = "He rounds on you, delighted. The argument lasts twenty minutes and ends when he cannot counter your objection about agency. He thanks you warmly. 'You've given It less room to work with,' he says, as if this was a service you performed for the entity, not against it."
+FailureText = "He is ready for you. His counter-arguments have the quality of something rehearsed for a long time — prepared against a specific objection that you happen to be making. The crowd that has gathered watches you struggle and says nothing. You lose the argument. You are not sure what that means."
+
+[sub_resource type="Resource" id="opt_observe"]
+script = ExtResource("2")
+OptionText = "Watch the crowd — who is listening, and how do they look?"
+SuccessText = "Twelve people. Six of them have the expression of people who already know the ending of the story being told. Two of them are not breathing at the rate you would expect. One of them looks directly at you and smiles before you have time to look at them."
+FailureText = "Twelve people. Six of them have the expression of people who already know the ending of the story being told. Two of them are not breathing at the rate you would expect. One of them looks directly at you and smiles before you have time to look at them."
+
+[resource]
+script = ExtResource("1")
+EventId = "town_strange_sermon"
+EventText = "A man in a fisherman's coat stands on the dry fountain rim, preaching to a small crowd with the confidence of someone delivering news rather than theology. He is describing the geometry of the deep ocean in terms that suggest personal experience. The crowd listens without the discomfort of people hearing heresy."
+Options = Array[ExtResource("2")]([SubResource("opt_listen"), SubResource("opt_challenge"), SubResource("opt_observe")])

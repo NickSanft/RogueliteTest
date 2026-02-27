@@ -1,6 +1,7 @@
 using Godot;
 using Godot.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using GodotDictionary = Godot.Collections.Dictionary;
 
 /// <summary>
@@ -19,6 +20,7 @@ public partial class GameManager : Node
 	// Run state
 	public List<string> Inventory { get; set; } = new();
 	public List<string> EventQueue { get; set; } = new();
+	public List<EventResource> EventResourceQueue { get; private set; } = new();
 	public List<string> ActiveMysteries { get; set; } = new();
 	public System.Collections.Generic.Dictionary<string, int> MysteryProgress { get; set; } = new();
 	public int CurrentTurn { get; set; } = 1;
@@ -143,6 +145,11 @@ public partial class GameManager : Node
 		EventQueue.Add(eventId);
 	}
 
+	public void QueueEventResource(EventResource ev)
+	{
+		EventResourceQueue.Add(ev);
+	}
+
 	// ── Location unlocking ───────────────────────────────────────────────────
 
 	public void UnlockLocation(string locationId)
@@ -184,8 +191,8 @@ public partial class GameManager : Node
 	{
 		ActiveMysteries.Clear();
 		MysteryProgress.Clear();
-		foreach (var id in _loadedMysteries.Keys)
-			ActiveMysteries.Add(id);
+		foreach (var m in _loadedMysteries.Values.OrderBy(m => m.SortOrder))
+			ActiveMysteries.Add(m.MysteryId);
 	}
 
 	// ── Meta-progression ─────────────────────────────────────────────────────
@@ -304,6 +311,7 @@ public partial class GameManager : Node
 		CurrentTurn = 1;
 		Inventory.Clear();
 		EventQueue.Clear();
+		EventResourceQueue.Clear();
 
 		InitialiseMysteries();
 		ApplyMetaBonuses();

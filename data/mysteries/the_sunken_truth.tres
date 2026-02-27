@@ -5,6 +5,7 @@
 [resource]
 script = ExtResource("1")
 MysteryId = "the_sunken_truth"
+SortOrder = 1
 Name = "The Sunken Truth"
 Description = "Something ancient stirs beneath the coastal waters. Its servants walk among the drowned. Its signals pulse from the deep. The truth of what lies below can be uncovered — if you are willing to descend."
 RequiredProgress = 5

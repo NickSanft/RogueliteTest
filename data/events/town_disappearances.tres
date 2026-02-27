@@ -1,0 +1,66 @@
+[gd_resource type="Resource" script_class="EventResource" format=3]
+
+[ext_resource type="Script" uid="uid://bwoliaoytwc7e" path="res://scripts/resources/EventResource.cs" id="1"]
+[ext_resource type="Script" uid="uid://2wwbq38npbrd" path="res://scripts/resources/EventOption.cs" id="2"]
+[ext_resource type="Script" uid="uid://wjlfxffqq08k" path="res://scripts/resources/StatCheck.cs" id="3"]
+[ext_resource type="Script" uid="uid://ln4cmwg8ep8" path="res://scripts/resources/EventConsequence.cs" id="4"]
+
+[sub_resource type="Resource" id="sc_investigate"]
+script = ExtResource("3")
+Stat = 1
+Threshold = 5
+
+[sub_resource type="Resource" id="con_investigate_doom"]
+script = ExtResource("4")
+StatName = "doom"
+Value = 5
+
+[sub_resource type="Resource" id="con_investigate_fail"]
+script = ExtResource("4")
+StatName = "reason"
+Value = -2
+
+[sub_resource type="Resource" id="opt_investigate"]
+script = ExtResource("2")
+OptionText = "Investigate the pattern — cross-reference the names and dates"
+StatCheck = SubResource("sc_investigate")
+SuccessConsequences = Array[ExtResource("4")]([SubResource("con_investigate_doom")])
+FailureConsequences = Array[ExtResource("4")]([SubResource("con_investigate_fail")])
+SuccessText = "The disappearances follow the tidal calendar almost exactly. The exceptions are not random — they cluster on nights with particular lunar angles. Whoever or whatever is selecting these people has access to an almanac, a preference, and patience measured in years."
+FailureText = "The records are inconsistent in ways that feel intentional. Names are misspelled differently in different registers. Dates contradict. You cannot tell if the records were badly kept or if someone has been maintaining a specific kind of confusion."
+
+[sub_resource type="Resource" id="sc_canvass"]
+script = ExtResource("3")
+Stat = 0
+Threshold = 4
+
+[sub_resource type="Resource" id="con_canvass_success"]
+script = ExtResource("4")
+StatName = "stamina"
+Value = -1
+
+[sub_resource type="Resource" id="con_canvass_fail"]
+script = ExtResource("4")
+StatName = "stamina"
+Value = -3
+
+[sub_resource type="Resource" id="opt_canvass"]
+script = ExtResource("2")
+OptionText = "Canvass the remaining residents door to door"
+StatCheck = SubResource("sc_canvass")
+SuccessConsequences = Array[ExtResource("4")]([SubResource("con_canvass_success")])
+FailureConsequences = Array[ExtResource("4")]([SubResource("con_canvass_fail")])
+SuccessText = "Most doors do not open. Of those that do, four people give you the same story using slightly different words: a sound at low tide, then quiet. One elderly woman gives you a list of thirty-one names going back four generations. 'We knew it would come to this,' she says, and closes the door."
+FailureText = "Hours of walking and most doors closed. Your feet ache and you have three contradictory stories, none of which can be verified. By the time you return to the square you are tired and no wiser, and the afternoon has gone."
+
+[sub_resource type="Resource" id="opt_post"]
+script = ExtResource("2")
+OptionText = "Post a notice asking for information — let people come to you"
+SuccessText = "Three notes appear under your door overnight. One is a warning in a language you do not recognise. One lists the cliff path and a time. One is blank, but smells of salt and something organic. You keep all three."
+FailureText = "Three notes appear under your door overnight. One is a warning in a language you do not recognise. One lists the cliff path and a time. One is blank, but smells of salt and something organic. You keep all three."
+
+[resource]
+script = ExtResource("1")
+EventId = "town_disappearances"
+EventText = "A notice board near the square has been papered over with handwritten names and dates — residents have been keeping a record of who is missing. The list goes back further than you expected. The handwriting changes at the bottom, becoming more recent and more frightened."
+Options = Array[ExtResource("2")]([SubResource("opt_investigate"), SubResource("opt_canvass"), SubResource("opt_post")])

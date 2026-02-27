@@ -8,6 +8,6 @@ LocationId = "sunken_catacomb"
 LocationName = "Sunken Catacomb"
 Description = "Below the coastal shelf, accessible only at the lowest tides, a passage descends into the rock. Water has been here recently. The carvings on the walls are older than the town."
 ImagePath = ""
-EventPool = ["catacomb_the_truth_below"]
+EventPool = ["catacomb_the_truth_below", "catacomb_flooded_passage"]
 TurnCost = 3
 UnlockedByDefault = false

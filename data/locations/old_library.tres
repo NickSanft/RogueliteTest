@@ -8,6 +8,6 @@ LocationId = "old_library"
 LocationName = "Old Library"
 Description = "Dusty tomes line crumbling shelves. The air smells of decay and forgotten knowledge. Strange whispers echo between the stacks."
 ImagePath = ""
-EventPool = ["library_forbidden_tome", "library_dusty_mirror"]
+EventPool = ["library_forbidden_tome", "library_dusty_mirror", "library_hidden_archive"]
 TurnCost = 1
 UnlockedByDefault = true

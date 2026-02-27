@@ -1,0 +1,11 @@
+[gd_resource type="Resource" script_class="ItemResource" load_steps=2 format=3]
+
+[ext_resource type="Script" uid="uid://dnrkflagtfvpo" path="res://scripts/resources/ItemResource.cs" id="1"]
+
+[resource]
+script = ExtResource("1")
+ItemId = "tidal_compass"
+ItemName = "Tidal Compass"
+Description = "The needle does not point north. It points toward something beneath the water that is not north, but is consistent. You find that orienting yourself by it clarifies your thinking in ways that true north never did."
+StaminaBonus = 0
+ReasonBonus = 1

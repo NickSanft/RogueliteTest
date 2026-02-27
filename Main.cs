@@ -160,6 +160,22 @@ public partial class Main : Node2D
 	private void OnMysteryCompleted(string mysteryId, string completionText)
 	{
 		GD.Print($"Mystery completed: {mysteryId}");
+
+		// If more mysteries remain, show the completion text as a queued event.
+		// The last mystery's completion is handled by OnRunWon instead.
+		if (_gameManager?.ActiveMysteries.Count > 0)
+		{
+			var notice = new EventResource();
+			notice.EventId   = "mystery_complete_notice";
+			notice.EventText = completionText;
+
+			var cont = new EventOption();
+			cont.OptionText  = "Continue the investigation.";
+			cont.SuccessText = "The work is not finished. There is always more to learn — and always a cost for learning it.";
+			notice.Options.Add(cont);
+
+			_gameManager.QueueEventResource(notice);
+		}
 	}
 
 	private void OnRunWon(string winText)

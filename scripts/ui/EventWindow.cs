@@ -188,14 +188,24 @@ public partial class EventWindow : Panel
 	private void ProcessEventQueue()
 	{
 		if (_gameManager == null || _eventManager == null) return;
+
+		// Dynamic (code-built) events take priority over ID-based events
+		if (_gameManager.EventResourceQueue.Count > 0)
+		{
+			var nextEvent = _gameManager.EventResourceQueue[0];
+			_gameManager.EventResourceQueue.RemoveAt(0);
+			CallDeferred("ShowEvent", nextEvent);
+			return;
+		}
+
 		if (_gameManager.EventQueue.Count == 0) return;
 
 		string nextId = _gameManager.EventQueue[0];
 		_gameManager.EventQueue.RemoveAt(0);
 
-		var nextEvent = _eventManager.LoadEventById(nextId);
-		if (nextEvent != null)
-			CallDeferred("ShowEvent", nextEvent);
+		var ev = _eventManager.LoadEventById(nextId);
+		if (ev != null)
+			CallDeferred("ShowEvent", ev);
 	}
 
 	private static void ApplyButtonTextStyle(Button button)

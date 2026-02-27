@@ -1,0 +1,12 @@
+[gd_resource type="Resource" script_class="MysteryResource" load_steps=2 format=3]
+
+[ext_resource type="Script" uid="uid://gptp2ivbnb6a" path="res://scripts/resources/MysteryResource.cs" id="1"]
+
+[resource]
+script = ExtResource("1")
+MysteryId = "the_forbidden_knowledge"
+Name = "The Forbidden Knowledge"
+Description = "The library holds more than books. Its deeper shelves contain records that predate the building itself — pressed into surfaces that are not paper, in scripts that shift when read. Something curated this collection deliberately, for an audience that has not arrived yet."
+SortOrder = 2
+RequiredProgress = 3
+CompletionText = "You understand the library now. Not its catalogue — the library itself, as an entity. It has been waiting for a reader capable of comprehension. Every book that drove a previous visitor mad was a test. You have passed. The knowledge settles into you like sediment: permanent, heavy, and cold. You are the first archivist. You will not be the last."
