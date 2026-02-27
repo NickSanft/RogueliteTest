@@ -1,0 +1,13 @@
+[gd_resource type="Resource" script_class="LocationResource" load_steps=2 format=3]
+
+[ext_resource type="Script" uid="uid://c6qeqad1ggm1b" path="res://scripts/resources/LocationResource.cs" id="1"]
+
+[resource]
+script = ExtResource("1")
+LocationId = "town_square"
+LocationName = "Town Square"
+Description = "The centre of a town that has been quietly emptying for years. The remaining residents do not make eye contact. The fountain has been dry since last spring, though no one can agree when it stopped."
+ImagePath = ""
+EventPool = ["town_strange_sermon", "town_disappearances"]
+TurnCost = 1
+UnlockedByDefault = true
