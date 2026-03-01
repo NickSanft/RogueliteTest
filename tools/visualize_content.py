@@ -36,7 +36,7 @@ SCRIPT_PATH_KEYS = {
 STAT_NAMES  = {0: "Stamina", 1: "Reason", 2: "Doom"}
 CONS_TYPES  = {
     0: "StatChange", 1: "ItemGain", 2: "TriggerEvent",
-    3: "AdvanceMystery", 4: "UnlockLocation",
+    3: "AdvanceMystery", 4: "UnlockLocation", 5: "ModifyMax",
 }
 
 # ── Low-level .tres parser ────────────────────────────────────────────────────
@@ -159,6 +159,7 @@ def build_consequence(raw: dict) -> dict:
     ctype = CONS_TYPES.get(raw.get("Type", 0), "StatChange")
     c: dict = {"type": ctype}
     if   ctype == "StatChange":     c["stat"]          = raw.get("StatName", ""); c["value"] = raw.get("Value", 0)
+    elif ctype == "ModifyMax":       c["stat"]          = raw.get("StatName", ""); c["value"] = raw.get("Value", 0)
     elif ctype == "ItemGain":        c["item_id"]       = raw.get("ItemId", "")
     elif ctype == "TriggerEvent":    c["next_event_id"] = raw.get("NextEventId", "")
     elif ctype == "AdvanceMystery":  c["amount"]        = raw.get("MysteryProgress", 1)
@@ -169,10 +170,12 @@ def build_consequence(raw: dict) -> dict:
 def build_stat_check(raw) -> dict | None:
     if not isinstance(raw, dict) or "__type" not in raw:
         return None
+    ctype_val = raw.get("Type", raw.get("CheckType", 0))
+    check_type = {0: "Fixed", 1: "DiceRoll", 2: "DoomScaled"}.get(ctype_val, "Fixed")
     return {
-        "stat":      STAT_NAMES.get(raw.get("Stat", 0), "?"),
-        "threshold": raw.get("Threshold", 0),
-        "check_type": "DiceRoll" if raw.get("CheckType", 0) == 1 else "Fixed",
+        "stat":       STAT_NAMES.get(raw.get("Stat", 0), "?"),
+        "threshold":  raw.get("Threshold", 0),
+        "check_type": check_type,
     }
 
 
@@ -204,7 +207,13 @@ def build_event(tres: dict) -> dict | None:
         resolved = resolve(ref, sr)
         if isinstance(resolved, dict):
             options.append(build_option(resolved))
-    return {"id": eid, "text": main.get("EventText", ""), "options": options}
+    return {
+        "id":            eid,
+        "text":          main.get("EventText", ""),
+        "options":       options,
+        "required_item": main.get("RequiredItem", ""),
+        "min_doom":      main.get("MinDoom", 0),
+    }
 
 
 def build_location(tres: dict) -> dict | None:
@@ -558,6 +567,10 @@ function renderCon(c) {
     return '<span class="con c-tr">\u2192 ' + c.next_event_id + '</span>';
   if (c.type === 'UnlockLocation')
     return '<span class="con c-ul">UNLOCK: ' + c.location_id + '</span>';
+  if (c.type === 'ModifyMax') {
+    const sign = c.value > 0 ? '+' : '';
+    return '<span class="con c-sp">MAX ' + c.stat.toUpperCase() + ' ' + sign + c.value + '</span>';
+  }
   return '';
 }
 
@@ -568,9 +581,11 @@ function renderConList(cons) {
 
 function statCheckHtml(sc) {
   if (!sc) return '<span class="stat-check sc-none">No check</span>';
+  const suffix = sc.check_type === 'DiceRoll'   ? ' (dice)'
+               : sc.check_type === 'DoomScaled' ? '+doom'
+               : '';
   return '<span class="stat-check sc-' + sc.stat.toLowerCase() + '">' +
-         sc.stat.toUpperCase() + ' \u2265 ' + sc.threshold +
-         (sc.check_type === 'DiceRoll' ? ' (dice)' : '') + '</span>';
+         sc.stat.toUpperCase() + ' \u2265 ' + sc.threshold + suffix + '</span>';
 }
 
 // ── Event badges ──────────────────────────────────────────────────────────────
@@ -582,8 +597,11 @@ function eventBadges(evt) {
   return [
     cons.some(c => c.type === 'AdvanceMystery') ? '<span class="badge b-mystery">MYSTERY</span>' : '',
     cons.some(c => c.type === 'ItemGain')        ? '<span class="badge b-item">ITEM</span>'       : '',
+    cons.some(c => c.type === 'ModifyMax')       ? '<span class="badge b-item">MAX+</span>'       : '',
     cons.some(c => c.type === 'TriggerEvent')    ? '<span class="badge b-chain">CHAIN</span>'     : '',
     cons.some(c => c.type === 'UnlockLocation')  ? '<span class="badge b-unlock">UNLOCK</span>'   : '',
+    evt.required_item ? '<span class="badge b-locked">ITEM REQ</span>'                            : '',
+    evt.min_doom      ? '<span class="badge b-doom">DOOM\u2265' + evt.min_doom + '</span>'        : '',
   ].join('');
 }
 

@@ -6,7 +6,7 @@
 script = ExtResource("1")
 LocationId = "old_library"
 LocationName = "Old Library"
-Description = "Dusty tomes line crumbling shelves. The air smells of decay and forgotten knowledge. Strange whispers echo between the stacks."
+Description = "The library predates the town by at least two centuries, though no one knows who built it or why here. The catalogue system follows a logic that does not correspond to subject, author, or date. Books shelve themselves differently each visit. The deeper stacks have never been fully mapped."
 ImagePath = ""
 EventPool = ["library_forbidden_tome", "library_dusty_mirror", "library_hidden_archive"]
 TurnCost = 1

@@ -6,7 +6,7 @@
 script = ExtResource("1")
 LocationId = "coastal_cliff"
 LocationName = "Coastal Cliff"
-Description = "Jagged rocks overlook a churning black sea. Strange lights pulse beneath the waves. The wind carries inhuman songs."
+Description = "The cliff path ends where the town's founding records begin to contradict themselves. At low tide, structures are visible under the water — too regular for rock, too old for any known settlement. The fishermen stopped coming here eighteen months ago. They won't say why."
 ImagePath = ""
 EventPool = ["cliff_drowned_sailor", "cliff_deep_signal", "cliff_night_watch"]
 TurnCost = 1

@@ -6,4 +6,8 @@
     <Nullable>enable</Nullable>
     <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
   </PropertyGroup>
+  <ItemGroup>
+    <!-- Exclude the standalone C# test project from the Godot build -->
+    <Compile Remove="tests/csharp/**/*.cs" />
+  </ItemGroup>
 </Project>

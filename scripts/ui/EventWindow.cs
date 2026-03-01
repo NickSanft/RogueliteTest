@@ -17,6 +17,7 @@ public partial class EventWindow : Panel
 	private EventManager? _eventManager;
 	private string _currentLocationName = "";
 	private readonly List<int> _visibleOptionIndices = new();
+	private Label? _hintLabel;
 
 	public override void _Ready()
 	{
@@ -27,6 +28,15 @@ public partial class EventWindow : Panel
 
 		_gameManager = GetNode<GameManager>("/root/GameManager");
 		_eventManager = GetNode<EventManager>("/root/EventManager");
+
+		// Insert a dim hint label between the options container and the close button
+		var vbox = _optionsContainer!.GetParent<VBoxContainer>();
+		_hintLabel = new Label();
+		_hintLabel.HorizontalAlignment = HorizontalAlignment.Center;
+		_hintLabel.AddThemeColorOverride("font_color", new Color(0.4f, 0.4f, 0.5f));
+		_hintLabel.AddThemeFontSizeOverride("font_size", 11);
+		vbox.AddChild(_hintLabel);
+		vbox.MoveChild(_hintLabel, _optionsContainer.GetIndex() + 1);
 
 		_closeButton.Pressed += OnClosePressed;
 
@@ -121,6 +131,14 @@ public partial class EventWindow : Panel
 				consequence.Apply(_gameManager);
 		}
 
+		if (_hintLabel != null)
+		{
+			int n = _visibleOptionIndices.Count;
+			_hintLabel.Text = n > 0
+				? $"[1{(n > 1 ? $"–{n}" : "")}] Choose   [ESC] Cancel"
+				: "[ESC] Cancel";
+		}
+
 		WindowManager.Instance?.Push(this);
 		if (WindowManager.Instance == null)
 			Visible = true;
@@ -144,6 +162,7 @@ public partial class EventWindow : Panel
 			{
 				StatCheck.CheckType.FixedThreshold => $"≥{option.StatCheck.Threshold}",
 				StatCheck.CheckType.DiceRoll       => $"d{option.StatCheck.DiceSides}",
+				StatCheck.CheckType.DoomScaled     => $"≥{option.StatCheck.Threshold}+doom",
 				_                                  => ""
 			};
 
@@ -186,6 +205,9 @@ public partial class EventWindow : Panel
 
 		_visibleOptionIndices.Clear();
 		ClearOptions();
+
+		if (_hintLabel != null)
+			_hintLabel.Text = "[SPACE] Continue   [ESC] Close";
 
 		var continueButton = new Button();
 		continueButton.Text = "[SPACE] Continue";

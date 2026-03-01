@@ -7,7 +7,7 @@ using Godot.Collections;
 [GlobalClass]
 public partial class StatCheck : Resource
 {
-    public enum CheckType { FixedThreshold, DiceRoll }
+    public enum CheckType { FixedThreshold, DiceRoll, DoomScaled }
     public enum StatType { Stamina, Reason, Doom }
 
     [Export] public CheckType Type { get; set; } = CheckType.FixedThreshold;
@@ -22,40 +22,29 @@ public partial class StatCheck : Resource
         switch (Type)
         {
             case CheckType.FixedThreshold:
-                return statValue >= Threshold;
+                return GameLogic.EvaluateFixedThreshold(statValue, Threshold);
 
             case CheckType.DiceRoll:
                 int roll = GD.RandRange(1, DiceSides);
-                int bonus = GetDiceBonus(playerStats, statValue);
+                int maxReason = playerStats.ContainsKey("max_reason") ? (int)playerStats["max_reason"] : 10;
+                int doom = playerStats.ContainsKey("doom") ? (int)playerStats["doom"] : 0;
+                string statKey = Stat switch
+                {
+                    StatType.Reason => "reason",
+                    StatType.Doom   => "doom",
+                    _               => "stamina"
+                };
+                int bonus = GameLogic.GetDiceBonus(statKey, statValue, maxReason, doom);
                 return roll + statValue + bonus >= Threshold;
+
+            case CheckType.DoomScaled:
+                // Threshold increases as doom rises: +1 per 20 doom
+                int currentDoom = playerStats.ContainsKey("doom") ? (int)playerStats["doom"] : 0;
+                int scaledThreshold = Threshold + Mathf.FloorToInt(currentDoom / 20f);
+                return GameLogic.EvaluateFixedThreshold(statValue, scaledThreshold);
         }
 
         return false;
-    }
-
-    /// <summary>
-    /// Asymmetric dice bonuses:
-    /// - Reason: when sanity is below half, madness opens perceptual shortcuts (+3).
-    /// - Doom: when doom is high, dark attunement sharpens dread-sense (+2).
-    /// </summary>
-    private int GetDiceBonus(Dictionary playerStats, int statValue)
-    {
-        int bonus = 0;
-
-        if (Stat == StatType.Reason && playerStats.ContainsKey("max_reason"))
-        {
-            int maxReason = (int)playerStats["max_reason"];
-            if (statValue < maxReason / 2)
-                bonus += 3; // Madness insight
-        }
-
-        if (Stat == StatType.Doom && playerStats.ContainsKey("doom"))
-        {
-            if (statValue > 50)
-                bonus += 2; // Dark attunement
-        }
-
-        return bonus;
     }
 
     private int GetStatValue(Dictionary playerStats)

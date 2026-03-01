@@ -1,6 +1,7 @@
 ﻿using Godot;
 using Godot.Collections;
 using System.Collections.Generic;
+using System.Linq;
 
 /// <summary>
 /// Represents a location the player can visit
@@ -17,6 +18,12 @@ public partial class LocationResource : Resource
     /// Pool of event IDs that can trigger at this location
     /// </summary>
     [Export] public Array<string> EventPool { get; set; } = new();
+
+    /// <summary>
+    /// Optional per-event weights, parallel to EventPool. Leave empty for uniform probability.
+    /// A value of 2.0 makes that event twice as likely as one with weight 1.0.
+    /// </summary>
+    [Export] public Array<float> EventWeights { get; set; } = new();
     
     /// <summary>
     /// Cost in turns to investigate this location
@@ -35,23 +42,47 @@ public partial class LocationResource : Resource
 
     /// <summary>
     /// Get a random event from this location's pool, preferring unseen events.
-    /// Falls back to the full pool if all events have been seen.
+    /// Optional filter removes events that don't meet preconditions (item/doom requirements).
+    /// Falls back to the unfiltered pool if all eligible events have been seen.
+    /// Respects EventWeights when set.
     /// </summary>
-    public string? GetRandomEvent(HashSet<string>? seen = null)
+    public string? GetRandomEvent(HashSet<string>? seen = null, System.Func<string, bool>? filter = null)
     {
         if (EventPool.Count == 0)
             return null;
 
+        // Apply precondition filter; fall back to full pool if everything is filtered out
+        var eligible = filter != null
+            ? EventPool.Where(filter).ToList()
+            : EventPool.ToList();
+        if (eligible.Count == 0)
+            eligible = EventPool.ToList();
+
+        // Prefer unseen events
         if (seen != null)
         {
-            var unseen = new System.Collections.Generic.List<string>();
-            foreach (var id in EventPool)
-                if (!seen.Contains(id)) unseen.Add(id);
-
+            var unseen = eligible.Where(id => !seen.Contains(id)).ToList();
             if (unseen.Count > 0)
-                return unseen[GD.RandRange(0, unseen.Count - 1)];
+                return PickWeighted(unseen);
         }
 
-        return EventPool[GD.RandRange(0, EventPool.Count - 1)];
+        return PickWeighted(eligible);
+    }
+
+    private string PickWeighted(List<string> ids)
+    {
+        bool hasWeights = EventWeights.Count == EventPool.Count;
+        if (!hasWeights)
+            return ids[GD.RandRange(0, ids.Count - 1)];
+
+        // Build a weight list parallel to ids, looking up each id's weight by its pool index
+        var weights = ids.Select(id =>
+        {
+            int idx = EventPool.IndexOf(id);
+            return idx >= 0 ? EventWeights[idx] : 1f;
+        }).ToArray();
+
+        int chosen = GameLogic.WeightedRandom(weights, GD.RandRange(0.0, 1.0));
+        return ids[chosen];
     }
 }

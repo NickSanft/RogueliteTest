@@ -133,10 +133,21 @@ public partial class Main : Node2D
 		_gameManager!.LastLocationName = location.LocationName;
 		_gameManager!.CurrentTurn += location.TurnCost;
 		_hud?.UpdateTurn(_gameManager.CurrentTurn);
-		_gameManager.ModifyStat("doom", location.TurnCost * 2);
+		// Doom = location cost + passive pressure per turn elapsed
+		_gameManager.ModifyStat("doom", location.TurnCost * (2 + GameManager.PassiveDoomPerTurn));
 		ApplyLocationEffect(location.LocationId);
 
-		string? eventId = location.GetRandomEvent(_gameManager.SeenEvents);
+		// Filter events by precondition (RequiredItem, MinDoom on EventResource)
+		string? eventId = location.GetRandomEvent(
+			_gameManager.SeenEvents,
+			id =>
+			{
+				var ev = _eventManager?.LoadEventById(id);
+				if (ev == null) return true;
+				if (!string.IsNullOrEmpty(ev.RequiredItem) && !_gameManager.Inventory.Contains(ev.RequiredItem)) return false;
+				if (ev.MinDoom > 0 && _gameManager.Doom < ev.MinDoom) return false;
+				return true;
+			});
 		if (eventId != null)
 			_gameManager.MarkEventSeen(eventId);
 

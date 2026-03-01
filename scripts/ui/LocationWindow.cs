@@ -46,8 +46,9 @@ public partial class LocationWindow : Panel
 		foreach (var location in sorted)
 		{
 			string seenIndicator = BuildSeenIndicator(location);
+			int totalDoom = location.TurnCost * (2 + GameManager.PassiveDoomPerTurn);
 			var button = new Button();
-			button.Text = $"{location.LocationName}{seenIndicator} ({location.TurnCost} turn{(location.TurnCost > 1 ? "s" : "")}, +{location.TurnCost * 2} doom)";
+			button.Text = $"{location.LocationName}{seenIndicator} ({location.TurnCost} turn{(location.TurnCost > 1 ? "s" : "")}, +{totalDoom} doom)";
 			button.ToggleMode = true;
 			button.ButtonGroup = _buttonGroup;
 			button.SizeFlagsHorizontal = SizeFlags.Fill;
@@ -74,7 +75,8 @@ public partial class LocationWindow : Panel
 		if (_gameManager == null || location.EventPool.Count == 0)
 			return "";
 		int seen = location.EventPool.Count(id => _gameManager.SeenEvents.Contains(id));
-		return $" [{seen}/{location.EventPool.Count}]";
+		int total = location.EventPool.Count;
+		return seen >= total ? " [ALL]" : $" [{seen}/{total}]";
 	}
 
 	private void OnLocationSelected(LocationResource location)
@@ -88,7 +90,10 @@ public partial class LocationWindow : Panel
 			_locationDescription.Text = location.Description;
 
 		if (_investigateButton != null)
-			_investigateButton.Text = $"Investigate ({location.TurnCost} turn{(location.TurnCost > 1 ? "s" : "")}, +{location.TurnCost * 2} doom)";
+		{
+			int totalDoom = location.TurnCost * (2 + GameManager.PassiveDoomPerTurn);
+			_investigateButton.Text = $"Investigate ({location.TurnCost} turn{(location.TurnCost > 1 ? "s" : "")}, +{totalDoom} doom)";
+		}
 
 		if (_locationImage != null)
 		{

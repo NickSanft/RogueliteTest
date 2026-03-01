@@ -1,5 +1,6 @@
 using Godot;
 using Godot.Collections;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using GodotDictionary = Godot.Collections.Dictionary;
@@ -10,6 +11,9 @@ using GodotDictionary = Godot.Collections.Dictionary;
 /// </summary>
 public partial class GameManager : Node
 {
+	/// <summary>Extra doom applied per turn elapsed, on top of location doom cost.</summary>
+	public const int PassiveDoomPerTurn = 1;
+
 	// Player stats
 	public int Stamina { get; set; } = 10;
 	public int Reason { get; set; } = 10;
@@ -66,7 +70,7 @@ public partial class GameManager : Node
 	{
 		int oldValue = GetStatValue(statName);
 		int maxValue = GetMaxStatValue(statName);
-		int newValue = Mathf.Clamp(oldValue + amount, 0, maxValue);
+		int newValue = GameLogic.ClampStat(oldValue, amount, maxValue);
 
 		SetStatValue(statName, newValue);
 		EmitSignal(SignalName.StatChanged, statName, oldValue, newValue);
@@ -77,6 +81,26 @@ public partial class GameManager : Node
 			EmitSignal(SignalName.GameOver, "You collapsed from exhaustion.");
 		else if (statName == "reason" && newValue <= 0)
 			EmitSignal(SignalName.GameOver, "Your mind shattered.");
+	}
+
+	/// <summary>
+	/// Permanently increases MaxStamina or MaxReason, then clamps current value to new max.
+	/// Negative amounts reduce the cap (minimum 1).
+	/// </summary>
+	public void ModifyMaxStat(string statName, int amount)
+	{
+		switch (statName.ToLower())
+		{
+			case "stamina":
+				MaxStamina = Math.Max(1, MaxStamina + amount);
+				Stamina    = Math.Min(Stamina, MaxStamina);
+				break;
+			case "reason":
+				MaxReason = Math.Max(1, MaxReason + amount);
+				Reason    = Math.Min(Reason, MaxReason);
+				break;
+		}
+		SaveGame();
 	}
 
 	/// <summary>
@@ -242,8 +266,8 @@ public partial class GameManager : Node
 	{
 		var parts = new List<string>
 		{
-			$"Turns: {CurrentTurn}",
-			$"Stamina: {Stamina}/{MaxStamina}   Reason: {Reason}/{MaxReason}   Doom: {Doom}/100",
+			$"Run #{TotalRuns + 1}",
+			$"Turns: {CurrentTurn}   Stamina: {Stamina}/{MaxStamina}   Reason: {Reason}/{MaxReason}   Doom: {Doom}/100",
 			$"Events witnessed: {SeenEvents.Count}"
 		};
 
@@ -256,9 +280,12 @@ public partial class GameManager : Node
 		}
 
 		int totalMysteries = _loadedMysteries.Count;
-		int solved = totalMysteries - ActiveMysteries.Count;
+		int solvedThisRun = totalMysteries - ActiveMysteries.Count;
 		if (totalMysteries > 0)
-			parts.Add($"Mysteries: {solved}/{totalMysteries}");
+			parts.Add($"Mysteries solved: {solvedThisRun}/{totalMysteries}");
+
+		if (MysteriesTotalSolved > 0)
+			parts.Add($"Total mysteries across all runs: {MysteriesTotalSolved}");
 
 		return string.Join("\n", parts);
 	}
@@ -303,6 +330,8 @@ public partial class GameManager : Node
 		config.SetValue("stats", "stamina",       Stamina);
 		config.SetValue("stats", "reason",        Reason);
 		config.SetValue("stats", "doom",          Doom);
+		config.SetValue("stats", "max_stamina",   MaxStamina);
+		config.SetValue("stats", "max_reason",    MaxReason);
 		config.SetValue("stats", "current_turn",  CurrentTurn);
 
 		config.SetValue("run", "last_location", LastLocationName);
@@ -331,10 +360,12 @@ public partial class GameManager : Node
 		if (config.Load(SavePath) != Error.Ok)
 			return false;
 
-		Stamina          = (int)config.GetValue("stats", "stamina",      (Variant)MaxStamina);
-		Reason           = (int)config.GetValue("stats", "reason",       (Variant)MaxReason);
-		Doom             = (int)config.GetValue("stats", "doom",         (Variant)0);
-		CurrentTurn      = (int)config.GetValue("stats", "current_turn", (Variant)1);
+		MaxStamina       = (int)config.GetValue("stats", "max_stamina",   (Variant)10);
+		MaxReason        = (int)config.GetValue("stats", "max_reason",    (Variant)10);
+		Stamina          = (int)config.GetValue("stats", "stamina",       (Variant)MaxStamina);
+		Reason           = (int)config.GetValue("stats", "reason",        (Variant)MaxReason);
+		Doom             = (int)config.GetValue("stats", "doom",          (Variant)0);
+		CurrentTurn      = (int)config.GetValue("stats", "current_turn",  (Variant)1);
 		LastLocationName = (string)config.GetValue("run",   "last_location", (Variant)"Town Square");
 
 		Inventory.Clear();

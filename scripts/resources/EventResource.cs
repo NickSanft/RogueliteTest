@@ -13,6 +13,12 @@ public partial class EventResource : Resource
 	[Export] public Array<EventOption> Options { get; set; } = new();
 	[Export] public Array<EventConsequence> AutoConsequences { get; set; } = new();
 
+	/// <summary>Item the player must hold for this event to appear in a location pool.</summary>
+	[Export] public string RequiredItem { get; set; } = "";
+
+	/// <summary>Minimum doom level for this event to appear in a location pool. 0 = always eligible.</summary>
+	[Export] public int MinDoom { get; set; } = 0;
+
 	public EventOption? GetOption(int index)
 	{
 		if (index >= 0 && index < Options.Count)

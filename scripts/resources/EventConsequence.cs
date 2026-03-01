@@ -6,7 +6,7 @@ using Godot;
 [GlobalClass]
 public partial class EventConsequence : Resource
 {
-	public enum ConsequenceType { StatChange, ItemGain, TriggerEvent, AdvanceMystery, UnlockLocation }
+	public enum ConsequenceType { StatChange, ItemGain, TriggerEvent, AdvanceMystery, UnlockLocation, ModifyMax }
 
 	[Export] public ConsequenceType Type { get; set; } = ConsequenceType.StatChange;
 	[Export] public string StatName { get; set; } = "stamina";
@@ -48,6 +48,10 @@ public partial class EventConsequence : Resource
 			case ConsequenceType.UnlockLocation:
 				if (!string.IsNullOrEmpty(LocationIdToUnlock))
 					gameManager.UnlockLocation(LocationIdToUnlock);
+				break;
+
+			case ConsequenceType.ModifyMax:
+				gameManager.ModifyMaxStat(StatName, Value);
 				break;
 		}
 	}
