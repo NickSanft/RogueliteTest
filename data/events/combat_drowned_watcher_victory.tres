@@ -1,0 +1,23 @@
+[gd_resource type="Resource" script_class="EventResource" format=3]
+
+[ext_resource type="Script" uid="uid://bwoliaoytwc7e" path="res://scripts/resources/EventResource.cs" id="1"]
+[ext_resource type="Script" uid="uid://2wwbq38npbrd" path="res://scripts/resources/EventOption.cs" id="2"]
+[ext_resource type="Script" uid="uid://ln4cmwg8ep8" path="res://scripts/resources/EventConsequence.cs" id="4"]
+
+[sub_resource type="Resource" id="con_stamina"]
+script = ExtResource("4")
+StatName = "stamina"
+Value = 1
+
+[sub_resource type="Resource" id="opt_continue"]
+script = ExtResource("2")
+OptionText = "Catch your breath."
+Consequences = Array[ExtResource("4")]([SubResource("con_stamina")])
+SuccessText = "The silence settles. You take stock of what just happened — and what it means that something like that existed at all. Your wounds are minor. Something in you is harder now."
+FailureText = "The silence settles. You take stock of what just happened — and what it means that something like that existed at all. Your wounds are minor. Something in you is harder now."
+
+[resource]
+script = ExtResource("1")
+EventId = "combat_drowned_watcher_victory"
+EventText = "The Drowned Watcher collapses into the shallow water. A foul smell rises from where it fell, and then it is gone — absorbed back into the dark. You stand in the sudden quiet, breathing hard, the sea unconcerned."
+Options = Array[ExtResource("2")]([SubResource("opt_continue")])

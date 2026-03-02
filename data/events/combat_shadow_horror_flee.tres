@@ -1,0 +1,23 @@
+[gd_resource type="Resource" script_class="EventResource" format=3]
+
+[ext_resource type="Script" uid="uid://bwoliaoytwc7e" path="res://scripts/resources/EventResource.cs" id="1"]
+[ext_resource type="Script" uid="uid://2wwbq38npbrd" path="res://scripts/resources/EventOption.cs" id="2"]
+[ext_resource type="Script" uid="uid://ln4cmwg8ep8" path="res://scripts/resources/EventConsequence.cs" id="4"]
+
+[sub_resource type="Resource" id="con_reason"]
+script = ExtResource("4")
+StatName = "reason"
+Value = -1
+
+[sub_resource type="Resource" id="opt_continue"]
+script = ExtResource("2")
+OptionText = "Try to clear your head."
+Consequences = Array[ExtResource("4")]([SubResource("con_reason")])
+SuccessText = "The horror follows, not in body but in memory. You find yourself checking corners for the rest of the day."
+FailureText = "The horror follows, not in body but in memory. You find yourself checking corners for the rest of the day."
+
+[resource]
+script = ExtResource("1")
+EventId = "combat_shadow_horror_flee"
+EventText = "You put distance between yourself and the darkness. It does not pursue — not physically. But something of it clings to you, a residue of wrongness that dulls the edges of your thoughts."
+Options = Array[ExtResource("2")]([SubResource("opt_continue")])

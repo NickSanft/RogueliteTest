@@ -1,0 +1,23 @@
+[gd_resource type="Resource" script_class="EventResource" format=3]
+
+[ext_resource type="Script" uid="uid://bwoliaoytwc7e" path="res://scripts/resources/EventResource.cs" id="1"]
+[ext_resource type="Script" uid="uid://2wwbq38npbrd" path="res://scripts/resources/EventOption.cs" id="2"]
+[ext_resource type="Script" uid="uid://ln4cmwg8ep8" path="res://scripts/resources/EventConsequence.cs" id="4"]
+
+[sub_resource type="Resource" id="con_mystery"]
+script = ExtResource("4")
+Type = 3
+MysteryProgress = 1
+
+[sub_resource type="Resource" id="opt_continue"]
+script = ExtResource("2")
+OptionText = "Examine what it left behind."
+Consequences = Array[ExtResource("4")]([SubResource("con_mystery")])
+SuccessText = "Something remains where the shadow stood — a residue of knowledge, unasked-for. You understand a little more about what moves in these places. It costs you something, but it is yours."
+FailureText = "Something remains where the shadow stood — a residue of knowledge, unasked-for. You understand a little more about what moves in these places. It costs you something, but it is yours."
+
+[resource]
+script = ExtResource("1")
+EventId = "combat_shadow_horror_victory"
+EventText = "The shadow convulses, contracts, and is gone. The light in the room reasserts itself, tentatively. You are still here. You are still you — mostly."
+Options = Array[ExtResource("2")]([SubResource("opt_continue")])

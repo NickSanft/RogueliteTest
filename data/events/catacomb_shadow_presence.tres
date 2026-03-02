@@ -1,0 +1,35 @@
+[gd_resource type="Resource" script_class="EventResource" format=3]
+
+[ext_resource type="Script" uid="uid://bwoliaoytwc7e" path="res://scripts/resources/EventResource.cs" id="1"]
+[ext_resource type="Script" uid="uid://2wwbq38npbrd" path="res://scripts/resources/EventOption.cs" id="2"]
+[ext_resource type="Script" uid="uid://ln4cmwg8ep8" path="res://scripts/resources/EventConsequence.cs" id="4"]
+
+[sub_resource type="Resource" id="con_trigger_combat"]
+script = ExtResource("4")
+Type = 2
+NextEventId = "combat_shadow_horror"
+
+[sub_resource type="Resource" id="con_stamina"]
+script = ExtResource("4")
+StatName = "stamina"
+Value = -2
+
+[sub_resource type="Resource" id="opt_stand_ground"]
+script = ExtResource("2")
+OptionText = "Stand your ground"
+Consequences = Array[ExtResource("4")]([SubResource("con_trigger_combat")])
+SuccessText = "You hold your position. Whatever this thing is, you will not let it drive you out."
+FailureText = "You hold your position. Whatever this thing is, you will not let it drive you out."
+
+[sub_resource type="Resource" id="opt_retreat"]
+script = ExtResource("2")
+OptionText = "Retreat"
+Consequences = Array[ExtResource("4")]([SubResource("con_stamina")])
+SuccessText = "You back out of the passage. The darkness follows until the light reaches it, then stops. You are bruised and shaking."
+FailureText = "You back out of the passage. The darkness follows until the light reaches it, then stops. You are bruised and shaking."
+
+[resource]
+script = ExtResource("1")
+EventId = "catacomb_shadow_presence"
+EventText = "The darkness in the far passage moves. Not like shadow moves with light — independently, with intention. It detaches from the wall and drifts toward you. The cold that precedes it is absolute."
+Options = Array[ExtResource("2")]([SubResource("opt_stand_ground"), SubResource("opt_retreat")])

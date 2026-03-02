@@ -1,0 +1,15 @@
+[gd_resource type="Resource" script_class="EnemyResource" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/resources/EnemyResource.cs" id="1"]
+
+[resource]
+script = ExtResource("1")
+EnemyId = "drowned_watcher"
+EnemyName = "Drowned Watcher"
+MaxHp = 12
+AttackDamage = 2
+SanityDamage = 1
+DoomPerRound = 2
+VictoryEventId = "combat_drowned_watcher_victory"
+FleeEventId = "combat_drowned_watcher_flee"
+Description = "A waterlogged shape hauls itself from the depths. Its eyes are open but full of seawater. It moves without urgency."

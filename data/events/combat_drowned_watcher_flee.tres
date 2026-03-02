@@ -1,0 +1,23 @@
+[gd_resource type="Resource" script_class="EventResource" format=3]
+
+[ext_resource type="Script" uid="uid://bwoliaoytwc7e" path="res://scripts/resources/EventResource.cs" id="1"]
+[ext_resource type="Script" uid="uid://2wwbq38npbrd" path="res://scripts/resources/EventOption.cs" id="2"]
+[ext_resource type="Script" uid="uid://ln4cmwg8ep8" path="res://scripts/resources/EventConsequence.cs" id="4"]
+
+[sub_resource type="Resource" id="con_doom"]
+script = ExtResource("4")
+StatName = "doom"
+Value = -5
+
+[sub_resource type="Resource" id="opt_continue"]
+script = ExtResource("2")
+OptionText = "Keep moving."
+Consequences = Array[ExtResource("4")]([SubResource("con_doom")])
+SuccessText = "Distance brings clarity, if not comfort. Whatever it wanted with you remains unknown."
+FailureText = "Distance brings clarity, if not comfort. Whatever it wanted with you remains unknown."
+
+[resource]
+script = ExtResource("1")
+EventId = "combat_drowned_watcher_flee"
+EventText = "You put the cliffs behind you, moving fast, not looking back. The sound of the surf fades. The memory of that face — the almost-face — does not."
+Options = Array[ExtResource("2")]([SubResource("opt_continue")])

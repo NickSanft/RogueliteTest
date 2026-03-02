@@ -1,0 +1,15 @@
+[gd_resource type="Resource" script_class="EnemyResource" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/resources/EnemyResource.cs" id="1"]
+
+[resource]
+script = ExtResource("1")
+EnemyId = "shadow_horror"
+EnemyName = "Shadow Horror"
+MaxHp = 8
+AttackDamage = 1
+SanityDamage = 3
+DoomPerRound = 3
+VictoryEventId = "combat_shadow_horror_victory"
+FleeEventId = "combat_shadow_horror_flee"
+Description = "A formless darkness that feasts on reason itself. Looking at it directly costs something you cannot name."

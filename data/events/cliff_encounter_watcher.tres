@@ -1,0 +1,35 @@
+[gd_resource type="Resource" script_class="EventResource" format=3]
+
+[ext_resource type="Script" uid="uid://bwoliaoytwc7e" path="res://scripts/resources/EventResource.cs" id="1"]
+[ext_resource type="Script" uid="uid://2wwbq38npbrd" path="res://scripts/resources/EventOption.cs" id="2"]
+[ext_resource type="Script" uid="uid://ln4cmwg8ep8" path="res://scripts/resources/EventConsequence.cs" id="4"]
+
+[sub_resource type="Resource" id="con_trigger_combat"]
+script = ExtResource("4")
+Type = 2
+NextEventId = "combat_drowned_watcher"
+
+[sub_resource type="Resource" id="con_doom_reduce"]
+script = ExtResource("4")
+StatName = "doom"
+Value = -1
+
+[sub_resource type="Resource" id="opt_confront"]
+script = ExtResource("2")
+OptionText = "Confront it"
+Consequences = Array[ExtResource("4")]([SubResource("con_trigger_combat")])
+SuccessText = "You step forward to face it. Whatever this is, it deserves a reckoning."
+FailureText = "You step forward to face it. Whatever this is, it deserves a reckoning."
+
+[sub_resource type="Resource" id="opt_back_away"]
+script = ExtResource("2")
+OptionText = "Back away"
+Consequences = Array[ExtResource("4")]([SubResource("con_doom_reduce")])
+SuccessText = "You retreat quietly. The shape watches you leave with something that might be patience."
+FailureText = "You retreat quietly. The shape watches you leave with something that might be patience."
+
+[resource]
+script = ExtResource("1")
+EventId = "cliff_encounter_watcher"
+EventText = "Something stirs in the shallows below the cliff. A shape rises from the water — too large, too deliberate, moving with the certainty of something that has done this before. It has noticed you."
+Options = Array[ExtResource("2")]([SubResource("opt_confront"), SubResource("opt_back_away")])

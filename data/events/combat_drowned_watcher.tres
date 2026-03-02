@@ -1,0 +1,10 @@
+[gd_resource type="Resource" script_class="EventResource" load_steps=2 format=3]
+
+[ext_resource type="Script" uid="uid://bwoliaoytwc7e" path="res://scripts/resources/EventResource.cs" id="1"]
+
+[resource]
+script = ExtResource("1")
+EventId = "combat_drowned_watcher"
+EventText = ""
+IsCombatEvent = true
+EnemyId = "drowned_watcher"
