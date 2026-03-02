@@ -7,6 +7,8 @@ using System.Collections.Generic;
 /// </summary>
 public partial class EventWindow : Panel
 {
+	/// <summary>Emitted when the event queue yields a combat event instead of a normal one.</summary>
+	[Signal] public delegate void CombatRequestedEventHandler(string enemyId);
 	private RichTextLabel? _eventText;
 	private TextureRect? _eventImage;
 	private VBoxContainer? _optionsContainer;
@@ -236,10 +238,11 @@ public partial class EventWindow : Panel
 	}
 
 	/// <summary>
-	/// If consequences queued a follow-up event, show it after a frame
-	/// so the current close animation finishes first.
+	/// If consequences queued a follow-up event, show it.
+	/// Combat events are routed via CombatRequested instead of being shown here.
+	/// Called automatically when the window hides, or explicitly by Main after combat ends.
 	/// </summary>
-	private void ProcessEventQueue()
+	public void ProcessEventQueue()
 	{
 		if (_gameManager == null || _eventManager == null) return;
 
@@ -258,8 +261,15 @@ public partial class EventWindow : Panel
 		_gameManager.EventQueue.RemoveAt(0);
 
 		var ev = _eventManager.LoadEventById(nextId);
-		if (ev != null)
-			CallDeferred("ShowEvent", ev);
+		if (ev == null) return;
+
+		if (ev.IsCombatEvent)
+		{
+			EmitSignal(SignalName.CombatRequested, ev.EnemyId);
+			return;
+		}
+
+		CallDeferred("ShowEvent", ev);
 	}
 
 	private static void ApplyButtonTextStyle(Button button)

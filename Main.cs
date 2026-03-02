@@ -9,6 +9,7 @@ public partial class Main : Node2D
 	private HUD? _hud;
 	private GameManager? _gameManager;
 	private EventManager? _eventManager;
+	private CombatWindow? _combatWindow;
 
 	private List<LocationResource> _availableLocations = new();
 
@@ -61,6 +62,15 @@ public partial class Main : Node2D
 		_locationWindow.LocationInvestigated += OnLocationInvestigated;
 		uiLayer.AddChild(_locationWindow);
 
+		var combatWindowScene = GD.Load<PackedScene>("res://scenes/ui/CombatWindow.tscn");
+		if (combatWindowScene == null)
+		{
+			GD.PrintErr("Failed to load CombatWindow.tscn!");
+			return;
+		}
+		_combatWindow = combatWindowScene.Instantiate<CombatWindow>();
+		uiLayer.AddChild(_combatWindow);
+
 		var hudScene = GD.Load<PackedScene>("res://scenes/ui/HUD.tscn");
 		if (hudScene != null)
 		{
@@ -68,6 +78,8 @@ public partial class Main : Node2D
 			AddChild(_hud);
 		}
 
+		_eventWindow.CombatRequested     += OnCombatRequested;
+		_combatWindow.CombatEnded        += OnCombatEnded;
 		_gameManager.StatChanged         += OnStatChanged;
 		_gameManager.GameOver            += OnGameOver;
 		_gameManager.MysteryCompleted    += OnMysteryCompleted;
@@ -279,6 +291,27 @@ public partial class Main : Node2D
 			_locationMaterials[locationId] = new ShaderMaterial { Shader = shader };
 
 		GD.Print($"Location unlocked: {location.LocationName}");
+	}
+
+	// ── Combat signal handlers ───────────────────────────────────────────────
+
+	private void OnCombatRequested(string enemyId)
+	{
+		var enemy = GD.Load<EnemyResource>($"res://data/enemies/{enemyId}.tres");
+		if (enemy == null)
+		{
+			GD.PrintErr($"OnCombatRequested: could not load enemy '{enemyId}'");
+			return;
+		}
+		_gameManager?.StartCombatState(enemy);
+		_combatWindow?.StartCombat(enemy);
+		_windowManager?.Push(_combatWindow!);
+	}
+
+	private void OnCombatEnded(string outcome)
+	{
+		// Victory/flee event was already queued by CombatWindow — drain it now
+		_eventWindow?.ProcessEventQueue();
 	}
 
 	// ── End screen (game-over / win) ─────────────────────────────────────────

@@ -35,6 +35,12 @@ public partial class GameManager : Node
 	public int TotalRuns { get; private set; } = 0;
 	public int MysteriesTotalSolved { get; private set; } = 0;
 
+	// Combat state
+	public int CurrentEnemyHp { get; set; } = 0;
+	public int CurrentEnemyMaxHp { get; set; } = 0;
+	public string CurrentEnemyId { get; set; } = "";
+	public bool IsEnemyDefeated => CurrentEnemyHp <= 0 && CurrentEnemyMaxHp > 0;
+
 	// Signals
 	[Signal] public delegate void StatChangedEventHandler(string statName, int oldValue, int newValue);
 	[Signal] public delegate void GameOverEventHandler(string reason);
@@ -43,6 +49,9 @@ public partial class GameManager : Node
 	[Signal] public delegate void RunWonEventHandler(string winText);
 	[Signal] public delegate void LocationUnlockedEventHandler(string locationId);
 	[Signal] public delegate void ItemGainedEventHandler(string itemId);
+	[Signal] public delegate void CombatStartedEventHandler(string enemyId);
+	[Signal] public delegate void CombatEndedEventHandler(string outcome);
+	[Signal] public delegate void EnemyHpChangedEventHandler(int oldHp, int newHp, int maxHp);
 
 	private const string SavePath = "user://roguelite_save.cfg";
 	private const string MetaSavePath = "user://roguelite_meta.cfg";
@@ -175,6 +184,23 @@ public partial class GameManager : Node
 	public void QueueEventResource(EventResource ev)
 	{
 		EventResourceQueue.Add(ev);
+	}
+
+	// ── Combat state ─────────────────────────────────────────────────────────
+
+	public void StartCombatState(EnemyResource enemy)
+	{
+		CurrentEnemyId   = enemy.EnemyId;
+		CurrentEnemyMaxHp = enemy.MaxHp;
+		CurrentEnemyHp   = enemy.MaxHp;
+		EmitSignal(SignalName.CombatStarted, enemy.EnemyId);
+	}
+
+	public void DamageEnemy(int amount)
+	{
+		int oldHp = CurrentEnemyHp;
+		CurrentEnemyHp = Math.Max(0, CurrentEnemyHp - amount);
+		EmitSignal(SignalName.EnemyHpChanged, oldHp, CurrentEnemyHp, CurrentEnemyMaxHp);
 	}
 
 	// ── Location unlocking ───────────────────────────────────────────────────

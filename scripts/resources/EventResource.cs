@@ -19,6 +19,12 @@ public partial class EventResource : Resource
 	/// <summary>Minimum doom level for this event to appear in a location pool. 0 = always eligible.</summary>
 	[Export] public int MinDoom { get; set; } = 0;
 
+	/// <summary>If true, this event triggers a combat encounter rather than showing in the EventWindow.</summary>
+	[Export] public bool IsCombatEvent { get; set; } = false;
+
+	/// <summary>Enemy ID to load from res://data/enemies/ when IsCombatEvent is true.</summary>
+	[Export] public string EnemyId { get; set; } = "";
+
 	public EventOption? GetOption(int index)
 	{
 		if (index >= 0 && index < Options.Count)
